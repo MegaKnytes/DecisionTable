@@ -15,12 +15,12 @@ public class InternalVariableDriver implements DTPDriver {
     }
 
     @Override
-    public void set(Map<String, Object> values) {
-        internal = values;
+    public void set(String param, Object value) {
+        internal.put(param, value);
     }
 
     @Override
-    public Map<String, Object> get(List<String> values) {
-        return internal;
+    public Object get(String value) {
+        return internal.get(value);
     }
 }

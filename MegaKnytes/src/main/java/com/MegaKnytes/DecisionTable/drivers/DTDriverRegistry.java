@@ -24,10 +24,12 @@ public class DTDriverRegistry {
             "com.sun",
             "com.vuforia",
             "com.google",
-            "kotlin"
+            "kotlin",
+            "com.qualcomm",
+            "com.journeyapps"
     ));
 
-    public static HashMap<String, Class<? extends DTPDriver>> getClassesWithInstanceOf(Context context, Class<? extends DTPDriver> classObject) {
+    public static HashMap<String, Class<? extends DTPDriver>> getClassesWithInstanceOf(Context context) {
         HashMap<String, Class<? extends DTPDriver>> driverClasses = new HashMap<>();
 
         try {
@@ -48,7 +50,7 @@ public class DTDriverRegistry {
                     Class<?> configClass = Class.forName(className, false, DTProcessor.class.getClassLoader());
                     if (Arrays.asList(configClass.getInterfaces()).contains(DTPDriver.class)) {
                         //TODO: Fix Unchecked Cast - Working for now
-                        Class<? extends DTPDriver> driverClass = (Class<? extends DTPDriver>) configClass;
+                        Class<? extends DTPDriver> driverClass = configClass.asSubclass(DTPDriver.class);
                         driverClasses.put(configClass.getSimpleName(), driverClass);
                     }
                 } catch (ClassNotFoundException | NoClassDefFoundError ignored) {

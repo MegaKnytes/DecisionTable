@@ -7,6 +7,6 @@ import java.util.Map;
 
 public interface DTPDriver {
     void setup(OpMode opMode, String deviceName, Map<String, Object> deviceOptions);
-    void set(Map<String, Object> values);
-    Map<String, Object> get(List<String> values);
+    void set(String param, Object value);
+    Object get(String value);
 }

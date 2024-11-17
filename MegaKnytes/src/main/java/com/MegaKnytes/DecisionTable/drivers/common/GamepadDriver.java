@@ -15,47 +15,35 @@ public class GamepadDriver implements DTPDriver {
 
     @Override
     public void setup(OpMode opMode, String deviceName, Map<String, Object> deviceOptions) {
-        Object hardwareMap = deviceOptions.getOrDefault("HardwareMap", "");
-        assert hardwareMap != null;
-        if (hardwareMap.equals("Gamepad1")) {
+        Object gamepadSelect = Objects.requireNonNull(deviceOptions.getOrDefault("Gamepad", "Gamepad1"));
+        if (gamepadSelect.equals("Gamepad1")) {
             gamepad = opMode.gamepad1;
-        } else if (hardwareMap.equals("Gamepad2")) {
+        } else if (gamepadSelect.equals("Gamepad2")) {
             gamepad = opMode.gamepad2;
         } else {
-            throw new ConfigurationException("Gamepads should have a HardwareMap value of Gamepad1 or Gamepad2. Please check your configuration");
+            throw new ConfigurationException("Gamepads should have a Gamepad value of Gamepad1 or Gamepad2. Please check your configuration");
         }
     }
 
     @Override
-    public void set(Map<String, Object> values) {
-        // Nothing to see here...
+    public void set(String param, Object value) {
+        // No settable parameters
     }
 
     @Override
-    public Map<String, Object> get(List<String> values) {
-        Map<String, Object> response = new HashMap<>();
-
-        for (String value : values) {
-            switch (value.toUpperCase()) {
-                case "A":
-                    response.put("A", gamepad.a);
-                    break;
-                case "B":
-                    response.put("B", gamepad.b);
-                    break;
-                case "X":
-                    response.put("X", gamepad.x);
-                    break;
-                case "Y":
-                    response.put("Y", gamepad.y);
-                    break;
-                    //TODO: Finish this...
-                default:
-                    // Handle unknown values if necessary
-                    break;
-            }
+    public Object get(String value) {
+        switch (value.toUpperCase()) {
+            case "A":
+                return gamepad.a;
+            case "B":
+                return gamepad.b;
+            case "X":
+                return gamepad.x;
+            case "Y":
+                return gamepad.y;
+                //TODO: Finish this...
+            default:
+                return null;
         }
-
-        return response;
     }
 }

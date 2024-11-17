@@ -38,25 +38,16 @@ public class DistanceSensorDriver implements DTPDriver {
 
 
     @Override
-    public void set(Map<String, Object> values) {
-        // Nothing to see here
+    public void set(String param, Object value) {
+        // No settable parameters
     }
 
     @Override
-    public Map<String, Object> get(List<String> values) {
-        Map<String, Object> response = new HashMap<>();
-
-        for (String value : values) {
-            switch (value.toUpperCase()) {
-                case "DISTANCE":
-                    response.put("DISTANCE", sensor.getDistance(unit));
-                    break;
-                default:
-                    // Handle unknown values if necessary
-                    break;
-            }
+    public Object get(String value) {
+        if (value.toUpperCase().equals("DISTANCE")) {
+            return sensor.getDistance(unit);
+        } else {
+            return null;
         }
-
-        return response;
     }
 }
