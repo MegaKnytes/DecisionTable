@@ -120,15 +120,6 @@ public class DTProcessor {
         }
     }
 
-    public File getFileFromWebServer(String fileName) {
-        File file = opMode.hardwareMap.appContext.getFileStreamPath(fileName);
-        if (file.exists()) {
-            return file;
-        } else {
-            throw new RuntimeException("File " + fileName + " not found in app context.");
-        }
-    }
-
     public File getFileFromAssetFolder(String fileName){
         try {
             InputStream inputStream = opMode.hardwareMap.appContext.getAssets().open(fileName);
