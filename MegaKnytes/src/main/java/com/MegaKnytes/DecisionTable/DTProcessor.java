@@ -16,8 +16,10 @@ import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Objects;
 import java.util.logging.Logger;
 
@@ -26,18 +28,21 @@ import javax.xml.parsers.DocumentBuilderFactory;
 
 public class DTProcessor {
     private HashMap<String, Class<? extends DTPDriver>> driverClassList;
-    private HashMap<String, HashMap<DTPDriver, HashMap<String, Object>>> deviceList;
+    private List<Map<String, HashMap<DTPDriver, HashMap<String, Object>>>> deviceLists = new ArrayList<>();
+    private List<List<Rule>> ruleSets = new ArrayList<>();
     private static final Logger LOGGER = Logger.getLogger(DTProcessor.class.getName());
     private final XMLProcessor xmlProcessor = new XMLProcessor();
     private final OpMode opMode;
-    private List<Rule> rules;
 
     public DTProcessor(OpMode opMode) {
         this.opMode = opMode;
     }
 
-    public void setup(File file) {
+    public void setup() {
         driverClassList = DTDriverRegistry.getClassesWithInstanceOf(opMode.hardwareMap.appContext);
+    }
+
+    public void loadFile(File file) {
         DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
         try {
             DocumentBuilder db = dbf.newDocumentBuilder();
@@ -47,47 +52,55 @@ public class DTProcessor {
             NodeList deviceInitNodes = document.getElementsByTagName("Devices").item(0).getChildNodes();
             NodeList ruleNodes = document.getElementsByTagName("Rules").item(0).getChildNodes();
 
-            deviceList = xmlProcessor.processXMLDevices(deviceInitNodes, driverClassList);
-            rules = xmlProcessor.processXMLRules(ruleNodes, deviceList);
-        } catch (Exception e) {
-            throw new RuntimeException(e);
-        }
+            HashMap<String, HashMap<DTPDriver, HashMap<String, Object>>> deviceList = xmlProcessor.processXMLDevices(deviceInitNodes, driverClassList);
+            List<Rule> rules = xmlProcessor.processXMLRules(ruleNodes, deviceList);
 
-        // Process Device List & Initialize Drivers
-        for (String deviceName : deviceList.keySet()) {
-            try {
-                DTPDriver deviceDriver = Objects.requireNonNull(deviceList.get(deviceName)).entrySet().iterator().next().getKey();
-                HashMap<String, Object> config = Objects.requireNonNull(deviceList.get(deviceName)).entrySet().iterator().next().getValue();
-                deviceDriver.setup(opMode, deviceName, config);
-            } catch (Exception e) {
-                throw new ConfigurationException("An error occurred: " + e);
+            deviceLists.add(deviceList);
+            ruleSets.add(rules);
+
+            // Process Device List & Initialize Drivers
+            for (String deviceName : deviceList.keySet()) {
+                try {
+                    DTPDriver deviceDriver = Objects.requireNonNull(deviceList.get(deviceName)).entrySet().iterator().next().getKey();
+                    HashMap<String, Object> config = Objects.requireNonNull(deviceList.get(deviceName)).entrySet().iterator().next().getValue();
+                    deviceDriver.setup(opMode, deviceName, config);
+                } catch (Exception e) {
+                    throw new ConfigurationException("An error occurred: " + e);
+                }
             }
+        } catch (Exception e) {
+            throw new ConfigurationException(e.toString());
         }
     }
 
     public void evaluate() {
-        for (Rule rule : rules) {
-            LOGGER.info("Evaluating rule: " + rule.getDescription());
-            boolean conditionsMet = true;
-            for (Condition condition : rule.getConditions()) {
-                DTPDriver driver = deviceList.get(condition.getDevice()).entrySet().iterator().next().getKey();
-                Object currentValue = driver.get(condition.getProperty());
-                LOGGER.info("Evaluating condition: " + condition.getDevice() + " " + condition.getProperty() + " " + condition.getComparison() + " " + condition.getValue());
-                if (!evaluateComparison(currentValue, condition.getComparison(), condition.getValue())) {
-                    conditionsMet = false;
-                    LOGGER.info("Condition not met: " + condition.getDevice() + " " + condition.getProperty());
-                    break;
+        for (int i = 0; i < ruleSets.size(); i++) {
+            List<Rule> rules = ruleSets.get(i);
+            Map<String, HashMap<DTPDriver, HashMap<String, Object>>> deviceList = deviceLists.get(i);
+
+            for (Rule rule : rules) {
+                LOGGER.info("Evaluating rule: " + rule.getDescription());
+                boolean conditionsMet = true;
+                for (Condition condition : rule.getConditions()) {
+                    DTPDriver driver = deviceList.get(condition.getDevice()).entrySet().iterator().next().getKey();
+                    Object currentValue = driver.get(condition.getProperty());
+                    LOGGER.info("Evaluating condition: " + condition.getDevice() + " " + condition.getProperty() + " " + condition.getComparison() + " " + condition.getValue());
+                    if (!evaluateComparison(currentValue, condition.getComparison(), condition.getValue())) {
+                        conditionsMet = false;
+                        LOGGER.info("Condition not met: " + condition.getDevice() + " " + condition.getProperty());
+                        break;
+                    }
                 }
-            }
-            if (conditionsMet) {
-                LOGGER.info("All conditions met for rule: " + rule.getDescription());
-                for (Action action : rule.getActions()) {
-                    DTPDriver driver = deviceList.get(action.getDevice()).entrySet().iterator().next().getKey();
-                    LOGGER.info("Executing action: Setting " + action.getProperty() + " to " + action.getValue() + " in device " + action.getDevice() + " with driver " + driver.getClass().getSimpleName());
-                    driver.set(action.getProperty(), action.getValue());
+                if (conditionsMet) {
+                    LOGGER.info("All conditions met for rule: " + rule.getDescription());
+                    for (Action action : rule.getActions()) {
+                        DTPDriver driver = deviceList.get(action.getDevice()).entrySet().iterator().next().getKey();
+                        LOGGER.info("Executing action: Setting " + action.getProperty() + " to " + action.getValue() + " in device " + action.getDevice() + " with driver " + driver.getClass().getSimpleName());
+                        driver.set(action.getProperty(), action.getValue());
+                    }
+                } else {
+                    LOGGER.info("Conditions not met for rule: " + rule.getDescription());
                 }
-            } else {
-                LOGGER.info("Conditions not met for rule: " + rule.getDescription());
             }
         }
     }
@@ -103,7 +116,7 @@ public class DTProcessor {
             case "BOOLEAN":
                 return Boolean.parseBoolean(currentValue.toString()) == Boolean.parseBoolean(value);
             default:
-                throw new IllegalArgumentException("Invalid comparison operator: " + comparison);
+                throw new ConfigurationException("Invalid comparison operator: " + comparison);
         }
     }
 
@@ -116,18 +129,21 @@ public class DTProcessor {
         }
     }
 
-    public File getFileFromAssetFolder(String fileName) throws IOException {
-        InputStream inputStream = opMode.hardwareMap.appContext.getAssets().open(fileName);
-        File tempFile = File.createTempFile(fileName, null);
-        try (FileOutputStream outputStream = new FileOutputStream(tempFile)) {
+    public File getFileFromAssetFolder(String fileName){
+        try {
+            InputStream inputStream = opMode.hardwareMap.appContext.getAssets().open(fileName);
+            File tempFile = File.createTempFile(fileName, null);
+            FileOutputStream outputStream = new FileOutputStream(tempFile);
             byte[] buffer = new byte[1024];
             int bytesRead;
             while ((bytesRead = inputStream.read(buffer)) != -1) {
                 outputStream.write(buffer, 0, bytesRead);
             }
+            inputStream.close();
+            tempFile.deleteOnExit();
+            return tempFile;
+        } catch (IOException e) {
+            throw new ConfigurationException("Error Reading File: " + e);
         }
-        inputStream.close();
-        tempFile.deleteOnExit();
-        return tempFile;
     }
 }

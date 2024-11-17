@@ -49,7 +49,6 @@ public class DTDriverRegistry {
                 try {
                     Class<?> configClass = Class.forName(className, false, DTProcessor.class.getClassLoader());
                     if (Arrays.asList(configClass.getInterfaces()).contains(DTPDriver.class)) {
-                        //TODO: Fix Unchecked Cast - Working for now
                         Class<? extends DTPDriver> driverClass = configClass.asSubclass(DTPDriver.class);
                         driverClasses.put(configClass.getSimpleName(), driverClass);
                     }
