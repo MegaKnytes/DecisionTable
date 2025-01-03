@@ -1,14 +1,13 @@
 plugins {
     id 'maven-publish'
     id 'com.android.library'
-    id("com.github.node-gradle.node") version "7.0.2"
 }
 
 dependencies {
-    implementation 'org.firstinspires.ftc:RobotServer:10.0.0'
-    implementation 'org.firstinspires.ftc:RobotCore:10.0.0'
-    implementation 'org.firstinspires.ftc:Hardware:10.0.0'
-    implementation 'org.firstinspires.ftc:FtcCommon:10.0.0'
+    implementation 'org.firstinspires.ftc:RobotServer:10.1.1'
+    implementation 'org.firstinspires.ftc:RobotCore:10.1.1'
+    implementation 'org.firstinspires.ftc:Hardware:10.1.1'
+    implementation 'org.firstinspires.ftc:FtcCommon:10.1.1'
 
 
     implementation("org.nanohttpd:nanohttpd-websocket:2.3.1") {
@@ -25,6 +24,7 @@ dependencies {
 
 android {
     compileSdkVersion 34
+    namespace "com.MegaKnytes.DecisionTables"
     defaultConfig {
         minSdkVersion 24
         targetSdkVersion 34
@@ -33,36 +33,23 @@ android {
             ignoreAssetsPattern '!.svn:!.git:!.ds_store:!*.scc:!CVS:!thumbs.db:!picasa.ini:!_*'
         }
     }
-
     publishing {
-        publications {
-            release(MavenPublication) {
-                groupId = 'com.MegaKnytes'
-                artifactId = 'MegaKnytes'
-                version = '1.0.0'
-                afterEvaluate {
-                    from components.release
-                }
-            }
+        singleVariant("release") {
+            withSourcesJar()
+            withJavadocJar()
         }
     }
 }
 
-node {
-    nodeProjectDir = file("editor")
-    download = true;
+afterEvaluate {
+    publishing {
+        publications {
+            release(MavenPublication) {
+                from components.release
+                groupId = 'com.MegaKnytes'
+                artifactId = 'MegaKnytes'
+                version = '1.0.0'
+            }
+        }
+    }
 }
-
-tasks.register('generateStaticBuild', NpxTask) {
-    dependsOn npmInstall
-    command = 'react-scripts'
-    args = ['build']
-    inputs.dir(fileTree("editor/").exclude("node_modules/.cache"))
-    outputs.dir('src/main/assets/editor')
-}
-
-clean.doFirst {
-    file('src/main/assets/editor').deleteDir()
-}
-
-//publishToMavenLocal.dependsOn(generateStaticBuild)
