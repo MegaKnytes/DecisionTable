@@ -46,8 +46,8 @@ afterEvaluate {
         publications {
             release(MavenPublication) {
                 from components.release
-                groupId = 'com.MegaKnytes'
-                artifactId = 'MegaKnytes'
+                groupId = 'com.megaknytes.ftc'
+                artifactId = 'DecisionTable'
                 version = '1.0.0'
             }
         }
