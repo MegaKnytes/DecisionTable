@@ -1,12 +1,12 @@
-package com.MegaKnytes.DecisionTable;
+package com.megaknytes.ftc.DecisionTable;
 
-import com.MegaKnytes.DecisionTable.drivers.DTDriverRegistry;
-import com.MegaKnytes.DecisionTable.drivers.DTPDriver;
-import com.MegaKnytes.DecisionTable.utils.ConfigurationException;
-import com.MegaKnytes.DecisionTable.utils.xml.Action;
-import com.MegaKnytes.DecisionTable.utils.xml.Condition;
-import com.MegaKnytes.DecisionTable.utils.xml.Rule;
-import com.MegaKnytes.DecisionTable.utils.xml.XMLProcessor;
+import com.megaknytes.ftc.DecisionTable.drivers.DTDriverRegistry;
+import com.megaknytes.ftc.DecisionTable.drivers.DTPDriver;
+import com.megaknytes.ftc.DecisionTable.utils.ConfigurationException;
+import com.megaknytes.ftc.DecisionTable.utils.xml.Action;
+import com.megaknytes.ftc.DecisionTable.utils.xml.Condition;
+import com.megaknytes.ftc.DecisionTable.utils.xml.Rule;
+import com.megaknytes.ftc.DecisionTable.utils.xml.XMLProcessor;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 
 import org.w3c.dom.Document;

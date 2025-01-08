@@ -1,4 +1,4 @@
-package com.MegaKnytes.DecisionTable.drivers;
+package com.megaknytes.ftc.DecisionTable.drivers;
 
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 

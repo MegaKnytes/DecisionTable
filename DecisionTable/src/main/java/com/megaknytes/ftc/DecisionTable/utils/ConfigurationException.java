@@ -1,4 +1,4 @@
-package com.MegaKnytes.DecisionTable.utils;
+package com.megaknytes.ftc.DecisionTable.utils;
 
 public class ConfigurationException extends RuntimeException{
 

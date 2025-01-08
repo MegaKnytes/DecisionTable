@@ -1,4 +1,4 @@
-package com.MegaKnytes.DecisionTable.utils.xml;
+package com.megaknytes.ftc.DecisionTable.utils.xml;
 
 
 import java.util.ArrayList;
@@ -6,7 +6,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.logging.Logger;
 
-import com.MegaKnytes.DecisionTable.drivers.DTPDriver;
+import com.megaknytes.ftc.DecisionTable.drivers.DTPDriver;
 
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;

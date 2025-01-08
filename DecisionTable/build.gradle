@@ -24,7 +24,7 @@ dependencies {
 
 android {
     compileSdkVersion 34
-    namespace "com.MegaKnytes.DecisionTables"
+    namespace "com.megaknytes.ftc.DecisionTable"
     defaultConfig {
         minSdkVersion 24
         targetSdkVersion 34

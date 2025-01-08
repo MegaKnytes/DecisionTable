@@ -1,0 +1,44 @@
+plugins {
+    id 'maven-publish'
+    id 'com.android.library'
+}
+
+dependencies {
+    implementation 'org.firstinspires.ftc:RobotServer:10.1.1'
+    implementation 'org.firstinspires.ftc:RobotCore:10.1.1'
+    implementation 'org.firstinspires.ftc:Hardware:10.1.1'
+    implementation 'org.firstinspires.ftc:FtcCommon:10.1.1'
+}
+
+
+android {
+    compileSdkVersion 34
+    namespace "com.megaknytes.ftc.KnyteVision"
+    defaultConfig {
+        minSdkVersion 24
+        targetSdkVersion 34
+        versionCode 1
+        aaptOptions {
+            ignoreAssetsPattern '!.svn:!.git:!.ds_store:!*.scc:!CVS:!thumbs.db:!picasa.ini:!_*'
+        }
+    }
+    publishing {
+        singleVariant("release") {
+            withSourcesJar()
+            withJavadocJar()
+        }
+    }
+}
+
+afterEvaluate {
+    publishing {
+        publications {
+            release(MavenPublication) {
+                from components.release
+                groupId = 'com.megaknytes.ftc'
+                artifactId = 'KnyteVision'
+                version = '1.0.0'
+            }
+        }
+    }
+}

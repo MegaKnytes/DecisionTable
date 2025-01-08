@@ -1,20 +1,16 @@
-package com.MegaKnytes.DecisionTable.drivers.common;
+package com.megaknytes.ftc.DecisionTable.drivers.common;
 
-import com.MegaKnytes.DecisionTable.drivers.DTPDriver;
-import com.MegaKnytes.DecisionTable.utils.ConfigurationException;
+import com.megaknytes.ftc.DecisionTable.drivers.DTPDriver;
+import com.megaknytes.ftc.DecisionTable.utils.ConfigurationException;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.hardware.CRServo;
-import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
 
-import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-import javax.xml.datatype.DatatypeConfigurationException;
 
 /**
  * Driver for controlling a CRServo.

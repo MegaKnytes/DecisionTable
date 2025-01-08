@@ -1,8 +1,8 @@
-package com.MegaKnytes.DecisionTable.drivers;
+package com.megaknytes.ftc.DecisionTable.drivers;
 
 import android.content.Context;
 
-import com.MegaKnytes.DecisionTable.DTProcessor;
+import com.megaknytes.ftc.DecisionTable.DTProcessor;
 
 import java.util.ArrayList;
 import java.util.Arrays;

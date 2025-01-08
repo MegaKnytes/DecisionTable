@@ -1,4 +1,4 @@
-package com.MegaKnytes.DecisionTable.utils.xml;
+package com.megaknytes.ftc.DecisionTable.utils.xml;
 
 import java.util.List;
 

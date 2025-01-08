@@ -1,4 +1,4 @@
-package com.MegaKnytes.DecisionTable.utils.xml;
+package com.megaknytes.ftc.DecisionTable.utils.xml;
 
 /**
  * Represents an action in a rule, specifying a device, property, and value
