@@ -1,7 +1,7 @@
-package com.megaknytes.ftc.DecisionTable.drivers.common;
+package com.megaknytes.ftc.decisiontable.drivers.common;
 
-import com.megaknytes.ftc.DecisionTable.drivers.DTPDriver;
-import com.megaknytes.ftc.DecisionTable.utils.ConfigurationException;
+import com.megaknytes.ftc.decisiontable.drivers.DTPDriver;
+import com.megaknytes.ftc.decisiontable.utils.ConfigurationException;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.hardware.CRServo;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;

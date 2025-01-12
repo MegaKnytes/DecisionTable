@@ -8,23 +8,12 @@ dependencies {
     implementation 'org.firstinspires.ftc:RobotCore:10.1.1'
     implementation 'org.firstinspires.ftc:Hardware:10.1.1'
     implementation 'org.firstinspires.ftc:FtcCommon:10.1.1'
-
-
-    implementation("org.nanohttpd:nanohttpd-websocket:2.3.1") {
-        exclude module: "nanohttpd"
-    }
-
-    implementation("org.nanohttpd:nanohttpd-apache-fileupload:2.3.1") {
-        exclude module: "nanohttpd"
-    }
-
-    implementation 'javax.servlet:javax.servlet-api:4.0.1'
 }
 
 
 android {
     compileSdkVersion 34
-    namespace "com.megaknytes.ftc.DecisionTable"
+    namespace "com.megaknytes.ftc.decisiontable"
     defaultConfig {
         minSdkVersion 24
         targetSdkVersion 34

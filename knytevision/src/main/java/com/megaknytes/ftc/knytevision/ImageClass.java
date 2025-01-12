@@ -1,4 +1,4 @@
-package com.megaknytes.ftc.KnyteVision;
+package com.megaknytes.ftc.knytevision;
 
 import static java.lang.Math.abs;
 

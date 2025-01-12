@@ -1,6 +1,6 @@
-package com.megaknytes.ftc.DecisionTable.utils.xml;
+package com.megaknytes.ftc.decisiontable.utils.xml;
 
-import com.megaknytes.ftc.DecisionTable.drivers.DTPDriver;
+import com.megaknytes.ftc.decisiontable.drivers.DTPDriver;
 
 import java.util.Map;
 

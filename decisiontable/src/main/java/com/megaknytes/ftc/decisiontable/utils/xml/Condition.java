@@ -1,4 +1,4 @@
-package com.megaknytes.ftc.DecisionTable.utils.xml;
+package com.megaknytes.ftc.decisiontable.utils.xml;
 
 /**
  * Represents a condition in a rule, specifying a device, property, comparison, and value

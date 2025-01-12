@@ -1,6 +1,5 @@
-package com.megaknytes.ftc.KnyteVision;
+package com.megaknytes.ftc.knytevision;
 
-import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 
 import org.firstinspires.ftc.robotcore.external.hardware.camera.WebcamName;

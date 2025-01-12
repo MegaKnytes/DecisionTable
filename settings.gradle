@@ -1,2 +1,3 @@
 include ':DecisionTable'
 include ':KnyteVision'
+include ':DecisionViewer'
