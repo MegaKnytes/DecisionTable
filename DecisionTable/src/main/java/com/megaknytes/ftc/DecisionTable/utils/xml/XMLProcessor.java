@@ -25,9 +25,9 @@ public class XMLProcessor {
      * @param driverClasses HashMap mapping driver names to their respective classes
      * @return HashMap containing initialized devices with their drivers and configuration options
      */
-    public HashMap<String, HashMap<DTPDriver, HashMap<String, Object>>> processXMLDevices(NodeList deviceNodes, HashMap<String, Class<? extends DTPDriver>> driverClasses){
+    public HashMap<String, Device> processXMLDevices(NodeList deviceNodes, HashMap<String, Class<? extends DTPDriver>> driverClasses){
         // Create a map to store the initialized devices once they have been processed
-        HashMap<String, HashMap<DTPDriver, HashMap<String, Object>>> initializedDevices = new HashMap<>();
+        HashMap<String, Device> initializedDevices = new HashMap<>();
 
         // Iterate through the device nodes
         for (int i = 0; i < deviceNodes.getLength(); i++) {
@@ -62,8 +62,7 @@ public class XMLProcessor {
                                 HashMap<DTPDriver, HashMap<String, Object>> compiledDevice = new HashMap<>();
                                 // Create a new instance of the driver class and add it to the compiled device
                                 DTPDriver driverInstance = driverClass.asSubclass(DTPDriver.class).getDeclaredConstructor().newInstance();
-                                compiledDevice.put(driverInstance, deviceConfig);
-                                initializedDevices.put(deviceName, compiledDevice);
+                                initializedDevices.put(deviceName, new Device(driverInstance, deviceConfig));
                             }
                         }
                     } catch (Exception e) {
@@ -82,7 +81,7 @@ public class XMLProcessor {
      * @param deviceDrivers HashMap containing initialized devices with their drivers and configuration options
      * @return List of Rule objects created from the XML nodes
      */
-    public List<Rule> processXMLRules(NodeList ruleNodes, HashMap<String, HashMap<DTPDriver, HashMap<String, Object>>> deviceDrivers) {
+    public List<Rule> processXMLRules(NodeList ruleNodes, HashMap<String, Device> deviceDrivers) {
         // Create a list to store the rules once they have been processed
         List<Rule> rules = new ArrayList<>();
 
