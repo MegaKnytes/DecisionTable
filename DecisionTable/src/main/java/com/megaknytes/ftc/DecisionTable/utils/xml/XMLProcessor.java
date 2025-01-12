@@ -30,8 +30,8 @@ public class XMLProcessor {
         HashMap<String, Device> initializedDevices = new HashMap<>();
 
         // Iterate through the device nodes
-        for (int i = 0; i < deviceNodes.getLength(); i++) {
-            Node deviceNode = deviceNodes.item(i);
+        for (int deviceNodeCount = 0; deviceNodeCount < deviceNodes.getLength(); deviceNodeCount++) {
+            Node deviceNode = deviceNodes.item(deviceNodeCount);
 
             // Check if the node is an element node
             if (deviceNode.getNodeType() == Node.ELEMENT_NODE) {
@@ -86,8 +86,8 @@ public class XMLProcessor {
         List<Rule> rules = new ArrayList<>();
 
         // Iterate through the rule nodes
-        for (int i = 0; i < ruleNodes.getLength(); i++) {
-            Node ruleNode = ruleNodes.item(i);
+        for (int ruleNodeCount = 0; ruleNodeCount < ruleNodes.getLength(); ruleNodeCount++) {
+            Node ruleNode = ruleNodes.item(ruleNodeCount);
 
             // Check if the node is an element node
             if (ruleNode.getNodeType() == Node.ELEMENT_NODE) {
@@ -98,9 +98,9 @@ public class XMLProcessor {
                 // Get the condition and action nodes from the rule node
                 NodeList conditionNodes = ruleElement.getElementsByTagName("Condition");
                 List<Condition> conditions = new ArrayList<>();
-                for (int j = 0; j < conditionNodes.getLength(); j++) {
+                for (int conditionNodeCount = 0; conditionNodeCount < conditionNodes.getLength(); conditionNodeCount++) {
                     // Iterate through the condition nodes and extract the device, property, comparison, and value
-                    Element conditionElement = (Element) conditionNodes.item(j);
+                    Element conditionElement = (Element) conditionNodes.item(conditionNodeCount);
                     String device = conditionElement.getElementsByTagName("Device").item(0).getTextContent();
                     String property = conditionElement.getElementsByTagName("Property").item(0).getTextContent();
                     String comparison = conditionElement.getElementsByTagName("Comparison").item(0).getTextContent();
@@ -111,9 +111,9 @@ public class XMLProcessor {
                 // Get the action nodes from the rule node
                 NodeList actionNodes = ruleElement.getElementsByTagName("Action");
                 List<Action> actions = new ArrayList<>();
-                for (int j = 0; j < actionNodes.getLength(); j++) {
+                for (int actionNodeCount = 0; actionNodeCount < actionNodes.getLength(); actionNodeCount++) {
                     // Iterate through the action nodes and extract the device, property, and value
-                    Element actionElement = (Element) actionNodes.item(j);
+                    Element actionElement = (Element) actionNodes.item(actionNodeCount);
                     String device = actionElement.getElementsByTagName("Device").item(0).getTextContent();
                     String property = actionElement.getElementsByTagName("Property").item(0).getTextContent();
                     String value = actionElement.getElementsByTagName("Value").item(0).getTextContent();
@@ -138,9 +138,9 @@ public class XMLProcessor {
         HashMap<String, Object> configOptions = new HashMap<>();
         NodeList options = element.getChildNodes();
 
-        for (int j = 0; j < options.getLength(); j++) {
+        for (int configNodeCount = 0; configNodeCount < options.getLength(); configNodeCount++) {
             // Iterate through the child nodes of the element and extract the option name and value
-            Node optionNode = options.item(j);
+            Node optionNode = options.item(configNodeCount);
 
             // Check if the node is an element node
             if (optionNode.getNodeType() == Node.ELEMENT_NODE) {

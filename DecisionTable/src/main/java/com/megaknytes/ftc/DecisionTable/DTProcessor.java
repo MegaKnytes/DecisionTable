@@ -72,7 +72,7 @@ public class DTProcessor {
     }
 
     public void evaluate() {
-        for (int i = 0; i < ruleSets.size(); i++) {
+        for (int ruleSetCount = 0; ruleSetCount < ruleSets.size(); ruleSetCount++) {
             for (Rule rule : ruleSets) {
                 LOGGER.info("Evaluating rule: " + rule.getDescription());
                 boolean conditionsMet = true;
