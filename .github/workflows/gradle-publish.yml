@@ -1,0 +1,173 @@
+name: Publishes MegaKnytes Gradle Packages to GitHub Packages
+on:
+  workflow_dispatch:
+  push:
+  release:
+    types: [created]
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      packages: write
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-java@v4
+        with:
+          java-version: '21'
+          distribution: 'corretto'
+      - name: Setup Gradle
+        uses: gradle/actions/setup-gradle@af1da67850ed9a4cedd57bfd976089dd991e2582 # v4.0.0
+
+      - name: Get package version ID for decisiontable
+        id: get-decisiontable-version-id
+        run: |
+          PACKAGE_NAME="com.megaknytes.ftc.decisiontable"
+          OWNER="MegaKnytes"
+          PACKAGE_TYPE="maven"
+          REF_NAME="${{ github.ref_name }}"
+          RESPONSE=$(curl -L \
+            -H "Accept: application/vnd.github+json" \
+            -H "Authorization: Bearer ${{ secrets.GITHUB_TOKEN }}" \
+            -H "X-GitHub-Api-Version: 2022-11-28" \
+            "https://api.github.com/orgs/$OWNER/packages/$PACKAGE_TYPE/$PACKAGE_NAME/versions") || exit 0
+          VERSION_ID=$(echo $RESPONSE | jq -r --arg REF_NAME "$REF_NAME" '.[] | select(.name == $REF_NAME) | .id') || exit 0
+          if [ -z "$VERSION_ID" ]; then
+            echo "Version $REF_NAME does not exist for $PACKAGE_NAME"
+            exit 0
+          fi
+          echo "DECISIONTABLE_VERSION_ID=$VERSION_ID" >> $GITHUB_ENV
+
+      - name: Get package version ID for decisionviewer
+        id: get-decisionviewer-version-id
+        run: |
+          PACKAGE_NAME="com.megaknytes.ftc.decisionviewer"
+          OWNER="MegaKnytes"
+          PACKAGE_TYPE="maven"
+          REF_NAME="${{ github.ref_name }}"
+          RESPONSE=$(curl -L \
+            -H "Accept: application/vnd.github+json" \
+            -H "Authorization: Bearer ${{ secrets.GITHUB_TOKEN }}" \
+            -H "X-GitHub-Api-Version: 2022-11-28" \
+            "https://api.github.com/orgs/$OWNER/packages/$PACKAGE_TYPE/$PACKAGE_NAME/versions") || exit 0
+          VERSION_ID=$(echo $RESPONSE | jq -r --arg REF_NAME "$REF_NAME" '.[] | select(.name == $REF_NAME) | .id') || exit 0
+          if [ -z "$VERSION_ID" ]; then
+            echo "Version $REF_NAME does not exist for $PACKAGE_NAME"
+            exit 0
+          fi
+          echo "DECISIONVIEWER_VERSION_ID=$VERSION_ID" >> $GITHUB_ENV
+
+      - name: Get package version ID for knytevision
+        id: get-knytevision-version-id
+        run: |
+          PACKAGE_NAME="com.megaknytes.ftc.knytevision"
+          OWNER="MegaKnytes"
+          PACKAGE_TYPE="maven"
+          REF_NAME="${{ github.ref_name }}"
+          RESPONSE=$(curl -L \
+            -H "Accept: application/vnd.github+json" \
+            -H "Authorization: Bearer ${{ secrets.GITHUB_TOKEN }}" \
+            -H "X-GitHub-Api-Version: 2022-11-28" \
+            "https://api.github.com/orgs/$OWNER/packages/$PACKAGE_TYPE/$PACKAGE_NAME/versions") || exit 0
+          VERSION_ID=$(echo $RESPONSE | jq -r --arg REF_NAME "$REF_NAME" '.[] | select(.name == $REF_NAME) | .id') || exit 0
+          if [ -z "$VERSION_ID" ]; then
+            echo "Version $REF_NAME does not exist for $PACKAGE_NAME"
+            exit 0
+          fi
+          echo "KNYTEVISION_VERSION_ID=$VERSION_ID" >> $GITHUB_ENV
+
+      - name: Get package version ID for utilities
+        id: get-utilities-version-id
+        run: |
+          PACKAGE_NAME="com.megaknytes.ftc.utilities"
+          OWNER="MegaKnytes"
+          PACKAGE_TYPE="maven"
+          REF_NAME="${{ github.ref_name }}"
+          RESPONSE=$(curl -L \
+            -H "Accept: application/vnd.github+json" \
+            -H "Authorization: Bearer ${{ secrets.GITHUB_TOKEN }}" \
+            -H "X-GitHub-Api-Version: 2022-11-28" \
+            "https://api.github.com/orgs/$OWNER/packages/$PACKAGE_TYPE/$PACKAGE_NAME/versions") || exit 0
+          VERSION_ID=$(echo $RESPONSE | jq -r --arg REF_NAME "$REF_NAME" '.[] | select(.name == $REF_NAME) | .id') || exit 0
+          if [ -z "$VERSION_ID" ]; then
+            echo "Version $REF_NAME does not exist for $PACKAGE_NAME"
+            exit 0
+          fi
+          echo "UTILITIES_VERSION_ID=$VERSION_ID" >> $GITHUB_ENV
+
+      - name: Delete existing package version for decisiontable
+        if: env.DECISIONTABLE_VERSION_ID
+        run: |
+          PACKAGE_NAME="com.megaknytes.ftc.decisiontable"
+          OWNER="MegaKnytes"
+          PACKAGE_TYPE="maven"
+          RESPONSE=$(curl -L \
+            -H "Accept: application/vnd.github+json" \
+            -H "Authorization: Bearer ${{ secrets.GITHUB_TOKEN }}" \
+            -H "X-GitHub-Api-Version: 2022-11-28" \
+            "https://api.github.com/orgs/$OWNER/packages/$PACKAGE_TYPE/$PACKAGE_NAME/versions")
+          VERSION_COUNT=$(echo $RESPONSE | jq '. | length')
+          if [ "$VERSION_COUNT" -eq 1 ]; then
+            curl -X DELETE -H "Authorization: Bearer ${{ secrets.GITHUB_TOKEN }}" "https://api.github.com/orgs/$OWNER/packages/$PACKAGE_TYPE/$PACKAGE_NAME"
+          else
+            curl -X DELETE -H "Authorization: Bearer ${{ secrets.GITHUB_TOKEN }}" "https://api.github.com/orgs/$OWNER/packages/$PACKAGE_TYPE/$PACKAGE_NAME/versions/$DECISIONTABLE_VERSION_ID"
+          fi
+
+      - name: Delete existing package version for decisionviewer
+        if: env.DECISIONVIEWER_VERSION_ID
+        run: |
+          PACKAGE_NAME="com.megaknytes.ftc.decisionviewer"
+          OWNER="MegaKnytes"
+          PACKAGE_TYPE="maven"
+          RESPONSE=$(curl -L \
+            -H "Accept: application/vnd.github+json" \
+            -H "Authorization: Bearer ${{ secrets.GITHUB_TOKEN }}" \
+            -H "X-GitHub-Api-Version: 2022-11-28" \
+            "https://api.github.com/orgs/$OWNER/packages/$PACKAGE_TYPE/$PACKAGE_NAME/versions")
+          VERSION_COUNT=$(echo $RESPONSE | jq '. | length')
+          if [ "$VERSION_COUNT" -eq 1 ]; then
+            curl -X DELETE -H "Authorization: Bearer ${{ secrets.GITHUB_TOKEN }}" "https://api.github.com/orgs/$OWNER/packages/$PACKAGE_TYPE/$PACKAGE_NAME"
+          else
+            curl -X DELETE -H "Authorization: Bearer ${{ secrets.GITHUB_TOKEN }}" "https://api.github.com/orgs/$OWNER/packages/$PACKAGE_TYPE/$PACKAGE_NAME/versions/$DECISIONVIEWER_VERSION_ID"
+          fi
+
+      - name: Delete existing package version for knytevision
+        if: env.KNYTEVISION_VERSION_ID
+        run: |
+          PACKAGE_NAME="com.megaknytes.ftc.knytevision"
+          OWNER="MegaKnytes"
+          PACKAGE_TYPE="maven"
+          RESPONSE=$(curl -L \
+            -H "Accept: application/vnd.github+json" \
+            -H "Authorization: Bearer ${{ secrets.GITHUB_TOKEN }}" \
+            -H "X-GitHub-Api-Version: 2022-11-28" \
+            "https://api.github.com/orgs/$OWNER/packages/$PACKAGE_TYPE/$PACKAGE_NAME/versions")
+          VERSION_COUNT=$(echo $RESPONSE | jq '. | length')
+          if [ "$VERSION_COUNT" -eq 1 ]; then
+            curl -X DELETE -H "Authorization: Bearer ${{ secrets.GITHUB_TOKEN }}" "https://api.github.com/orgs/$OWNER/packages/$PACKAGE_TYPE/$PACKAGE_NAME"
+          else
+            curl -X DELETE -H "Authorization: Bearer ${{ secrets.GITHUB_TOKEN }}" "https://api.github.com/orgs/$OWNER/packages/$PACKAGE_TYPE/$PACKAGE_NAME/versions/$KNYTEVISION_VERSION_ID"
+          fi
+
+      - name: Delete existing package version for utilities
+        if: env.UTILITIES_VERSION_ID
+        run: |
+          PACKAGE_NAME="com.megaknytes.ftc.utilities"
+          OWNER="MegaKnytes"
+          PACKAGE_TYPE="maven"
+          RESPONSE=$(curl -L \
+            -H "Accept: application/vnd.github+json" \
+            -H "Authorization: Bearer ${{ secrets.GITHUB_TOKEN }}" \
+            -H "X-GitHub-Api-Version: 2022-11-28" \
+            "https://api.github.com/orgs/$OWNER/packages/$PACKAGE_TYPE/$PACKAGE_NAME/versions")
+          VERSION_COUNT=$(echo $RESPONSE | jq '. | length')
+          if [ "$VERSION_COUNT" -eq 1 ]; then
+            curl -X DELETE -H "Authorization: Bearer ${{ secrets.GITHUB_TOKEN }}" "https://api.github.com/orgs/$OWNER/packages/$PACKAGE_TYPE/$PACKAGE_NAME"
+          else
+            curl -X DELETE -H "Authorization: Bearer ${{ secrets.GITHUB_TOKEN }}" "https://api.github.com/orgs/$OWNER/packages/$PACKAGE_TYPE/$PACKAGE_NAME/versions/$UTILITIES_VERSION_ID"
+          fi
+
+      - name: Publish package
+        run: ./gradlew publish
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
