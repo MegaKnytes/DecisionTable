@@ -1,3 +1,2 @@
-include ':DecisionTable'
-include ':DecisionViewer'
-include ':Utilities'
+include ':Core'
+include ':Editor'

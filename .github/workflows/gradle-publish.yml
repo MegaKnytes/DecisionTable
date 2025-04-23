@@ -12,15 +12,15 @@ jobs:
       contents: read
       packages: write
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v4.2.2
 
-      - uses: actions/setup-java@v4
+      - uses: actions/setup-java@v4.7.0
         with:
           java-version: '21'
           distribution: 'corretto'
 
       - name: Setup Gradle
-        uses: gradle/actions/setup-gradle@af1da67850ed9a4cedd57bfd976089dd991e2582 # v4.0.0
+        uses: gradle/actions/setup-gradle@v4.3.1
 
       - name: Process Modules
         run: |
@@ -32,7 +32,7 @@ jobs:
           echo "Detected modules: ${MODULES[@]}"
 
           for MODULE in "${MODULES[@]}"; do
-            PACKAGE_NAME="com.megaknytes.ftc.$MODULE"
+            PACKAGE_NAME="com.decisiontable.ftc.$MODULE"
             OWNER="MegaKnytes"
             PACKAGE_TYPE="maven"
             REF_NAME="${{ github.ref_name }}"
