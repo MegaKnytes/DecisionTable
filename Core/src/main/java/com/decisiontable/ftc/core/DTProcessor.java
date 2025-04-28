@@ -1,139 +1,102 @@
 package com.decisiontable.ftc.core;
 
 import com.decisiontable.ftc.core.drivers.DTDriverRegistry;
-import com.decisiontable.ftc.core.drivers.DTPDriver;
-import com.decisiontable.ftc.core.utils.ConfigurationException;
-import com.decisiontable.ftc.core.utils.xml.Action;
-import com.decisiontable.ftc.core.utils.xml.Condition;
-import com.decisiontable.ftc.core.utils.xml.Device;
-import com.decisiontable.ftc.core.utils.xml.Rule;
-import com.decisiontable.ftc.core.utils.xml.XMLProcessor;
+import com.decisiontable.ftc.core.drivers.DTDevice;
+import com.decisiontable.ftc.core.xml.Action;
+import com.decisiontable.ftc.core.xml.Condition;
+import com.decisiontable.ftc.core.xml.Rule;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 
 import org.w3c.dom.Document;
+import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
+import org.xml.sax.SAXException;
 
-import java.io.File;
-import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
+import javax.xml.parsers.ParserConfigurationException;
 
-/**
- * DTProcessor is responsible for setting up and evaluating decision tables given a decision table file
- */
 public class DTProcessor {
-    private final HashMap<String, Class<? extends DTPDriver>> driverClassList;
-    private HashMap<String, Device> deviceList = new HashMap<>();
-    private List<Rule> ruleSets = new ArrayList<>();
     private static final Logger LOGGER = Logger.getLogger(DTProcessor.class.getName());
-    private final XMLProcessor xmlProcessor = new XMLProcessor();
+
     private final OpMode opMode;
+    private final XMLProcessor xmlProcessor;
+    private final Map<String, Class<? extends DTDevice>> availableDrivers;
+    private final List<Rule> rules = new ArrayList<>();
+    private final List<Action> pendingActions = new ArrayList<>();
 
     public DTProcessor(OpMode opMode) {
         this.opMode = opMode;
-        this.driverClassList = DTDriverRegistry.getClassesWithInstanceOf(opMode.hardwareMap.appContext);
+        this.xmlProcessor = new XMLProcessor();
+        availableDrivers = DTDriverRegistry.getClassesWithInstanceOf(opMode.hardwareMap.appContext);
     }
 
-    public void loadFile(File file) {
-        try {
-            DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
-            DocumentBuilder db = dbf.newDocumentBuilder();
-            Document document = db.parse(file);
+    public void loadConfigurationFromAsset(String assetPath) {
+        try (InputStream inputStream = opMode.hardwareMap.appContext.getAssets().open(assetPath)) {
+            DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
+            DocumentBuilder builder = factory.newDocumentBuilder();
+            Document document = builder.parse(inputStream);
             document.getDocumentElement().normalize();
 
-            NodeList deviceInitNodes = document.getElementsByTagName("Devices").item(0).getChildNodes();
-            NodeList ruleNodes = document.getElementsByTagName("Rules").item(0).getChildNodes();
+            NodeList deviceNodes = document.getElementsByTagName("Devices").item(0).getChildNodes();
+            Map<String, DTDevice> deviceDriverInstances = xmlProcessor.processDeviceDrivers(deviceNodes, availableDrivers);
 
-            deviceList = xmlProcessor.processXMLDevices(deviceInitNodes, driverClassList);
-            ruleSets = xmlProcessor.processXMLRules(ruleNodes, deviceList);
+            NodeList rulesElement = document.getElementsByTagName("Rules");
+            for (int i = 0; i < rulesElement.getLength(); i++) {
+                rules.addAll(xmlProcessor.processRules(rulesElement.item(i).getChildNodes(), deviceDriverInstances));
+            }
 
-            for (String deviceName : deviceList.keySet()) {
+            for (Map.Entry<String, DTDevice> entry : deviceDriverInstances.entrySet()) {
+                String deviceName = entry.getKey();
+                DTDevice device = entry.getValue();
                 try {
-                    Device device = deviceList.get(deviceName);
-                    assert device != null;
-                    DTPDriver deviceDriver = device.getDriver();
-                    Map<String, Object> config = device.getConfig();
-                    deviceDriver.setup(opMode, deviceName, config);
+                    device.setup(opMode, deviceName);
                 } catch (Exception e) {
-                    throw new ConfigurationException("An error occurred: " + e);
+                    LOGGER.log(Level.SEVERE, "Failed to setup device: " + deviceName, e);
                 }
             }
-        } catch (Exception e) {
-            throw new ConfigurationException(e.toString());
-        }
-    }
 
-    public void evaluate() {
-        for (int ruleSetCount = 0; ruleSetCount < ruleSets.size(); ruleSetCount++) {
-            for (Rule rule : ruleSets) {
-                LOGGER.info("Evaluating rule: " + rule.getDescription());
-                boolean conditionsMet = true;
-                for (Condition condition : rule.getConditions()) {
-                    Device device = deviceList.get(condition.getDevice());
-                    assert device != null;
-                    DTPDriver driver = device.getDriver();
-                    Object currentValue = driver.get(condition.getProperty());
-                    LOGGER.info("Evaluating condition: " + condition.getDevice() + " " + condition.getProperty() + " " + condition.getComparison() + " " + condition.getValue());
-                    if (!evaluateComparison(currentValue, condition.getComparison(), condition.getValue())) {
-                        conditionsMet = false;
-                        LOGGER.info("Condition not met: " + condition.getDevice() + " " + condition.getProperty());
-                        break;
-                    }
-                }
-                if (conditionsMet) {
-                    LOGGER.info("All conditions met for rule: " + rule.getDescription());
-                    for (Action action : rule.getActions()) {
-                        Device device = deviceList.get(action.getDevice());
-                        assert device != null;
-                        DTPDriver driver = device.getDriver();
-                        LOGGER.info("Executing action: Setting " + action.getProperty() + " to " + action.getValue() + " in device " + action.getDevice() + " with driver " + driver.getClass().getSimpleName());
-                        driver.set(action.getProperty(), action.getValue());
-                    }
-                } else {
-                    LOGGER.info("Conditions not met for rule: " + rule.getDescription());
-                }
-            }
-        }
-    }
-
-    private boolean evaluateComparison(Object currentValue, String comparison, String value) {
-        switch (comparison) {
-            case "GREATER_THAN":
-                return Double.parseDouble(currentValue.toString()) > Double.parseDouble(value);
-            case "LESS_THAN":
-                return Double.parseDouble(currentValue.toString()) < Double.parseDouble(value);
-            case "EQUAL":
-                return Double.parseDouble(currentValue.toString()) == Double.parseDouble(value);
-            case "BOOLEAN":
-                return Boolean.parseBoolean(currentValue.toString()) == Boolean.parseBoolean(value);
-            default:
-                throw new ConfigurationException("Invalid comparison operator: " + comparison);
-        }
-    }
-
-    public File getFileFromAssetFolder(String fileName) {
-        try {
-            InputStream inputStream = opMode.hardwareMap.appContext.getAssets().open(fileName);
-            File tempFile = File.createTempFile(fileName, null);
-            FileOutputStream outputStream = new FileOutputStream(tempFile);
-            byte[] buffer = new byte[1024];
-            int bytesRead;
-            while ((bytesRead = inputStream.read(buffer)) != -1) {
-                outputStream.write(buffer, 0, bytesRead);
-            }
-            inputStream.close();
-            tempFile.deleteOnExit();
-            return tempFile;
+            LOGGER.log(Level.INFO, "Configuration loaded successfully");
         } catch (IOException e) {
-            throw new ConfigurationException("Error Reading File: " + e);
+            LOGGER.log(Level.SEVERE, "Failed to load configuration from asset: " + assetPath, e);
+        } catch (ParserConfigurationException | SAXException e) {
+            throw new RuntimeException(e);
         }
+    }
+
+    public void update() {
+        for (Rule rule : rules) {
+            boolean allConditionsMet = true;
+
+            for (Condition condition : rule.getConditions()) {
+                if (!condition.evaluate()) {
+                    allConditionsMet = false;
+                    break;
+                }
+            }
+
+            if (allConditionsMet) {
+                pendingActions.addAll(rule.getActions());
+            }
+        }
+
+        for (Action action : pendingActions) {
+            try {
+                action.execute();
+            } catch (Exception e) {
+                LOGGER.log(Level.SEVERE, "Error executing action: " + e.getMessage(), e);
+                throw new RuntimeException("Error executing action: " + e.getMessage());
+            }
+        }
+
+        pendingActions.clear();
     }
 }
