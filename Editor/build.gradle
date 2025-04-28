@@ -47,7 +47,7 @@ publishing {
         release(MavenPublication) {
             groupId = 'com.decisiontable.ftc'
             artifactId = 'editor'
-            version = System.getenv("GITHUB_REF_NAME") ?: "v1.0.0"
+            version = System.getenv("GITHUB_REF_NAME") ?: "localDev"
 
             afterEvaluate {
                 from components.release
