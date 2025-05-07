@@ -33,9 +33,33 @@ android {
 publishing {
     publications {
         release(MavenPublication) {
-            groupId = 'com.decisiontable.ftc'
+            groupId = 'org.megaknytes.ftc.decisiontable'
             artifactId = 'core'
-            version = System.getenv("GITHUB_REF_NAME") ?: "localDev"
+            version = System.getenv("GITHUB_REF_NAME")
+
+            pom {
+                name = 'Core'
+                description = 'FTC Decision Table Core Library'
+                url = 'http://megaknytes.org'
+
+                developers {
+                    developer {
+                        id = 'hccsarobotics'
+                        name = 'MegaKnytes 11093'
+                        email = 'hccsarobotics@gmail.com'
+                    }
+                    developer {
+                        id = 'UntitledMoose'
+                        name = 'Noah Blaut'
+                        email = 'noah@untitledmoose.dev'
+                    }
+                }
+                scm {
+                    connection = 'scm:git:git://github.com/MegaKnytes/DecisionTable.git'
+                    developerConnection = 'scm:git:ssh://git@github.com:MegaKnytes/DecisionTable.git'
+                    url = 'https://github.com/MegaKnytes/DecisionTable#'
+                }
+            }
 
             afterEvaluate {
                 from components.release
@@ -44,11 +68,14 @@ publishing {
     }
     repositories {
         maven {
-            name = "Core"
-            url = "https://maven.pkg.github.com/MegaKnytes/DecisionTable"
+            def releasesRepoUrl = "https://maven.megaknytes.org/releases"
+            def snapshotsRepoUrl = "https://maven.megaknytes.org/snapshots"
+
+            url = System.getenv("GITHUB_REF_TYPE") == "tag" ? releasesRepoUrl : snapshotsRepoUrl
+
             credentials {
-                username = System.getenv("GITHUB_ACTOR")
-                password = System.getenv("GITHUB_TOKEN")
+                username = System.getenv("MEGAKNYTES_MAVEN_USERNAME")
+                password = System.getenv("MEGAKNYTES_MAVEN_PASSWORD")
             }
         }
     }
