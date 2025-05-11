@@ -49,15 +49,8 @@ node {
 
 publishing {
     publications {
-        release(MavenPublication) {
-            groupId = 'org.megaknytes.ftc.decisiontable'
-            artifactId = 'editor'
-
-            version = System.getenv("CI")
-                    ? (System.getenv("GITHUB_REF_TYPE") == "tag" ? System.getenv("GITHUB_REF_NAME") : System.getenv("GITHUB_REF_NAME") + "-SNAPSHOT")
-                    : "localDeployment-SNAPSHOT"
-
-            pom {
+        def configureBasePom = { pub ->
+            pub.pom {
                 name = 'Editor'
                 description = 'FTC Decision Table Web Editor Library'
                 url = 'http://megaknytes.org'
@@ -80,12 +73,52 @@ publishing {
                     url = 'https://github.com/MegaKnytes/DecisionTable#'
                 }
             }
+        }
 
-            afterEvaluate {
-                from components.release
+        if (System.getenv("CI")) {
+            referenceRelease(MavenPublication) {
+                groupId = 'org.megaknytes.ftc.decisiontable'
+                artifactId = 'editor'
+
+                version = System.getenv("GITHUB_REF_TYPE") == "tag" ? System.getenv("GITHUB_REF_NAME") : System.getenv("GITHUB_REF_NAME") + "-SNAPSHOT"
+
+                configureBasePom(delegate)
+
+                afterEvaluate {
+                    from components.release
+                }
+            }
+
+            if (System.getenv("GITHUB_REF_TYPE") != "tag") {
+                commitHashRelease(MavenPublication) {
+                    groupId = 'org.megaknytes.ftc.decisiontable'
+                    artifactId = 'editor'
+
+                    version = System.getenv("GITHUB_SHA")?.substring(0, 7)
+
+                    configureBasePom(delegate)
+
+                    afterEvaluate {
+                        from components.release
+                    }
+                }
+            }
+
+        } else {
+            baseRelease(MavenPublication) {
+                groupId = 'org.megaknytes.ftc.decisiontable'
+                artifactId = 'editor'
+                version = "localDeployment-SNAPSHOT"
+
+                configureBasePom(delegate)
+
+                afterEvaluate {
+                    from components.release
+                }
             }
         }
     }
+
     repositories {
         maven {
             def releasesRepoUrl = "https://maven.megaknytes.org/releases"
