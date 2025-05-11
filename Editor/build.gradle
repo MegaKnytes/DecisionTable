@@ -52,7 +52,10 @@ publishing {
         release(MavenPublication) {
             groupId = 'org.megaknytes.ftc.decisiontable'
             artifactId = 'editor'
-            version = System.getenv("GITHUB_REF_NAME")
+
+            version = System.getenv("CI")
+                    ? (System.getenv("GITHUB_REF_TYPE") == "tag" ? System.getenv("GITHUB_REF_NAME") : System.getenv("GITHUB_REF_NAME") + "-SNAPSHOT")
+                    : "localDeployment-SNAPSHOT"
 
             pom {
                 name = 'Editor'
@@ -100,9 +103,12 @@ publishing {
 
 tasks.register('generateStaticBuild', NpxTask) {
     dependsOn npmInstall
+
     outputs.upToDateWhen { false }
+
     command = 'react-scripts'
     args = ['build']
+
     inputs.files('src/main/webapp/package.json', 'src/main/webapp/package-lock.json')
     inputs.dir('src/main/webapp/src')
     inputs.dir(fileTree("src/main/webapp/node_modules").exclude(".cache"))
