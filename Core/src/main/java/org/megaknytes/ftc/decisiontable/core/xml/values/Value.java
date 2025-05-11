@@ -1,35 +1,14 @@
 package org.megaknytes.ftc.decisiontable.core.xml.values;
 
+import org.w3c.dom.Node;
+
 /**
- * Abstract base class representing a value in the decision table.
- * <p>
- * This class serves as a generic container for a value of type `T`.
- * Subclasses can extend this class to provide specific implementations
- * for different types of values.
- *
- * @param <T> The type of the value being represented.
+ * Represents a value in the decision table.
  */
-public abstract class Value<T> {
-    /**
-     * The value being represented.
-     */
-    protected T value;
+public interface Value<T> {
+    T parseValue(Node parameterNode);
 
-    /**
-     * Constructs a new `Value` instance with the specified value.
-     *
-     * @param value The value to be stored in this instance.
-     */
-    public Value(T value) {
-        this.value = value;
-    }
+    T getValue();
 
-    /**
-     * Retrieves the value stored in this instance.
-     *
-     * @return The value of type `T`.
-     */
-    public T getValue() {
-        return value;
-    }
+    Class<?> getType();
 }
