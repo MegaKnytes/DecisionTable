@@ -22,74 +22,9 @@ jobs:
       - name: Setup Gradle
         uses: gradle/actions/setup-gradle@v4.3.1
 
-      - name: Process Modules
-        run: |
-          MODULES=()
-          while IFS= read -r line; do
-            MODULES+=("$line")
-          done < <(grep -oE "include ':.*'" settings.gradle | sed "s/include '://;s/'//")
-
-          echo "Detected modules: ${MODULES[@]}"
-
-          for MODULE in "${MODULES[@]}"; do
-            PACKAGE_NAME="com.decisiontable.ftc.$MODULE"
-            OWNER="MegaKnytes"
-            PACKAGE_TYPE="maven"
-            REF_NAME="${{ github.ref_name }}"
-          
-            # Fetch package versions
-            RESPONSE=$(curl -s -L \
-              -H "Accept: application/vnd.github+json" \
-              -H "Authorization: Bearer ${{ secrets.GITHUB_TOKEN }}" \
-              -H "X-GitHub-Api-Version: 2022-11-28" \
-              "https://api.github.com/orgs/$OWNER/packages/$PACKAGE_TYPE/$PACKAGE_NAME/versions")
-          
-            # Debug: Print the response
-            echo "API Response for $PACKAGE_NAME: $RESPONSE"
-          
-            # Check for 404 error
-            if echo "$RESPONSE" | jq -e '.status == "404"' >/dev/null 2>&1; then
-              echo "Package $PACKAGE_NAME not found. Skipping."
-              continue
-            fi
-          
-            # Validate JSON response
-            if echo "$RESPONSE" | jq empty 2>/dev/null; then
-              # Check if the response is an array
-              if echo "$RESPONSE" | jq 'type' | grep -q '"array"'; then
-                VERSION_COUNT=$(echo "$RESPONSE" | jq '. | length')
-          
-                if [ "$VERSION_COUNT" -eq 0 ]; then
-                  echo "No versions exist for $PACKAGE_NAME. Skipping."
-                  continue
-                fi
-          
-                VERSION_ID=$(echo "$RESPONSE" | jq -r --arg REF_NAME "$REF_NAME" '.[] | select(.name == $REF_NAME) | .id')
-          
-                if [ -n "$VERSION_ID" ]; then
-                  if [ "$VERSION_COUNT" -eq 1 ]; then
-                    echo "Only one version exists. Deleting the entire package $PACKAGE_NAME."
-                    curl -s -X DELETE \
-                      -H "Authorization: Bearer ${{ secrets.GITHUB_TOKEN }}" \
-                      "https://api.github.com/orgs/$OWNER/packages/$PACKAGE_TYPE/$PACKAGE_NAME"
-                  else
-                    echo "Multiple versions exist. Deleting version $VERSION_ID for $PACKAGE_NAME."
-                    curl -s -X DELETE \
-                      -H "Authorization: Bearer ${{ secrets.GITHUB_TOKEN }}" \
-                      "https://api.github.com/orgs/$OWNER/packages/$PACKAGE_TYPE/$PACKAGE_NAME/versions/$VERSION_ID"
-                  fi
-                else
-                  echo "No matching version found for $PACKAGE_NAME."
-                fi
-              else
-                echo "Response is not an array for $PACKAGE_NAME. Skipping."
-              fi
-            else
-              echo "Invalid JSON response for $PACKAGE_NAME. Skipping."
-            fi
-          done
-
       - name: Publish All Modules
         run: ./gradlew publish
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          MEGAKNYTES_MAVEN_USERNAME: ${{ secrets.MEGAKNYTES_MAVEN_USERNAME }}
+          MEGAKNYTES_MAVEN_PASSWORD: ${{ secrets.MEGAKNYTES_MAVEN_PASSWORD }}
