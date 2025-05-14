@@ -4,16 +4,10 @@ import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 
+import java.util.ArrayList;
+import java.util.List;
+
 public class XMLUtils {
-    public static Element getFirstChildElement(Element parent) {
-        NodeList children = parent.getChildNodes();
-        for (int childCount = 0; childCount < children.getLength(); childCount++) {
-            if (children.item(childCount).getNodeType() == Node.ELEMENT_NODE) {
-                return (Element) children.item(childCount);
-            }
-        }
-        return null;
-    }
 
     public static Element getFirstChildElementByName(Element parent, String name) {
         for (int i = 0; i < parent.getChildNodes().getLength(); i++) {
@@ -34,5 +28,16 @@ public class XMLUtils {
             }
         }
         return false;
+    }
+
+    public static List<Element> getElementNodes(NodeList nodeList) {
+        List<Element> elements = new ArrayList<>(nodeList.getLength());
+        for (int i = 0; i < nodeList.getLength(); i++) {
+            Node node = nodeList.item(i);
+            if (node.getNodeType() == Node.ELEMENT_NODE) {
+                elements.add((Element) node);
+            }
+        }
+        return elements;
     }
 }

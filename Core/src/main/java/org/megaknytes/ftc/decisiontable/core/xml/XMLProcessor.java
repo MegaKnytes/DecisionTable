@@ -16,7 +16,6 @@ import org.megaknytes.ftc.decisiontable.core.xml.values.Value;
 import org.megaknytes.ftc.decisiontable.core.xml.values.ValueParser;
 import org.megaknytes.ftc.decisiontable.core.xml.values.valuetypes.ParameterValue;
 import org.w3c.dom.Element;
-import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 
 import java.util.ArrayList;
@@ -27,104 +26,68 @@ import java.util.Map;
 public class XMLProcessor {
     private final ParameterRegistry parameterRegistry = ParameterRegistry.getInstance();
 
-    public Map<String, DTDevice> processDevices(NodeList deviceNodes, OpMode opMode, Map<String, DTDevice> availableDeviceDrivers) {
-        Map<String, DTDevice> instances = new HashMap<>();
+    public Map<String, DTDevice> processDevices(NodeList elementNodes, OpMode opMode, Map<String, DTDevice> availableDeviceDrivers) {
+        Map<String, DTDevice> deviceInstances = new HashMap<>();
+        List<Element> driverElements = XMLUtils.getElementNodes(elementNodes);
 
-        for (int deviceCount = 0; deviceCount < deviceNodes.getLength(); deviceCount++) {
-            Node node = deviceNodes.item(deviceCount);
+        for (Element driverElement : driverElements) {
+            String driverName = driverElement.getNodeName();
 
-            if (node.getNodeType() != Node.ELEMENT_NODE) {
-                continue;
+            if (!availableDeviceDrivers.containsKey(driverName)) {
+                throw new DriverNotFoundException("Driver with name " + driverName + " not found, has it been enabled?");
             }
 
-            Element deviceElement = (Element) node;
-            String deviceName = deviceElement.getNodeName();
+            DTDevice driverTemplate = availableDeviceDrivers.get(driverName);
+            assert driverTemplate != null;
+            Class<?> driverClass = driverTemplate.getClass();
 
-            Element driverElement = XMLUtils.getFirstChildElement(deviceElement);
-            if (driverElement == null) {
-                throw new ConfigurationException("Driver element missing for device: " + deviceName);
-            }
+            List<Element> deviceElements = XMLUtils.getElementNodes(driverElement.getChildNodes());
 
-            String driverType = driverElement.getNodeName();
+            for (Element deviceElement : deviceElements) {
+                String deviceName = deviceElement.getNodeName();
 
-            if (!availableDeviceDrivers.containsKey(driverType)) {
-                throw new DriverNotFoundException("Driver with name " + driverType + " not found, has it been enabled?");
-            }
-
-            if (instances.containsKey(deviceName)) {
-                throw new ConfigurationException("Duplicate device name: " + deviceName);
-            }
-
-            try {
-                DTDevice driver = availableDeviceDrivers.get(driverType);
-                if (driver == null) {
-                    throw new RuntimeException("Error creating driver instance for " + driverType);
-                }
-                Class<?> driverClass = driver.getClass();
-                DTDevice driverInstance = (DTDevice) driverClass.newInstance();
-                instances.put(deviceName, driverInstance);
-            } catch (Exception e) {
-                throw new RuntimeException("Failed to create device " + deviceName, e);
-            }
-        }
-
-        ParameterValue.setDeviceInstances(instances);
-
-        for (int deviceCount = 0; deviceCount < deviceNodes.getLength(); deviceCount++) {
-            Node node = deviceNodes.item(deviceCount);
-            if (node.getNodeType() != Node.ELEMENT_NODE) continue;
-
-            Element deviceElement = (Element) node;
-            String deviceName = deviceElement.getNodeName();
-            Element driverElement = XMLUtils.getFirstChildElement(deviceElement);
-
-            if (driverElement != null) {
-                DTDevice device = instances.get(deviceName);
-
-                if (device == null) {
-                    throw new RuntimeException("Device " + deviceName + " not found in instances, has it been initialized?");
+                if (deviceInstances.containsKey(deviceName)) {
+                    throw new ConfigurationException("Duplicate device name: " + deviceName);
                 }
 
-                device.registerParameters(opMode, parameterRegistry);
+                try {
+                    DTDevice deviceInstance = (DTDevice) driverClass.newInstance();
+                    deviceInstances.put(deviceName, deviceInstance);
 
-                NodeList paramNodes = driverElement.getChildNodes();
+                    deviceInstance.registerParameters(opMode, parameterRegistry);
 
-                for (int parameterCount = 0; parameterCount < paramNodes.getLength(); parameterCount++) {
-                    Node paramNode = paramNodes.item(parameterCount);
-                    if (paramNode.getNodeType() != Node.ELEMENT_NODE) continue;
+                    List<Element> initialParameters = XMLUtils.getElementNodes(deviceElement.getChildNodes());
 
-                    String paramName = paramNode.getNodeName();
+                    for (Element initialParameter : initialParameters) {
+                        String parameterName = initialParameter.getNodeName();
+                        try {
+                            Parameter<?> parameter = parameterRegistry.getParameter(deviceInstance, parameterName);
 
-                    try {
-                        Parameter<?> parameter = parameterRegistry.getParameter(device, paramName);
+                            if (parameter == null) {
+                                throw new ConfigurationException("Parameter " + parameterName + " not found in device " + deviceName);
+                            }
 
-                        if (parameter == null) {
-                            throw new ConfigurationException("Parameter " + paramName + " not found in device " + deviceName);
+                            Value<?> value = ValueParser.parseValue(initialParameter, parameter.getType());
+                            new Action(parameter, value).execute();
+                        } catch (Exception e) {
+                            throw new RuntimeException("Failed to initialize parameter " + parameterName + " for device " + deviceName, e);
                         }
-
-                        Value<?> value = ValueParser.parseValue(paramNode, parameter.getType());
-
-                        new Action(parameter, value).execute();
-                    } catch (Exception e) {
-                        throw new RuntimeException("Failed to initialize parameter " + paramName + " for device " + deviceName);
                     }
+                } catch (InstantiationException | IllegalAccessException e) {
+                    throw new RuntimeException("Failed to create device " + deviceName, e);
                 }
             }
         }
 
-        return instances;
+        ParameterValue.setDeviceInstances(deviceInstances);
+        return deviceInstances;
     }
 
-    public List<Rule> processRules(NodeList ruleNodes, Map<String, DTDevice> availableDeviceDrivers) {
+    public List<Rule> processRules(NodeList elementNodes, Map<String, DTDevice> availableDeviceDrivers) {
         List<Rule> rules = new ArrayList<>();
+        List<Element> ruleElements = XMLUtils.getElementNodes(elementNodes);
 
-        for (int ruleCount = 0; ruleCount < ruleNodes.getLength(); ruleCount++) {
-            Node ruleNode = ruleNodes.item(ruleCount);
-            if (ruleNode.getNodeType() != Node.ELEMENT_NODE) continue;
-
-            Element ruleElement = (Element) ruleNode;
-            if (!"Rule".equals(ruleElement.getNodeName())) continue;
-
+        for (Element ruleElement : ruleElements) {
             String description = ruleElement.getAttribute("description");
             List<Condition> conditions = processConditions(ruleElement, availableDeviceDrivers);
             List<Action> actions = processActions(ruleElement, availableDeviceDrivers);
@@ -135,44 +98,37 @@ public class XMLProcessor {
         return rules;
     }
 
-    private List<Condition> processConditions(Element ruleElement, Map<String, DTDevice> availableDeviceDrivers) {
+    private List<Condition> processConditions(Element element, Map<String, DTDevice> availableDeviceDrivers) {
         List<Condition> conditions = new ArrayList<>();
-        NodeList conditionNodes = ruleElement.getElementsByTagName("Condition");
+        NodeList conditionNodes = element.getElementsByTagName("Condition");
 
         for (int conditionCount = 0; conditionCount < conditionNodes.getLength(); conditionCount++) {
             Element conditionElement = (Element) conditionNodes.item(conditionCount);
-            NodeList deviceNodes = conditionElement.getChildNodes();
 
-            for (int deviceCount = 0; deviceCount < deviceNodes.getLength(); deviceCount++) {
-                Node deviceNode = deviceNodes.item(deviceCount);
-                if (deviceNode.getNodeType() != Node.ELEMENT_NODE) continue;
+            List<Element> deviceElements = XMLUtils.getElementNodes(conditionElement.getChildNodes());
 
-                Element deviceElement = (Element) deviceNode;
+            for (Element deviceElement : deviceElements) {
                 String deviceName = deviceElement.getNodeName();
-                DTDevice device = availableDeviceDrivers.get(deviceName);
+                DTDevice deviceInstance = availableDeviceDrivers.get(deviceName);
 
-                if (device == null) {
+                if (deviceInstance == null) {
                     throw new IllegalParameterException("Device not found: " + deviceName);
                 }
 
-                NodeList paramNodes = deviceElement.getChildNodes();
-                for (int parameterCount = 0; parameterCount < paramNodes.getLength(); parameterCount++) {
-                    Node paramNode = paramNodes.item(parameterCount);
-                    if (paramNode.getNodeType() != Node.ELEMENT_NODE) continue;
+                List<Element> parameterElements = XMLUtils.getElementNodes(deviceElement.getChildNodes());
 
-                    Element paramElement = (Element) paramNode;
-                    String paramName = paramElement.getNodeName();
-                    String operator = paramElement.getAttribute("operator");
+                for (Element parameterElement : parameterElements) {
+                    String parameterName = parameterElement.getNodeName();
+                    String operator = parameterElement.getAttribute("operator");
                     if (operator.isEmpty()) operator = "==";
 
-                    Parameter<?> parameter = parameterRegistry.getParameter(device, paramName);
+                    Parameter<?> parameter = parameterRegistry.getParameter(deviceInstance, parameterName);
 
                     if (parameter == null) {
-                        throw new IllegalParameterException("Parameter not found: " + deviceName + "." + paramName);
+                        throw new IllegalParameterException("Parameter " + parameterName + " not found in device " + deviceName);
                     }
 
-                    Value<?> expectedValue = ValueParser.parseValue(paramElement, parameter.getType());
-
+                    Value<?> expectedValue = ValueParser.parseValue(parameterElement, parameter.getType());
                     conditions.add(new Condition(parameter, operator, expectedValue));
                 }
             }
@@ -181,42 +137,34 @@ public class XMLProcessor {
         return conditions;
     }
 
-    private List<Action> processActions(Element ruleElement, Map<String, DTDevice> availableDeviceDrivers) {
+    private List<Action> processActions(Element element, Map<String, DTDevice> availableDeviceDrivers) {
         List<Action> actions = new ArrayList<>();
-        NodeList actionNodes = ruleElement.getElementsByTagName("Action");
+        NodeList actionNodes = element.getElementsByTagName("Action");
 
         for (int actionCount = 0; actionCount < actionNodes.getLength(); actionCount++) {
             Element actionElement = (Element) actionNodes.item(actionCount);
 
-            NodeList deviceNodes = actionElement.getChildNodes();
-            for (int deviceCount = 0; deviceCount < deviceNodes.getLength(); deviceCount++) {
-                Node deviceNode = deviceNodes.item(deviceCount);
-                if (deviceNode.getNodeType() != Node.ELEMENT_NODE) continue;
+            List<Element> deviceElements = XMLUtils.getElementNodes(actionElement.getChildNodes());
 
-                Element deviceElement = (Element) deviceNode;
+            for (Element deviceElement : deviceElements) {
                 String deviceName = deviceElement.getNodeName();
-                DTDevice device = availableDeviceDrivers.get(deviceName);
+                DTDevice deviceInstance = availableDeviceDrivers.get(deviceName);
 
-                if (device == null) {
+                if (deviceInstance == null) {
                     throw new IllegalParameterException("Device not found: " + deviceName);
                 }
 
-                NodeList paramNodes = deviceElement.getChildNodes();
-                for (int parameterCount = 0; parameterCount < paramNodes.getLength(); parameterCount++) {
-                    Node paramNode = paramNodes.item(parameterCount);
-                    if (paramNode.getNodeType() != Node.ELEMENT_NODE) continue;
+                List<Element> parameterElements = XMLUtils.getElementNodes(deviceElement.getChildNodes());
 
-                    Element paramElement = (Element) paramNode;
-                    String paramName = paramElement.getNodeName();
-
-                    Parameter<?> parameter = parameterRegistry.getParameter(device, paramName);
+                for (Element parameterElement : parameterElements) {
+                    String parameterName = parameterElement.getNodeName();
+                    Parameter<?> parameter = parameterRegistry.getParameter(deviceInstance, parameterName);
 
                     if (parameter == null) {
-                        throw new IllegalParameterException("Parameter not found: " + deviceName + "." + paramName);
+                        throw new IllegalParameterException("Parameter " + parameterName + " not found in device " + deviceName);
                     }
 
-                    Value<?> value = ValueParser.parseValue(paramElement, parameter.getType());
-
+                    Value<?> value = ValueParser.parseValue(parameterElement, parameter.getType());
                     actions.add(new Action(parameter, value));
                 }
             }
