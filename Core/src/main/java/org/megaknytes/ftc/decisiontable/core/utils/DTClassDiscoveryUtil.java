@@ -21,7 +21,6 @@ public class DTClassDiscoveryUtil {
     private static final Logger LOGGER = Logger.getLogger(DTClassDiscoveryUtil.class.getName());
     private static final DTClassDiscoveryUtil INSTANCE = new DTClassDiscoveryUtil();
     private static final Map<String, DTDevice> driverInstances = new ConcurrentHashMap<>();
-
     private static final Map<Class<?>, Value<?>> valueParserInstances = new ConcurrentHashMap<>();
 
     private DTClassDiscoveryUtil() {}
@@ -93,9 +92,7 @@ public class DTClassDiscoveryUtil {
 
                 try {
                     Class<?> configClass = Class.forName(className, false, DTClassDiscoveryUtil.class.getClassLoader());
-
                     if (DTDevice.class.isAssignableFrom(configClass) && !configClass.isInterface() && !configClass.isAnnotationPresent(DisabledClass.class)) {
-
                         try {
                             @SuppressWarnings("unchecked")
                             DTDevice driverInstance = (DTDevice) configClass.newInstance();
@@ -119,10 +116,10 @@ public class DTClassDiscoveryUtil {
     }
 
     public static Map<String, DTDevice> getDriverInstances() {
-        return Collections.unmodifiableMap(driverInstances);
+        return driverInstances;
     }
 
     public Map<Class<?>, Value<?>> getValueParserClasses() {
-        return Collections.unmodifiableMap(valueParserInstances);
+        return valueParserInstances;
     }
 }
