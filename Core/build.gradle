@@ -78,6 +78,7 @@ publishing {
                     artifactId = 'core'
 
                     version = System.getenv("GITHUB_SHA")?.substring(0, 7)
+                    alias true
 
                     configureBasePom(delegate)
 
