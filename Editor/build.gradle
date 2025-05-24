@@ -45,7 +45,7 @@ android {
 }
 
 node {
-    nodeProjectDir = file("src/main/webapp/")
+    nodeProjectDir = file("src/main/decisiontable/")
     download = true;
 }
 
@@ -144,24 +144,24 @@ tasks.register('generateStaticBuild', NpxTask) {
     command = 'react-scripts'
     args = ['build']
 
-    inputs.files('src/main/webapp/package.json', 'src/main/webapp/package-lock.json')
-    inputs.dir('src/main/webapp/src')
-    inputs.dir(fileTree("src/main/webapp/node_modules").exclude(".cache"))
+    inputs.files('src/main/decisiontable/package.json', 'src/main/decisiontable/package-lock.json')
+    inputs.dir('src/main/decisiontable/src')
+    inputs.dir(fileTree("src/main/decisiontable/node_modules").exclude(".cache"))
 }
 
-tasks.register('copyWebApp', Copy) {
-    from "src/main/webapp/build"
-    into "src/main/assets/webapp"
+tasks.register('copyDecisionTable', Copy) {
+    from "src/main/decisiontable/build"
+    into "src/main/assets/decisiontable"
 }
 
 clean.doFirst {
-    file('src/main/assets/webapp').deleteDir()
-    file('src/main/webapp/build').deleteDir()
+    file('src/main/assets/decisiontable').deleteDir()
+    file('src/main/decisiontable/build').deleteDir()
 }
 
 publish.dependsOn 'generateStaticBuild'
 publishToMavenLocal.dependsOn 'generateStaticBuild'
 
 afterEvaluate {
-    packageReleaseAssets.dependsOn 'copyWebApp'
+    packageReleaseAssets.dependsOn 'copyDecisionTable'
 }

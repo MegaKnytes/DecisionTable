@@ -31,8 +31,8 @@ public class HTTPHandler {
 
     public static void bindWebServer(WebHandlerManager manager) {
         AssetManager assetManager = Objects.requireNonNull(AppUtil.getInstance().getActivity()).getAssets();
-        manager.register("/webapp", HTTPHandler.fileWebHandler(assetManager, "webapp/index.html"));
-        HTTPHandler.directoryWebHandler(assetManager, "webapp");
+        manager.register("/decisiontable", HTTPHandler.fileWebHandler(assetManager, "decisiontable/index.html"));
+        HTTPHandler.directoryWebHandler(assetManager, "decisiontable");
     }
 
     private static org.firstinspires.ftc.robotcore.internal.webserver.WebHandler fileWebHandler(AssetManager assetManager, String fileName) {
