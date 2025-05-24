@@ -21,7 +21,7 @@ To use these packages, you must add a repository to your gradle project.
 
       repositories {
             maven {
-              url = uri("https://maven.pkg.github.com/MegaKnytes/DecisionTable")
+              url = uri("https://maven.megaknytes.org/releases")
             }
         ...
       ```
@@ -31,8 +31,8 @@ To use these packages, you must add a repository to your gradle project.
       dependencies {
         ...
       
-        implementation 'com.decisiontable.ftc:core:<VERSION_TAG>
-        implementation 'com.decisiontable.ftc:editor:<VERSION_TAG>
+        implementation 'org.megaknytes.ftc.decisiontable:core:<VERSION_TAG>
+        implementation 'org.megaknytes.ftc.decisiontable:editor:<VERSION_TAG>
       
         ...
       ```
