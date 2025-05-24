@@ -49,6 +49,9 @@ jobs:
           java-version: '21'
           distribution: 'corretto'
 
+      - name: Setup Gradle
+        uses: gradle/actions/setup-gradle@v4.3.1
+
       - name: Get release tag
         id: get_version
         run: echo "RELEASE_VERSION=${GITHUB_REF_NAME}" >> $GITHUB_ENV
@@ -67,16 +70,19 @@ jobs:
           cd FtcRobotController
           ./gradlew assembleRelease
           mv TeamCode/build/outputs/apk/release/TeamCode-release.apk TeamCode/build/outputs/apk/release/FtcRobotController-DTLibrary-${{ env.RELEASE_VERSION }}.apk
+          
+          cd TeamCode/build
+          ls --all --recursive
 
       - name: Upload APK
         uses: actions/upload-artifact@v4
         with:
           name: FtcRobotController-DTLibrary-${{ env.RELEASE_VERSION }}
-          path: TeamCode/build/outputs/apk/release/FtcRobotController-DTLibrary-${{ env.RELEASE_VERSION }}.apk
+          path: FtcRobotController/TeamCode/build/outputs/apk/release/FtcRobotController-DTLibrary-${{ env.RELEASE_VERSION }}.apk
 
       - name: Upload APK to Release Page
         uses: softprops/action-gh-release@v2
         with:
-          files: TeamCode/build/outputs/apk/release/FtcRobotController-DTLibrary-${{ env.RELEASE_VERSION }}.apk
+          files: FtcRobotController/TeamCode/build/outputs/apk/release/FtcRobotController-DTLibrary-${{ env.RELEASE_VERSION }}.apk
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
