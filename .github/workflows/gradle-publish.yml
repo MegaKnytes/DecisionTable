@@ -69,10 +69,8 @@ jobs:
         run: |
           cd FtcRobotController
           ./gradlew assembleRelease
-          mv TeamCode/build/outputs/apk/release/TeamCode-release.apk TeamCode/build/outputs/apk/release/FtcRobotController-DTLibrary-${{ env.RELEASE_VERSION }}.apk
           
-          cd TeamCode/build
-          ls --all --recursive
+          mv TeamCode/build/outputs/apk/release/TeamCode-release.apk TeamCode/build/outputs/apk/release/FtcRobotController-DTLibrary-${{ env.RELEASE_VERSION }}.apk
 
       - name: Upload APK
         uses: actions/upload-artifact@v4
