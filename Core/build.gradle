@@ -61,7 +61,7 @@ publishing {
         if (System.getenv("CI")) {
             referenceRelease(MavenPublication) {
                 groupId = 'org.megaknytes.ftc.decisiontable'
-                artifactId = 'core'
+                artifactId = 'Core'
 
                 version = System.getenv("GITHUB_REF_TYPE") == "tag" ? System.getenv("GITHUB_REF_NAME") : System.getenv("GITHUB_REF_NAME") + "-SNAPSHOT"
 
@@ -71,26 +71,10 @@ publishing {
                     from components.release
                 }
             }
-
-            if (System.getenv("GITHUB_REF_TYPE") != "tag") {
-                commitHashRelease(MavenPublication) {
-                    groupId = 'org.megaknytes.ftc.decisiontable'
-                    artifactId = 'core'
-
-                    version = System.getenv("GITHUB_SHA")?.substring(0, 7)
-
-                    configureBasePom(delegate)
-
-                    afterEvaluate {
-                        from components.release
-                    }
-                }
-            }
-
         } else {
-            baseRelease(MavenPublication) {
+            localRelease(MavenPublication) {
                 groupId = 'org.megaknytes.ftc.decisiontable'
-                artifactId = 'core'
+                artifactId = 'Core'
                 version = "localDeployment-SNAPSHOT"
 
                 configureBasePom(delegate)
