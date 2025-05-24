@@ -1,13 +1,13 @@
 {
-  "name": "webapp",
+  "name": "decisiontable",
   "version": "0.1.0",
-  "homepage": "/decisionviewer",
+  "homepage": "/decisiontable",
   "private": true,
   "dependencies": {
     "cra-template": "1.2.0",
     "react": "^19.0.0",
     "react-dom": "^19.0.0",
-    "react-scripts": "5.0.1"
+    "react-scripts": "^5.0.1"
   },
   "scripts": {
     "start": "react-scripts start",
