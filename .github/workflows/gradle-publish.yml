@@ -66,16 +66,17 @@ jobs:
         run: |
           cd FtcRobotController
           ./gradlew assembleRelease
+          mv TeamCode/build/outputs/apk/release/TeamCode-release.apk TeamCode/build/outputs/apk/release/FtcRobotController-DTLibrary-${{ env.RELEASE_VERSION }}.apk
 
       - name: Upload APK
         uses: actions/upload-artifact@v4
         with:
           name: FtcRobotController-DTLibrary-${{ env.RELEASE_VERSION }}
-          path: FtcRobotController/FtcRobotController/build/outputs/apk/release/*.apk
+          path: TeamCode/build/outputs/apk/release/FtcRobotController-DTLibrary-${{ env.RELEASE_VERSION }}.apk
 
       - name: Upload APK to Release Page
         uses: softprops/action-gh-release@v2
         with:
-          files: FtcRobotController/FtcRobotController/build/outputs/apk/release/*.apk
+          files: TeamCode/build/outputs/apk/release/FtcRobotController-DTLibrary-${{ env.RELEASE_VERSION }}.apk
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
