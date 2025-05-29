@@ -1,7 +1,7 @@
 plugins {
     id 'maven-publish'
     id 'com.android.library'
-    id("com.github.node-gradle.node") version "7.0.2"
+    id("com.github.node-gradle.node") version "7.1.0"
 }
 
 dependencies {
@@ -44,6 +44,7 @@ android {
 
 node {
     nodeProjectDir = file("src/main/decisiontable/")
+    version = "23.10.0"
     download = true;
 }
 
@@ -139,7 +140,7 @@ tasks.register('generateStaticBuild', NpxTask) {
 
     outputs.upToDateWhen { false }
 
-    command = 'react-scripts'
+    command = 'next'
     args = ['build']
 
     inputs.files('src/main/decisiontable/package.json', 'src/main/decisiontable/package-lock.json')
@@ -147,7 +148,7 @@ tasks.register('generateStaticBuild', NpxTask) {
     inputs.dir(fileTree("src/main/decisiontable/node_modules").exclude(".cache"))
 }
 
-tasks.register('copyDecisionTable', Copy) {
+tasks.register('copyStaticBuild', Copy) {
     from "src/main/decisiontable/build"
     into "src/main/assets/decisiontable"
 }
@@ -161,5 +162,5 @@ publish.dependsOn 'generateStaticBuild'
 publishToMavenLocal.dependsOn 'generateStaticBuild'
 
 afterEvaluate {
-    packageReleaseAssets.dependsOn 'copyDecisionTable'
+    packageReleaseAssets.dependsOn 'copyStaticBuild'
 }
