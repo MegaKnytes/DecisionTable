@@ -58,29 +58,28 @@ public class DTProcessor {
         for (Map.Entry<String, DecisionTable> entry : INSTANCE.enabledDecisionTables.entrySet()) {
             String tableName = entry.getKey();
             OpModeMeta.Flavor opmodeFlavor = entry.getValue().getFlavor();
+            String transitionTarget = entry.getValue().getTransitionTarget() != null ? entry.getValue().getTransitionTarget() : null;
 
-            OpMode opMode = new OpMode() {
-                @Override
-                public void init() {
-                    INSTANCE.initializeDiscoveredTable(this, tableName);
-                    telemetry.addData("Status: ", tableName + " has been initialized");
-                }
-
-                @Override
-                public void loop() {
-                    telemetry.addData("Status: ", tableName + " is running");
-                    telemetry.addData("Runtime: ", getRuntime());
-                    INSTANCE.update();
-                }
-            };
             opModeManager.register(
                     new OpModeMeta.Builder()
                             .setName(tableName + " [DT]")
                             .setFlavor(opmodeFlavor)
                             .setGroup("DecisionTable")
                             .setSource(OpModeMeta.Source.EXTERNAL_LIBRARY)
+                            .setTransitionTarget(transitionTarget)
                             .build(),
-                    opMode);
+                    new OpMode() {
+                        @Override
+                        public void init() {
+                            INSTANCE.initializeDiscoveredTable(this, tableName);
+                            telemetry.addData("Status: ", tableName + " has been initialized");
+                        }
+
+                        @Override
+                        public void loop() {
+                            INSTANCE.update();
+                        }
+                    });
         }
     }
 

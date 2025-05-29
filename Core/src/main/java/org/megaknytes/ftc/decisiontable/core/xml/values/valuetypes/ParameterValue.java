@@ -13,6 +13,7 @@ import java.util.Map;
 
 public class ParameterValue<T> implements Value<T> {
     private String deviceName;
+    private String groupName;
     private String paramName;
     private Parameter<T> sourceParameter;
     private static Map<String, DTDevice> deviceInstances;
@@ -58,12 +59,16 @@ public class ParameterValue<T> implements Value<T> {
             throw new ConfigurationException("Device element has no device type child");
         }
 
-        Element paramElement = XMLUtils.getFirstChildElementByName(element, "Parameter");
+        Element groupElement = XMLUtils.getFirstChildElementByName(element, "Group");
+        if (groupElement == null) {
+            throw new ConfigurationException("Parameter reference missing Group element");
+        }
+        groupName = groupElement.getTextContent().trim();
 
+        Element paramElement = XMLUtils.getFirstChildElementByName(element, "Parameter");
         if (paramElement == null) {
             throw new ConfigurationException("Parameter reference missing Parameter element");
         }
-
         paramName = paramElement.getTextContent().trim();
 
         return null;
@@ -72,18 +77,17 @@ public class ParameterValue<T> implements Value<T> {
     @Override
     @SuppressWarnings("unchecked")
     public T getValue() {
-        if (deviceName == null || paramName == null) {
-            throw new ConfigurationException("Device name or parameter name not set");
+        if (deviceName == null || groupName == null || paramName == null) {
+            throw new ConfigurationException("Device name, group name, or parameter name not set");
         }
 
         if (sourceParameter == null) {
             DTDevice device = deviceInstances.get(deviceName);
-            Parameter<?> param = registry.getParameter(device, paramName);
-
-            if (param == null) {
-                throw new ConfigurationException("Parameter " + paramName + " not found in device " + deviceName);
+            if (device == null) {
+                throw new ConfigurationException("Device not found: " + deviceName);
             }
 
+            Parameter<?> param = registry.getParameter(device, groupName, paramName);
             this.sourceParameter = (Parameter<T>) param;
         }
 

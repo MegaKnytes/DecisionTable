@@ -66,7 +66,9 @@ public class DTFileDiscovery {
                                 throw new ConfigurationException("Duplicate decision table name: " + tableName);
                             }
                             String flavourValue = getElementTextContent(configElement, "Type");
-                            enabledTables.put(tableName, new DecisionTable(xmlFile, OpModeMeta.Flavor.valueOf(flavourValue.toUpperCase())));
+                            String transitionTarget = getElementTextContent(configElement, "TransitionTarget");
+                            assert flavourValue != null;
+                            enabledTables.put(tableName, new DecisionTable(xmlFile, OpModeMeta.Flavor.valueOf(flavourValue.toUpperCase()), transitionTarget));
                         }
                     }
                 }
@@ -83,6 +85,6 @@ public class DTFileDiscovery {
         if (elements.getLength() > 0) {
             return elements.item(0).getTextContent();
         }
-        return "";
+        return null;
     }
 }

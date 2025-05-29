@@ -17,16 +17,15 @@ public class Servo implements DTDevice {
         Supplier<String> servoNameSupplier = () -> servoName;
         Supplier<Double> positionSupplier = () -> servo.getPosition();
 
-        Parameter<String> servoName = registry.createParameter(this, "HardwareMap", String.class, servoNameSupplier);
-        Parameter<Double> position = registry.createParameter(this, "Power", Double.class, positionSupplier);
+        registry.createParameterGroup(this, "Configuration")
+                .addParameter("ServoName", String.class, servoNameSupplier, (name) -> {
+                    this.servoName = name;
+                    this.servo = opMode.hardwareMap.get(com.qualcomm.robotcore.hardware.Servo.class, name);
+                });
 
-        servoName.addListener(newHardwareMapName -> {
-            this.servoName = newHardwareMapName;
-            this.servo = opMode.hardwareMap.get(com.qualcomm.robotcore.hardware.Servo.class, newHardwareMapName);
-        });
-
-        position.addListener(newPosition -> {
-            servo.setPosition(newPosition);
-        });
+        registry.createParameterGroup(this, "Value")
+                .addParameter("Position", Double.class, positionSupplier, (position) -> {
+                    servo.setPosition(position);
+                });
     }
 }

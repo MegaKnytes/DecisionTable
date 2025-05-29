@@ -20,22 +20,17 @@ public class CRServo implements DTDevice {
         Supplier<DcMotorSimple.Direction> directionSupplier = () -> direction;
         Supplier<Double> powerSupplier = () -> crServo.getPower();
 
-        Parameter<String> crServoName = registry.createParameter(this, "HardwareMap", String.class, crServoNameSupplier);
-        Parameter<DcMotorSimple.Direction> direction = registry.createParameter(this, "Direction", DcMotorSimple.Direction.class, directionSupplier);
-        Parameter<Double> power = registry.createParameter(this, "Power", Double.class, powerSupplier);
+        registry.createParameterGroup(this, "Configuration")
+                .addParameter("ServoName", String.class, crServoNameSupplier, (name) -> {
+                    this.crServoName = name;
+                    this.crServo = opMode.hardwareMap.get(com.qualcomm.robotcore.hardware.CRServo.class, name);
+                })
+                .addParameter("Direction", DcMotorSimple.Direction.class, directionSupplier, (dir) -> {
+                    this.direction = dir;
+                    this.crServo.setDirection(dir);
+                });
 
-        crServoName.addListener(newHardwareMapName -> {
-            this.crServoName = newHardwareMapName;
-            this.crServo = opMode.hardwareMap.get(com.qualcomm.robotcore.hardware.CRServo.class, newHardwareMapName);
-        });
-
-        power.addListener(newPower -> {
-            crServo.setPower(newPower);
-        });
-
-        direction.addListener(newDirection -> {
-            this.direction = newDirection;
-            crServo.setDirection(newDirection);
-        });
+        registry.createParameterGroup(this, "Value")
+                .addParameter("Power", Double.class, powerSupplier, (power) -> crServo.setPower(power));
     }
 }

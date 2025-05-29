@@ -37,33 +37,37 @@ public class Gamepad implements DTDevice {
         Supplier<Float> rightStickXSupplier = () -> gamepad.right_stick_x;
         Supplier<Float> rightStickYSupplier = () -> gamepad.right_stick_y;
 
-        Parameter<Integer> gamepadID = registry.createParameter(this, "GamepadID", Integer.class, gamepadIDSupplier);
 
-        registry.createParameter(this, "a", Boolean.class, aSupplier);
-        registry.createParameter(this, "b", Boolean.class, bSupplier);
-        registry.createParameter(this, "x", Boolean.class, xSupplier);
-        registry.createParameter(this, "y", Boolean.class, ySupplier);
-        registry.createParameter(this, "left_bumper", Boolean.class, leftBumperSupplier);
-        registry.createParameter(this, "right_bumper", Boolean.class, rightBumperSupplier);
-        registry.createParameter(this, "left_stick_button", Boolean.class, leftStickButtonSupplier);
-        registry.createParameter(this, "right_stick_button", Boolean.class, rightStickButtonSupplier);
-        registry.createParameter(this, "dpad_up", Boolean.class, dpadUpSupplier);
-        registry.createParameter(this, "dpad_down", Boolean.class, dpadDownSupplier);
-        registry.createParameter(this, "dpad_left", Boolean.class, dpadLeftSupplier);
-        registry.createParameter(this, "dpad_right", Boolean.class, dpadRightSupplier);
-        registry.createParameter(this, "start", Boolean.class, startSupplier);
-        registry.createParameter(this, "back", Boolean.class, backSupplier);
+        registry.createParameterGroup(this, "Configuration")
+                .addParameter("GamepadID", Integer.class, gamepadIDSupplier, (id) -> {
+                    this.id = id;
+                    this.gamepad = id == 1 ? opMode.gamepad1 : opMode.gamepad2;
+                });
 
-        registry.createParameter(this, "left_trigger", Float.class, leftTriggerSupplier);
-        registry.createParameter(this, "right_trigger", Float.class, rightTriggerSupplier);
-        registry.createParameter(this, "left_stick_x", Float.class, leftStickXSupplier);
-        registry.createParameter(this, "left_stick_y", Float.class, leftStickYSupplier);
-        registry.createParameter(this, "right_stick_x", Float.class, rightStickXSupplier);
-        registry.createParameter(this, "right_stick_y", Float.class, rightStickYSupplier);
+        registry.createParameterGroup(this, "Buttons")
+                .addParameter("A", Boolean.class, aSupplier, (value) -> gamepad.a = value)
+                .addParameter("B", Boolean.class, bSupplier, (value) -> gamepad.b = value)
+                .addParameter("X", Boolean.class, xSupplier, (value) -> gamepad.x = value)
+                .addParameter("Y", Boolean.class, ySupplier, (value) -> gamepad.y = value)
+                .addParameter("LeftBumper", Boolean.class, leftBumperSupplier, (value) -> gamepad.left_bumper = value)
+                .addParameter("RightBumper", Boolean.class, rightBumperSupplier, (value) -> gamepad.right_bumper = value)
+                .addParameter("LeftStickButton", Boolean.class, leftStickButtonSupplier, (value) -> gamepad.left_stick_button = value)
+                .addParameter("RightStickButton", Boolean.class, rightStickButtonSupplier, (value) -> gamepad.right_stick_button = value)
+                .addParameter("DPadUp", Boolean.class, dpadUpSupplier, (value) -> gamepad.dpad_up = value)
+                .addParameter("DPadDown", Boolean.class, dpadDownSupplier, (value) -> gamepad.dpad_down = value)
+                .addParameter("DPadLeft", Boolean.class, dpadLeftSupplier, (value) -> gamepad.dpad_left = value)
+                .addParameter("DPadRight", Boolean.class, dpadRightSupplier, (value) -> gamepad.dpad_right = value)
+                .addParameter("Start", Boolean.class, startSupplier, (value) -> gamepad.start = value)
+                .addParameter("Back", Boolean.class, backSupplier, (value) -> gamepad.back = value);
 
-        gamepadID.addListener(id -> {
-            this.id = id;
-            this.gamepad = id == 1 ? opMode.gamepad1 : opMode.gamepad2;
-        });
+        registry.createParameterGroup(this, "Triggers")
+                .addParameter("LeftTrigger", Float.class, leftTriggerSupplier, (value) -> gamepad.left_trigger = value)
+                .addParameter("RightTrigger", Float.class, rightTriggerSupplier, (value) -> gamepad.right_trigger = value);
+
+        registry.createParameterGroup(this, "Sticks")
+                .addParameter("LeftStickX", Float.class, leftStickXSupplier, (value) -> gamepad.left_stick_x = value)
+                .addParameter("LeftStickY", Float.class, leftStickYSupplier, (value) -> gamepad.left_stick_y = value)
+                .addParameter("RightStickX", Float.class, rightStickXSupplier, (value) -> gamepad.right_stick_x = value)
+                .addParameter("RightStickY", Float.class, rightStickYSupplier, (value) -> gamepad.right_stick_y = value);
     }
 }

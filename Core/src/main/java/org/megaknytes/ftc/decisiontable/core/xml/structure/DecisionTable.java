@@ -7,10 +7,12 @@ import java.io.File;
 public class DecisionTable {
     private final File file;
     private final OpModeMeta.Flavor flavor;
+    private final String transitionTarget;
 
-    public DecisionTable(File file, OpModeMeta.Flavor flavor) {
+    public DecisionTable(File file, OpModeMeta.Flavor flavor, String transitionTarget) {
         this.file = file;
         this.flavor = flavor;
+        this.transitionTarget = transitionTarget;
     }
 
     public File getFile() {
@@ -19,5 +21,9 @@ public class DecisionTable {
 
     public OpModeMeta.Flavor getFlavor() {
         return flavor;
+    }
+
+    public String getTransitionTarget() {
+        return transitionTarget;
     }
 }

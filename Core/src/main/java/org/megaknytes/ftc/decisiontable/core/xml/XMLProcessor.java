@@ -8,6 +8,7 @@ import org.megaknytes.ftc.decisiontable.core.utils.exceptions.ConfigurationExcep
 import org.megaknytes.ftc.decisiontable.core.utils.exceptions.DriverNotFoundException;
 import org.megaknytes.ftc.decisiontable.core.utils.exceptions.IllegalParameterException;
 import org.megaknytes.ftc.decisiontable.core.xml.structure.parameters.Parameter;
+import org.megaknytes.ftc.decisiontable.core.xml.structure.parameters.ParameterGroup;
 import org.megaknytes.ftc.decisiontable.core.xml.structure.parameters.ParameterRegistry;
 import org.megaknytes.ftc.decisiontable.core.xml.structure.Action;
 import org.megaknytes.ftc.decisiontable.core.xml.structure.Condition;
@@ -56,18 +57,29 @@ public class XMLProcessor {
 
                     deviceInstance.registerParameters(opMode, parameterRegistry);
 
-                    List<Element> initialParameters = XMLUtils.getElementNodes(deviceElement.getChildNodes());
+                    List<Element> groupElements = XMLUtils.getElementNodes(deviceElement.getChildNodes());
 
-                    for (Element initialParameter : initialParameters) {
-                        String parameterName = initialParameter.getNodeName();
-                        Parameter<?> parameter = parameterRegistry.getParameter(deviceInstance, parameterName);
+                    for (Element groupElement : groupElements) {
+                        String groupName = groupElement.getNodeName();
+                        ParameterGroup group = parameterRegistry.getGroup(deviceInstance, groupName);
 
-                        if (parameter == null) {
-                            throw new ConfigurationException("Parameter " + parameterName + " not found in device " + deviceName);
+                        if (group == null) {
+                            throw new ConfigurationException("Group " + groupName + " not found in device " + deviceName);
                         }
 
-                        Value<?> value = ValueParser.parseValue(initialParameter, parameter.getType());
-                        new Action(parameter, value).execute();
+                        List<Element> paramElements = XMLUtils.getElementNodes(groupElement.getChildNodes());
+
+                        for (Element paramElement : paramElements) {
+                            String parameterName = paramElement.getNodeName();
+                            Parameter<?> parameter = group.getParameter(parameterName);
+
+                            if (parameter == null) {
+                                throw new ConfigurationException("Parameter " + parameterName + " not found in group " + groupName);
+                            }
+
+                            Value<?> value = ValueParser.parseValue(paramElement, parameter.getType());
+                            new Action(parameter, value).execute();
+                        }
                     }
                 } catch (InstantiationException | IllegalAccessException e) {
                     throw new RuntimeException("Failed to create device " + deviceName, e);
@@ -100,7 +112,6 @@ public class XMLProcessor {
 
         for (int conditionCount = 0; conditionCount < conditionNodes.getLength(); conditionCount++) {
             Element conditionElement = (Element) conditionNodes.item(conditionCount);
-
             List<Element> deviceElements = XMLUtils.getElementNodes(conditionElement.getChildNodes());
 
             for (Element deviceElement : deviceElements) {
@@ -111,24 +122,35 @@ public class XMLProcessor {
                     throw new IllegalParameterException("Device not found: " + deviceName);
                 }
 
-                List<Element> parameterElements = XMLUtils.getElementNodes(deviceElement.getChildNodes());
+                List<Element> groupElements = XMLUtils.getElementNodes(deviceElement.getChildNodes());
 
-                for (Element parameterElement : parameterElements) {
-                    String parameterName = parameterElement.getNodeName();
-                    String operator = parameterElement.getAttribute("operator");
-                    if (operator.isEmpty()) operator = "==";
+                for (Element groupElement : groupElements) {
+                    String groupName = groupElement.getNodeName();
+                    ParameterGroup group = parameterRegistry.getGroup(deviceInstance, groupName);
 
-                    Parameter<?> parameter = parameterRegistry.getParameter(deviceInstance, parameterName);
-
-                    if (parameter == null) {
-                        throw new IllegalParameterException("Parameter " + parameterName + " not found in device " + deviceName);
+                    if (group == null) {
+                        throw new IllegalParameterException("Group " + groupName + " not found in device " + deviceName);
                     }
 
-                    try {
-                        Value<?> expectedValue = ValueParser.parseValue(parameterElement, parameter.getType());
-                        conditions.add(new Condition(parameter, operator, expectedValue));
-                    } catch (InstantiationException | IllegalAccessException e){
-                        throw new RuntimeException("Failed to parse value for parameter " + parameterName + " in device " + deviceName, e);
+                    List<Element> paramElements = XMLUtils.getElementNodes(groupElement.getChildNodes());
+
+                    for (Element paramElement : paramElements) {
+                        String parameterName = paramElement.getNodeName();
+                        String operator = paramElement.getAttribute("operator");
+                        if (operator.isEmpty()) operator = "==";
+
+                        Parameter<?> parameter = group.getParameter(parameterName);
+
+                        if (parameter == null) {
+                            throw new IllegalParameterException("Parameter " + parameterName + " not found in group " + groupName);
+                        }
+
+                        try {
+                            Value<?> expectedValue = ValueParser.parseValue(paramElement, parameter.getType());
+                            conditions.add(new Condition(parameter, operator, expectedValue));
+                        } catch (InstantiationException | IllegalAccessException e) {
+                            throw new RuntimeException("Failed to parse value for parameter " + parameterName + " in group " + groupName, e);
+                        }
                     }
                 }
             }
@@ -143,7 +165,6 @@ public class XMLProcessor {
 
         for (int actionCount = 0; actionCount < actionNodes.getLength(); actionCount++) {
             Element actionElement = (Element) actionNodes.item(actionCount);
-
             List<Element> deviceElements = XMLUtils.getElementNodes(actionElement.getChildNodes());
 
             for (Element deviceElement : deviceElements) {
@@ -154,21 +175,32 @@ public class XMLProcessor {
                     throw new IllegalParameterException("Device not found: " + deviceName);
                 }
 
-                List<Element> parameterElements = XMLUtils.getElementNodes(deviceElement.getChildNodes());
+                List<Element> groupElements = XMLUtils.getElementNodes(deviceElement.getChildNodes());
 
-                for (Element parameterElement : parameterElements) {
-                    String parameterName = parameterElement.getNodeName();
-                    Parameter<?> parameter = parameterRegistry.getParameter(deviceInstance, parameterName);
+                for (Element groupElement : groupElements) {
+                    String groupName = groupElement.getNodeName();
+                    ParameterGroup group = parameterRegistry.getGroup(deviceInstance, groupName);
 
-                    if (parameter == null) {
-                        throw new IllegalParameterException("Parameter " + parameterName + " not found in device " + deviceName);
+                    if (group == null) {
+                        throw new IllegalParameterException("Group " + groupName + " not found in device " + deviceName);
                     }
 
-                    try {
-                        Value<?> value = ValueParser.parseValue(parameterElement, parameter.getType());
-                        actions.add(new Action(parameter, value));
-                    } catch (InstantiationException | IllegalAccessException e){
-                        throw new RuntimeException("Failed to parse value for parameter " + parameterName + " in device " + deviceName, e);
+                    List<Element> paramElements = XMLUtils.getElementNodes(groupElement.getChildNodes());
+
+                    for (Element paramElement : paramElements) {
+                        String parameterName = paramElement.getNodeName();
+                        Parameter<?> parameter = group.getParameter(parameterName);
+
+                        if (parameter == null) {
+                            throw new IllegalParameterException("Parameter " + parameterName + " not found in group " + groupName);
+                        }
+
+                        try {
+                            Value<?> value = ValueParser.parseValue(paramElement, parameter.getType());
+                            actions.add(new Action(parameter, value));
+                        } catch (InstantiationException | IllegalAccessException e) {
+                            throw new RuntimeException("Failed to parse value for parameter " + parameterName + " in group " + groupName, e);
+                        }
                     }
                 }
             }

@@ -22,7 +22,7 @@ public class ValueParser {
 
         if (parameterNode.getNodeType() == Node.ELEMENT_NODE) {
             Element element = (Element) parameterNode;
-            if (XMLUtils.hasChildElement(element)) {
+            if (XMLUtils.hasParameterElement(element)) {
                 ParameterValue<T> paramValue = new ParameterValue<>();
                 paramValue.parseValue(parameterNode);
                 return paramValue;

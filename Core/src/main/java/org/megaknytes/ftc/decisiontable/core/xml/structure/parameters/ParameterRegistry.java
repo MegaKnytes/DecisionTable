@@ -5,28 +5,59 @@ import org.megaknytes.ftc.decisiontable.core.utils.exceptions.IllegalParameterEx
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.function.Consumer;
 import java.util.function.Supplier;
 
 public class ParameterRegistry {
 
     private static final ParameterRegistry INSTANCE = new ParameterRegistry();
 
-    private final Map<DTDevice, Map<String, Parameter<?>>> parameters = new HashMap<>();
+    private final Map<DTDevice, Map<String, ParameterGroup>> deviceGroups = new HashMap<>();
 
     private ParameterRegistry() {}
 
-    public <T> Parameter<T> createParameter(DTDevice device, String parameterName, Class<T> type, Supplier<T> defaultValueSupplier) {
-        Parameter<T> param = new Parameter<>(parameterName, type, defaultValueSupplier);
-        parameters.computeIfAbsent(device, k -> new HashMap<>()).put(parameterName, param);
-        return param;
+    public ParameterGroup getGroup(DTDevice device, String groupName) {
+        Map<String, ParameterGroup> groups = deviceGroups.get(device);
+        if (groups == null) {
+            return null;
+        }
+        return groups.get(groupName);
     }
 
-    public Parameter<?> getParameter(DTDevice device, String parameterName) {
-        Map<String, Parameter<?>> deviceParameters = parameters.get(device);
-        if (deviceParameters != null) {
-            return deviceParameters.get(parameterName);
-        } else {
-            throw new IllegalParameterException("Parameters not yet registered before evaluation, register parameters before evaluating condition");
+    public Parameter<?> getParameter(DTDevice device, String groupName, String parameterName) {
+        ParameterGroup group = getGroup(device, groupName);
+        if (group == null) {
+            throw new IllegalParameterException("Group not found: " + groupName);
+        }
+        Parameter<?> parameter = group.getParameter(parameterName);
+        if (parameter == null) {
+            throw new IllegalParameterException("Parameter not found: " + parameterName);
+        }
+        return parameter;
+    }
+
+    public ParameterGroupBuilder createParameterGroup(DTDevice device, String groupName) {
+        Map<String, ParameterGroup> groups = deviceGroups.computeIfAbsent(device, k -> new HashMap<>());
+        ParameterGroup group = new ParameterGroup(groupName);
+        groups.put(groupName, group);
+        return new ParameterGroupBuilder(group);
+    }
+
+    public static class ParameterGroupBuilder {
+        private final ParameterGroup group;
+
+        public ParameterGroupBuilder(ParameterGroup group) {
+            this.group = group;
+        }
+
+        public <T> ParameterGroupBuilder addParameter(String name, Class<T> type, Supplier<T> getter) {
+            group.addParameter(name, type, getter);
+            return this;
+        }
+
+        public <T> ParameterGroupBuilder addParameter(String name, Class<T> type, Supplier<T> getter, Consumer<T> listener) {
+            group.addParameter(name, type, getter, listener);
+            return this;
         }
     }
 

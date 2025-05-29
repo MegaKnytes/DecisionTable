@@ -19,11 +19,21 @@ public class XMLUtils {
         return null;
     }
 
-    public static boolean hasChildElement(Element parent) {
+    public static boolean hasParameterElement(Element parent) {
         for (int i = 0; i < parent.getChildNodes().getLength(); i++) {
             Node child = parent.getChildNodes().item(i);
             if (child.getNodeType() == Node.ELEMENT_NODE &&
                     child.getNodeName().equals("Parameter")) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    public static boolean hasChildElements(Element parent) {
+        for (int i = 0; i < parent.getChildNodes().getLength(); i++) {
+            Node child = parent.getChildNodes().item(i);
+            if (child.getNodeType() == Node.ELEMENT_NODE) {
                 return true;
             }
         }
