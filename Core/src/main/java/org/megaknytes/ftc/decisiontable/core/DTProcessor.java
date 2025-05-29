@@ -49,7 +49,7 @@ public class DTProcessor {
     public DTProcessor() {}
 
     @OnCreateEventLoop
-    public static void onCreateEventLoop(Context context, FtcEventLoop eventLoop){
+    public static void onCreateEventLoop(Context context, FtcEventLoop eventLoop) throws ParserConfigurationException {
         INSTANCE.enabledDecisionTables = DTFileDiscovery.getEnabledDecisionTables(context);
     }
 
@@ -59,31 +59,28 @@ public class DTProcessor {
             String tableName = entry.getKey();
             OpModeMeta.Flavor opmodeFlavor = entry.getValue().getFlavor();
 
-            try {
-                OpMode opMode = new OpMode() {
-                    @Override
-                    public void init() {
-                        INSTANCE.initializeDiscoveredTable(this, tableName);
-                        telemetry.addData("Status: ", tableName + " has been initialized");
-                    }
+            OpMode opMode = new OpMode() {
+                @Override
+                public void init() {
+                    INSTANCE.initializeDiscoveredTable(this, tableName);
+                    telemetry.addData("Status: ", tableName + " has been initialized");
+                }
 
-                    @Override
-                    public void loop() {
-                        telemetry.addData("Status: ", tableName + " is running");
-                        telemetry.addData("Runtime: ", getRuntime());
-                        INSTANCE.update();
-                    }
-                };
-                opModeManager.register(
-                        new OpModeMeta.Builder()
-                                .setName(tableName + " [DT]")
-                                .setFlavor(opmodeFlavor)
-                                .setGroup("DecisionTable")
-                                .setSource(OpModeMeta.Source.EXTERNAL_LIBRARY)
-                                .build(),
-                        opMode);
-            } catch (Exception e) {
-            }
+                @Override
+                public void loop() {
+                    telemetry.addData("Status: ", tableName + " is running");
+                    telemetry.addData("Runtime: ", getRuntime());
+                    INSTANCE.update();
+                }
+            };
+            opModeManager.register(
+                    new OpModeMeta.Builder()
+                            .setName(tableName + " [DT]")
+                            .setFlavor(opmodeFlavor)
+                            .setGroup("DecisionTable")
+                            .setSource(OpModeMeta.Source.EXTERNAL_LIBRARY)
+                            .build(),
+                    opMode);
         }
     }
 
@@ -110,8 +107,6 @@ public class DTProcessor {
             throw new RuntimeException("Failed to load configuration file: " + tableName, e);
         } catch (ParserConfigurationException | SAXException e) {
             throw new RuntimeException("Error parsing XML configuration: " + e.getMessage(), e);
-        } catch (Exception e) {
-            throw new RuntimeException("Error initializing decision table from configuration: " + e.getMessage(), e);
         }
     }
 

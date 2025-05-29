@@ -1,5 +1,6 @@
 package org.megaknytes.ftc.decisiontable.core.xml.structure;
 
+import org.megaknytes.ftc.decisiontable.core.utils.exceptions.TypeMismatchException;
 import org.megaknytes.ftc.decisiontable.core.xml.structure.parameters.Parameter;
 import org.megaknytes.ftc.decisiontable.core.xml.values.Value;
 
@@ -22,9 +23,7 @@ public class Action {
                 parameter.setValue(valueObj);
             }
         } catch (ClassCastException e) {
-            throw new RuntimeException("Type mismatch when executing action: " + e.getMessage());
-        } catch (Exception e) {
-            throw new RuntimeException("Error executing action: " + e.getMessage());
+            throw new TypeMismatchException("Type mismatch when executing action: " + e.getMessage());
         }
     }
 

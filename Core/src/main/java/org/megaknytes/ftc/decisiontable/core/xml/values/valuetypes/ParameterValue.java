@@ -77,28 +77,17 @@ public class ParameterValue<T> implements Value<T> {
         }
 
         if (sourceParameter == null) {
-            try {
-                DTDevice device = deviceInstances.get(deviceName);
+            DTDevice device = deviceInstances.get(deviceName);
+            Parameter<?> param = registry.getParameter(device, paramName);
 
-                try {
-                    Parameter<?> param = registry.getParameter(device, paramName);
-                    if (param == null) {
-                        throw new ConfigurationException("Parameter " + paramName + " not found in device " + deviceName);
-                    }
-                    this.sourceParameter = (Parameter<T>) param;
-                } catch (Exception e) {
-                    throw new RuntimeException("Failed to initialize source parameter: " + e.getMessage());
-                }
-            } catch (Exception e) {
-                return null;
+            if (param == null) {
+                throw new ConfigurationException("Parameter " + paramName + " not found in device " + deviceName);
             }
+
+            this.sourceParameter = (Parameter<T>) param;
         }
 
-        try {
-            return sourceParameter.getValue();
-        } catch (Exception e) {
-            throw new RuntimeException("Failed to get parameter value: " + e.getMessage());
-        }
+        return sourceParameter.getValue();
     }
 
     @Override

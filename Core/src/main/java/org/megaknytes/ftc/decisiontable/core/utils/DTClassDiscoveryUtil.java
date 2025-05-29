@@ -9,6 +9,8 @@ import org.megaknytes.ftc.decisiontable.core.drivers.DTDevice;
 import org.megaknytes.ftc.decisiontable.core.drivers.DisabledClass;
 import org.megaknytes.ftc.decisiontable.core.xml.values.Value;
 
+import java.io.IOException;
+import java.lang.reflect.InvocationTargetException;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.logging.Level;
@@ -32,10 +34,14 @@ public class DTClassDiscoveryUtil {
     );
 
     @OnCreateEventLoop
-    public static void onCreateEventLoop(Context context, FtcEventLoop eventLoop) {
+    public static void onCreateEventLoop(Context context, FtcEventLoop eventLoop) throws IOException {
         LOGGER.log(Level.INFO, "Event loop created, initializing DTUserRegistry...");
-        INSTANCE.scanForEnabledDriverClasses(context);
-        INSTANCE.scanForEnabledValueParsers(context);
+        try {
+            INSTANCE.scanForEnabledDriverClasses(context);
+            INSTANCE.scanForEnabledValueParsers(context);
+        } catch (IOException e) {
+            throw new IOException("An error occurred while loading the DexFile to scan for enabled drivers and value parsers.", e);
+        }
     }
 
     /**
@@ -45,69 +51,59 @@ public class DTClassDiscoveryUtil {
      * @return A map of parser names to parser instances
      */
     @SuppressWarnings("unchecked")
-    public void scanForEnabledValueParsers(Context context) {
+    public void scanForEnabledValueParsers(Context context) throws IOException {
         valueParserInstances.clear();
 
-        try {
-            DexFile dexFile = new DexFile(context.getPackageCodePath());
-            Enumeration<String> entries = dexFile.entries();
+        DexFile dexFile = new DexFile(context.getPackageCodePath());
+        Enumeration<String> entries = dexFile.entries();
 
-            while (entries.hasMoreElements()) {
-                String className = entries.nextElement();
+        while (entries.hasMoreElements()) {
+            String className = entries.nextElement();
 
-                if (IGNORED_PACKAGES.stream().anyMatch(className::startsWith)) {
-                    continue;
-                }
-
-                try {
-                    Class<?> valueParserClass = Class.forName(className, false, DTClassDiscoveryUtil.class.getClassLoader());
-
-                    if (Value.class.isAssignableFrom(valueParserClass) && !valueParserClass.isInterface() && !valueParserClass.isAnnotationPresent(DisabledClass.class)) {
-                        Value<?> valueParserInstance = (Value<?>) valueParserClass.getDeclaredConstructor().newInstance();
-                        valueParserInstances.put(valueParserInstance.getType(), valueParserInstance);
-                    }
-                } catch (ClassNotFoundException | NoClassDefFoundError | ExceptionInInitializerError ignored) {
-                } catch (Exception e) {
-                    LOGGER.log(Level.WARNING, "Driver class \" + className + \" does not have a default constructor, skipping.");
-                }
+            if (IGNORED_PACKAGES.stream().anyMatch(className::startsWith)) {
+                continue;
             }
-        } catch (Exception e) {
-            LOGGER.log(Level.SEVERE, "Error while scanning for value parsers", e);
+
+            try {
+                Class<?> valueParserClass = Class.forName(className, false, DTClassDiscoveryUtil.class.getClassLoader());
+
+                if (Value.class.isAssignableFrom(valueParserClass) && !valueParserClass.isInterface() && !valueParserClass.isAnnotationPresent(DisabledClass.class)) {
+                    Value<?> valueParserInstance = (Value<?>) valueParserClass.getDeclaredConstructor().newInstance();
+                    valueParserInstances.put(valueParserInstance.getType(), valueParserInstance);
+                }
+            } catch (ClassNotFoundException | NoClassDefFoundError | ExceptionInInitializerError ignored) {
+            } catch (NoSuchMethodException | IllegalAccessException | InstantiationException | InvocationTargetException e) {
+                LOGGER.log(Level.WARNING, "Driver class \" + className + \" does not have a default constructor or has an incorrect access level, skipping.");
+            }
         }
     }
 
-    public void scanForEnabledDriverClasses(Context context) {
+    public void scanForEnabledDriverClasses(Context context) throws IOException {
         driverInstances.clear();
 
-        try {
-            DexFile dexFile = new DexFile(context.getPackageCodePath());
-            Enumeration<String> entries = dexFile.entries();
+        DexFile dexFile = new DexFile(context.getPackageCodePath());
+        Enumeration<String> entries = dexFile.entries();
 
-            while (entries.hasMoreElements()) {
-                String className = entries.nextElement();
+        while (entries.hasMoreElements()) {
+            String className = entries.nextElement();
 
-                if (IGNORED_PACKAGES.stream().anyMatch(className::startsWith)) {
-                    continue;
-                }
-
-                try {
-                    Class<?> configClass = Class.forName(className, false, DTClassDiscoveryUtil.class.getClassLoader());
-                    if (DTDevice.class.isAssignableFrom(configClass) && !configClass.isInterface() && !configClass.isAnnotationPresent(DisabledClass.class)) {
-                        try {
-                            @SuppressWarnings("unchecked")
-                            DTDevice driverInstance = (DTDevice) configClass.newInstance();
-                            driverInstances.put(configClass.getSimpleName(), driverInstance);
-                        } catch (InstantiationException | IllegalAccessException e) {
-                            LOGGER.log(Level.WARNING, "Failed to instantiate driver class: " + className + ", reason: " + e.getMessage());
-                        }
-                    }
-                } catch (ClassNotFoundException | NoClassDefFoundError | ExceptionInInitializerError ignored) {
-                } catch (Exception e) {
-                    LOGGER.log(Level.SEVERE, "Error while loading driver class: " + className, e);
-                }
+            if (IGNORED_PACKAGES.stream().anyMatch(className::startsWith)) {
+                continue;
             }
-        } catch (Exception e) {
-            LOGGER.log(Level.SEVERE, "Error while scanning for device drivers", e);
+
+            try {
+                Class<?> configClass = Class.forName(className, false, DTClassDiscoveryUtil.class.getClassLoader());
+                if (DTDevice.class.isAssignableFrom(configClass) && !configClass.isInterface() && !configClass.isAnnotationPresent(DisabledClass.class)) {
+                    try {
+                        @SuppressWarnings("unchecked")
+                        DTDevice driverInstance = (DTDevice) configClass.newInstance();
+                        driverInstances.put(configClass.getSimpleName(), driverInstance);
+                    } catch (InstantiationException | IllegalAccessException e) {
+                        LOGGER.log(Level.WARNING, "Failed to instantiate driver class: " + className + ", reason: " + e.getMessage());
+                    }
+                }
+            } catch (ClassNotFoundException | NoClassDefFoundError | ExceptionInInitializerError ignored) {
+            }
         }
     }
 

@@ -29,9 +29,7 @@ public class EnumValue<T extends Enum<T>> implements Value<T> {
             }
             throw new ConfigurationException("Invalid enum value: " + enumValue + " for enum type: " + enumType.getName());
         } catch (NullPointerException e) {
-            throw new ConfigurationException("Enum type is not properly initialized");
-        } catch (Exception e) {
-            throw new ConfigurationException("Failed to parse enum value: " + e.getMessage());
+            throw new ConfigurationException("Enum type has not been properly initialized, please check your configuration");
         }
     }
 

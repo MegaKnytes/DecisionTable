@@ -18,64 +18,61 @@ import java.util.stream.Stream;
 
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
+import javax.xml.parsers.ParserConfigurationException;
 
 public class DTFileDiscovery {
-    public static Map<String, DecisionTable> getEnabledDecisionTables(Context context) {
+    public static Map<String, DecisionTable> getEnabledDecisionTables(Context context) throws ParserConfigurationException {
         Map<String, DecisionTable> enabledTables = new HashMap<>();
 
-        try {
-            File decisionTablesUserDir = new File(Environment.getExternalStorageDirectory(), "DecisionTables");
-            File appContextDir = context.getExternalFilesDir(null);
+        File decisionTablesUserDir = new File(Environment.getExternalStorageDirectory(), "DecisionTables");
+        File appContextDir = context.getExternalFilesDir(null);
 
-            if (appContextDir == null) {
-                throw new RuntimeException("Unable to access app context directory");
-            }
+        if (appContextDir == null) {
+            throw new RuntimeException("Unable to access app context directory");
+        }
 
-            if (!decisionTablesUserDir.exists()) {
-                decisionTablesUserDir.mkdirs();
-            }
+        if (!decisionTablesUserDir.exists()) {
+            decisionTablesUserDir.mkdirs();
+        }
 
-            DocumentBuilder builder = DocumentBuilderFactory.newInstance().newDocumentBuilder();
+        DocumentBuilder builder = DocumentBuilderFactory.newInstance().newDocumentBuilder();
 
-            File[] xmlUserDirFiles = decisionTablesUserDir.listFiles((d, name) -> name.toLowerCase().endsWith(".xml"));
-            File[] xmlAppContextFiles = appContextDir.listFiles((d, name) -> name.toLowerCase().endsWith(".xml"));
+        File[] xmlUserDirFiles = decisionTablesUserDir.listFiles((d, name) -> name.toLowerCase().endsWith(".xml"));
+        File[] xmlAppContextFiles = appContextDir.listFiles((d, name) -> name.toLowerCase().endsWith(".xml"));
 
-            File[] allFileSources = Stream.concat(
-                    xmlUserDirFiles != null ? Arrays.stream(xmlUserDirFiles) : Stream.empty(),
-                    xmlAppContextFiles != null ? Arrays.stream(xmlAppContextFiles) : Stream.empty()
-            ).toArray(File[]::new);
+        File[] allFileSources = Stream.concat(
+                xmlUserDirFiles != null ? Arrays.stream(xmlUserDirFiles) : Stream.empty(),
+                xmlAppContextFiles != null ? Arrays.stream(xmlAppContextFiles) : Stream.empty()
+        ).toArray(File[]::new);
 
-            for (File xmlFile : allFileSources) {
-                try {
-                    Document doc = builder.parse(xmlFile);
-                    doc.getDocumentElement().normalize();
+        for (File xmlFile : allFileSources) {
+            try {
+                Document doc = builder.parse(xmlFile);
+                doc.getDocumentElement().normalize();
 
-                    if (doc.getDocumentElement().getNodeName().equals("DecisionTable")) {
-                        NodeList configNodes = doc.getElementsByTagName("Configuration");
-                        if (configNodes.getLength() > 0) {
-                            Element configElement = (Element) configNodes.item(0);
+                if (doc.getDocumentElement().getNodeName().equals("DecisionTable")) {
+                    NodeList configNodes = doc.getElementsByTagName("Configuration");
+                    if (configNodes.getLength() > 0) {
+                        Element configElement = (Element) configNodes.item(0);
 
-                            String tableName = getElementTextContent(configElement, "Name");
-                            if (tableName.isEmpty()) {
-                                tableName = xmlFile.getName().replace(".xml", "");
+                        String tableName = getElementTextContent(configElement, "Name");
+                        if (tableName.isEmpty()) {
+                            tableName = xmlFile.getName().replace(".xml", "");
+                        }
+
+                        String enabledValue = getElementTextContent(configElement, "Enabled");
+                        if ("true".equalsIgnoreCase(enabledValue)) {
+                            if (enabledTables.containsKey(tableName)) {
+                                throw new ConfigurationException("Duplicate decision table name: " + tableName);
                             }
-
-                            String enabledValue = getElementTextContent(configElement, "Enabled");
-                            if ("true".equalsIgnoreCase(enabledValue)) {
-                                if (enabledTables.containsKey(tableName)) {
-                                    throw new ConfigurationException("Duplicate decision table name: " + tableName);
-                                }
-                                String flavourValue = getElementTextContent(configElement, "Type");
-                                enabledTables.put(tableName, new DecisionTable(xmlFile, OpModeMeta.Flavor.valueOf(flavourValue.toUpperCase())));
-                            }
+                            String flavourValue = getElementTextContent(configElement, "Type");
+                            enabledTables.put(tableName, new DecisionTable(xmlFile, OpModeMeta.Flavor.valueOf(flavourValue.toUpperCase())));
                         }
                     }
-                } catch (Exception e) {
-                    System.err.println("Error parsing file: " + xmlFile.getName() + " - " + e.getMessage());
                 }
+            } catch (Exception e) {
+                System.err.println("Error parsing file: " + xmlFile.getName() + " - " + e.getMessage());
             }
-        } catch (Exception e) {
-            throw new RuntimeException("Error scanning for decision tables: " + e.getMessage(), e);
         }
 
         return enabledTables;

@@ -60,18 +60,14 @@ public class XMLProcessor {
 
                     for (Element initialParameter : initialParameters) {
                         String parameterName = initialParameter.getNodeName();
-                        try {
-                            Parameter<?> parameter = parameterRegistry.getParameter(deviceInstance, parameterName);
+                        Parameter<?> parameter = parameterRegistry.getParameter(deviceInstance, parameterName);
 
-                            if (parameter == null) {
-                                throw new ConfigurationException("Parameter " + parameterName + " not found in device " + deviceName);
-                            }
-
-                            Value<?> value = ValueParser.parseValue(initialParameter, parameter.getType());
-                            new Action(parameter, value).execute();
-                        } catch (Exception e) {
-                            throw new RuntimeException("Failed to initialize parameter " + parameterName + " for device " + deviceName, e);
+                        if (parameter == null) {
+                            throw new ConfigurationException("Parameter " + parameterName + " not found in device " + deviceName);
                         }
+
+                        Value<?> value = ValueParser.parseValue(initialParameter, parameter.getType());
+                        new Action(parameter, value).execute();
                     }
                 } catch (InstantiationException | IllegalAccessException e) {
                     throw new RuntimeException("Failed to create device " + deviceName, e);
@@ -128,8 +124,12 @@ public class XMLProcessor {
                         throw new IllegalParameterException("Parameter " + parameterName + " not found in device " + deviceName);
                     }
 
-                    Value<?> expectedValue = ValueParser.parseValue(parameterElement, parameter.getType());
-                    conditions.add(new Condition(parameter, operator, expectedValue));
+                    try {
+                        Value<?> expectedValue = ValueParser.parseValue(parameterElement, parameter.getType());
+                        conditions.add(new Condition(parameter, operator, expectedValue));
+                    } catch (InstantiationException | IllegalAccessException e){
+                        throw new RuntimeException("Failed to parse value for parameter " + parameterName + " in device " + deviceName, e);
+                    }
                 }
             }
         }
@@ -164,8 +164,12 @@ public class XMLProcessor {
                         throw new IllegalParameterException("Parameter " + parameterName + " not found in device " + deviceName);
                     }
 
-                    Value<?> value = ValueParser.parseValue(parameterElement, parameter.getType());
-                    actions.add(new Action(parameter, value));
+                    try {
+                        Value<?> value = ValueParser.parseValue(parameterElement, parameter.getType());
+                        actions.add(new Action(parameter, value));
+                    } catch (InstantiationException | IllegalAccessException e){
+                        throw new RuntimeException("Failed to parse value for parameter " + parameterName + " in device " + deviceName, e);
+                    }
                 }
             }
         }
