@@ -58,7 +58,7 @@ public class DTProcessor {
         for (Map.Entry<String, DecisionTable> entry : INSTANCE.enabledDecisionTables.entrySet()) {
             String tableName = entry.getKey();
             OpModeMeta.Flavor opmodeFlavor = entry.getValue().getFlavor();
-            String transitionTarget = entry.getValue().getTransitionTarget() != null ? entry.getValue().getTransitionTarget() : null;
+            String transitionTarget = entry.getValue().getTransitionTarget();
 
             opModeManager.register(
                     new OpModeMeta.Builder()

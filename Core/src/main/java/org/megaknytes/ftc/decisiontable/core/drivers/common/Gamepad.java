@@ -45,29 +45,29 @@ public class Gamepad implements DTDevice {
                 });
 
         registry.createParameterGroup(this, "Buttons")
-                .addParameter("A", Boolean.class, aSupplier, (value) -> gamepad.a = value)
-                .addParameter("B", Boolean.class, bSupplier, (value) -> gamepad.b = value)
-                .addParameter("X", Boolean.class, xSupplier, (value) -> gamepad.x = value)
-                .addParameter("Y", Boolean.class, ySupplier, (value) -> gamepad.y = value)
-                .addParameter("LeftBumper", Boolean.class, leftBumperSupplier, (value) -> gamepad.left_bumper = value)
-                .addParameter("RightBumper", Boolean.class, rightBumperSupplier, (value) -> gamepad.right_bumper = value)
-                .addParameter("LeftStickButton", Boolean.class, leftStickButtonSupplier, (value) -> gamepad.left_stick_button = value)
-                .addParameter("RightStickButton", Boolean.class, rightStickButtonSupplier, (value) -> gamepad.right_stick_button = value)
-                .addParameter("DPadUp", Boolean.class, dpadUpSupplier, (value) -> gamepad.dpad_up = value)
-                .addParameter("DPadDown", Boolean.class, dpadDownSupplier, (value) -> gamepad.dpad_down = value)
-                .addParameter("DPadLeft", Boolean.class, dpadLeftSupplier, (value) -> gamepad.dpad_left = value)
-                .addParameter("DPadRight", Boolean.class, dpadRightSupplier, (value) -> gamepad.dpad_right = value)
-                .addParameter("Start", Boolean.class, startSupplier, (value) -> gamepad.start = value)
-                .addParameter("Back", Boolean.class, backSupplier, (value) -> gamepad.back = value);
+                .addParameter("A",                Boolean.class, aSupplier)
+                .addParameter("B",                Boolean.class, bSupplier)
+                .addParameter("X",                Boolean.class, xSupplier)
+                .addParameter("Y",                Boolean.class, ySupplier)
+                .addParameter("LeftBumper",       Boolean.class, leftBumperSupplier)
+                .addParameter("RightBumper",      Boolean.class, rightBumperSupplier)
+                .addParameter("LeftStickButton",  Boolean.class, leftStickButtonSupplier)
+                .addParameter("RightStickButton", Boolean.class, rightStickButtonSupplier)
+                .addParameter("DPadUp",           Boolean.class, dpadUpSupplier)
+                .addParameter("DPadDown",         Boolean.class, dpadDownSupplier)
+                .addParameter("DPadLeft",         Boolean.class, dpadLeftSupplier)
+                .addParameter("DPadRight",        Boolean.class, dpadRightSupplier)
+                .addParameter("Start",            Boolean.class, startSupplier)
+                .addParameter("Back",             Boolean.class, backSupplier);
 
         registry.createParameterGroup(this, "Triggers")
-                .addParameter("LeftTrigger", Float.class, leftTriggerSupplier, (value) -> gamepad.left_trigger = value)
-                .addParameter("RightTrigger", Float.class, rightTriggerSupplier, (value) -> gamepad.right_trigger = value);
+                .addParameter("LeftTrigger",  Float.class, leftTriggerSupplier)
+                .addParameter("RightTrigger", Float.class, rightTriggerSupplier);
 
         registry.createParameterGroup(this, "Sticks")
-                .addParameter("LeftStickX", Float.class, leftStickXSupplier, (value) -> gamepad.left_stick_x = value)
-                .addParameter("LeftStickY", Float.class, leftStickYSupplier, (value) -> gamepad.left_stick_y = value)
-                .addParameter("RightStickX", Float.class, rightStickXSupplier, (value) -> gamepad.right_stick_x = value)
-                .addParameter("RightStickY", Float.class, rightStickYSupplier, (value) -> gamepad.right_stick_y = value);
+                .addParameter("LeftStickX",  Float.class, leftStickXSupplier)
+                .addParameter("LeftStickY",  Float.class, leftStickYSupplier)
+                .addParameter("RightStickX", Float.class, rightStickXSupplier)
+                .addParameter("RightStickY", Float.class, rightStickYSupplier);
     }
 }
