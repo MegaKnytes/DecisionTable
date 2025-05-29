@@ -14,6 +14,7 @@ import org.apache.commons.fileupload.disk.DiskFileItemFactory;
 import org.firstinspires.ftc.robotcore.internal.system.AppUtil;
 import org.firstinspires.ftc.robotserver.internal.webserver.MimeTypesUtil;
 
+import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.util.Arrays;
@@ -59,27 +60,34 @@ public class HTTPHandler {
         }
     }
 
-    public static NanoHTTPD.Response handleUpload(NanoHTTPD.IHTTPSession session, Context context) {
+    public static NanoHTTPD.Response handleUpload(NanoHTTPD.IHTTPSession session, Context context, File targetDir) {
         try {
+            if (!targetDir.exists()) {
+                targetDir.mkdirs();
+            }
+
             List<FileItem> files = new NanoFileUpload(new DiskFileItemFactory()).parseRequest(session);
             for (FileItem file : files) {
-                FileOutputStream fos;
-                try {
-                    fos = context.openFileOutput(file.getName(), Context.MODE_PRIVATE);
+                File targetFile = new File(targetDir, file.getName());
+                try (FileOutputStream fos = new FileOutputStream(targetFile)) {
                     fos.write(file.get());
-                    fos.close();
                 } catch (Exception e) {
                     LOGGER.log(java.util.logging.Level.SEVERE, "Error saving file", e);
                     return newFixedLengthResponse(
-                            NanoHTTPD.Response.Status.BAD_REQUEST, MIME_PLAINTEXT, e.toString());
+                            NanoHTTPD.Response.Status.INTERNAL_ERROR, MIME_PLAINTEXT,
+                            "Error saving file: " + e.getMessage());
                 }
             }
+
+            String[] fileList = targetDir.list();
             return newFixedLengthResponse(NanoHTTPD.Response.Status.OK, MIME_PLAINTEXT,
-                    Arrays.toString(context.fileList()));
+                    fileList != null ? Arrays.toString(fileList) : "[]");
+
         } catch (FileUploadException e) {
             LOGGER.log(java.util.logging.Level.SEVERE, "Error parsing file upload", e);
             return newFixedLengthResponse(
-                    NanoHTTPD.Response.Status.BAD_REQUEST, MIME_PLAINTEXT, e.toString());
+                    NanoHTTPD.Response.Status.BAD_REQUEST, MIME_PLAINTEXT,
+                    "Error parsing upload: " + e.getMessage());
         }
     }
 }

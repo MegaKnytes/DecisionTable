@@ -13,11 +13,7 @@ public class ParameterRegistry {
 
     private final Map<DTDevice, Map<String, Parameter<?>>> parameters = new HashMap<>();
 
-    private ParameterRegistry() { }
-
-    public static ParameterRegistry getInstance() {
-        return INSTANCE;
-    }
+    private ParameterRegistry() {}
 
     public <T> Parameter<T> createParameter(DTDevice device, String parameterName, Class<T> type, Supplier<T> defaultValueSupplier) {
         Parameter<T> param = new Parameter<>(parameterName, type, defaultValueSupplier);
@@ -32,5 +28,9 @@ public class ParameterRegistry {
         } else {
             throw new IllegalParameterException("Parameters not yet registered before evaluation, register parameters before evaluating condition");
         }
+    }
+
+    public static ParameterRegistry getInstance() {
+        return INSTANCE;
     }
 }
