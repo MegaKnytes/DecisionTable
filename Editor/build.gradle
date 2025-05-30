@@ -143,9 +143,18 @@ tasks.register('generateStaticBuild', NpxTask) {
     command = 'next'
     args = ['build']
 
-    inputs.files('src/main/decisiontable/package.json', 'src/main/decisiontable/package-lock.json')
-    inputs.dir('src/main/decisiontable/src')
-    inputs.dir(fileTree("src/main/decisiontable/node_modules").exclude(".cache"))
+    inputs.dir('src/main/decisiontable')
+}
+
+tasks.register('runNextDevelopmentServer', NpxTask) {
+    dependsOn npmInstall
+
+    outputs.upToDateWhen { false }
+
+    command = 'next'
+    args = ['dev']
+
+    inputs.dir('src/main/decisiontable')
 }
 
 tasks.register('copyStaticBuild', Copy) {
