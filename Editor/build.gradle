@@ -20,6 +20,8 @@ dependencies {
     }
 
     implementation 'javax.servlet:javax.servlet-api:4.0.1'
+
+    implementation(project(path: ':Core'))
 }
 
 
@@ -42,57 +44,108 @@ android {
     }
 }
 
+node {
+    nodeProjectDir = file("src/main/decisiontable/")
+    download = true;
+}
+
 publishing {
     publications {
-        release(MavenPublication) {
-            groupId = 'com.decisiontable.ftc'
-            artifactId = 'editor'
-            version = System.getenv("GITHUB_REF_NAME") ?: "v1.0.0"
+        def configureBasePom = { pub ->
+            pub.pom {
+                name = 'Editor'
+                description = 'FTC Decision Table Web Editor Library'
+                url = 'http://megaknytes.org'
 
-            afterEvaluate {
-                from components.release
+                developers {
+                    developer {
+                        id = 'hccsarobotics'
+                        name = 'MegaKnytes 11093'
+                        email = 'hccsarobotics@gmail.com'
+                    }
+                    developer {
+                        id = 'UntitledMoose'
+                        name = 'Noah Blaut'
+                        email = 'noah@untitledmoose.dev'
+                    }
+                }
+                scm {
+                    connection = 'scm:git:git://github.com/MegaKnytes/DecisionTable.git'
+                    developerConnection = 'scm:git:ssh://git@github.com:MegaKnytes/DecisionTable.git'
+                    url = 'https://github.com/MegaKnytes/DecisionTable#'
+                }
+            }
+        }
+
+        if (System.getenv("CI")) {
+            referenceRelease(MavenPublication) {
+                groupId = 'org.megaknytes.ftc.decisiontable'
+                artifactId = 'Editor'
+
+                version = System.getenv("GITHUB_REF_TYPE") == "tag" ? System.getenv("GITHUB_REF_NAME") : System.getenv("GITHUB_REF_NAME") + "-SNAPSHOT"
+
+                configureBasePom(delegate)
+
+                afterEvaluate {
+                    from components.release
+                }
+            }
+        } else {
+            localRelease(MavenPublication) {
+                groupId = 'org.megaknytes.ftc.decisiontable'
+                artifactId = 'Editor'
+                version = "localDeployment-SNAPSHOT"
+
+                configureBasePom(delegate)
+
+                afterEvaluate {
+                    from components.release
+                }
             }
         }
     }
+
     repositories {
         maven {
-            name = "Editor"
-            url = "https://maven.pkg.github.com/MegaKnytes/DecisionTable"
+            def releasesRepoUrl = "https://maven.megaknytes.org/releases"
+            def snapshotsRepoUrl = "https://maven.megaknytes.org/snapshots"
+
+            url = System.getenv("GITHUB_REF_TYPE") == "tag" ? releasesRepoUrl : snapshotsRepoUrl
+
             credentials {
-                username = System.getenv("GITHUB_ACTOR")
-                password = System.getenv("GITHUB_TOKEN")
+                username = System.getenv("MEGAKNYTES_MAVEN_USERNAME")
+                password = System.getenv("MEGAKNYTES_MAVEN_PASSWORD")
             }
         }
     }
-}
-node {
-    nodeProjectDir = file("src/main/webapp/")
-    download = true;
 }
 
 tasks.register('generateStaticBuild', NpxTask) {
     dependsOn npmInstall
+
     outputs.upToDateWhen { false }
+
     command = 'react-scripts'
     args = ['build']
-    inputs.files('src/main/webapp/package.json', 'src/main/webapp/package-lock.json')
-    inputs.dir('src/main/webapp/src')
-    inputs.dir(fileTree("src/main/webapp/node_modules").exclude(".cache"))
+
+    inputs.files('src/main/decisiontable/package.json', 'src/main/decisiontable/package-lock.json')
+    inputs.dir('src/main/decisiontable/src')
+    inputs.dir(fileTree("src/main/decisiontable/node_modules").exclude(".cache"))
 }
 
-tasks.register('copyWebApp', Copy) {
-    from "src/main/webapp/build"
-    into "src/main/assets/webapp"
+tasks.register('copyDecisionTable', Copy) {
+    from "src/main/decisiontable/build"
+    into "src/main/assets/decisiontable"
 }
 
 clean.doFirst {
-    file('src/main/assets/webapp').deleteDir()
-    file('src/main/webapp/build').deleteDir()
+    file('src/main/assets/decisiontable').deleteDir()
+    file('src/main/decisiontable/build').deleteDir()
 }
 
 publish.dependsOn 'generateStaticBuild'
 publishToMavenLocal.dependsOn 'generateStaticBuild'
 
 afterEvaluate {
-    packageReleaseAssets.dependsOn 'copyWebApp'
+    packageReleaseAssets.dependsOn 'copyDecisionTable'
 }
