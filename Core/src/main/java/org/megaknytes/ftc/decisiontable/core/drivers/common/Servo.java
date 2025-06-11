@@ -3,7 +3,7 @@ package org.megaknytes.ftc.decisiontable.core.drivers.common;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 
 import org.megaknytes.ftc.decisiontable.core.drivers.DTDevice;
-import org.megaknytes.ftc.decisiontable.core.xml.parameters.ParameterRegistry;
+import org.megaknytes.ftc.decisiontable.core.xml.ParameterRegistry;
 
 public class Servo implements DTDevice {
     private String servoName;

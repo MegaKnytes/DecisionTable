@@ -1,10 +1,10 @@
-package org.megaknytes.ftc.decisiontable.core.xml.values.valuetypes;
+package org.megaknytes.ftc.decisiontable.core.xml.values.types;
 
 import org.megaknytes.ftc.decisiontable.core.drivers.DTDevice;
-import org.megaknytes.ftc.decisiontable.core.utils.XMLUtils;
+import org.megaknytes.ftc.decisiontable.core.utils.XMLHelperMethods;
 import org.megaknytes.ftc.decisiontable.core.utils.exceptions.ConfigurationException;
-import org.megaknytes.ftc.decisiontable.core.xml.parameters.Parameter;
-import org.megaknytes.ftc.decisiontable.core.xml.parameters.ParameterRegistry;
+import org.megaknytes.ftc.decisiontable.core.xml.structure.parameters.Parameter;
+import org.megaknytes.ftc.decisiontable.core.xml.ParameterRegistry;
 import org.megaknytes.ftc.decisiontable.core.xml.values.Value;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
@@ -33,13 +33,13 @@ public class ParameterValue<T> implements Value<T> {
 
         Element paramWrapper = (Element) parameterNode;
 
-        Element element = XMLUtils.getFirstChildElementByName(paramWrapper, "Parameter");
+        Element element = XMLHelperMethods.getFirstChildElementByName(paramWrapper, "Parameter");
 
         if (element == null) {
             throw new ConfigurationException("Parameter reference missing Parameter element");
         }
 
-        Element deviceElement = XMLUtils.getFirstChildElementByName(element, "Device");
+        Element deviceElement = XMLHelperMethods.getFirstChildElementByName(element, "Device");
 
         if (deviceElement == null) {
             throw new ConfigurationException("Parameter reference missing Device element");
@@ -59,13 +59,13 @@ public class ParameterValue<T> implements Value<T> {
             throw new ConfigurationException("Device element has no device type child");
         }
 
-        Element groupElement = XMLUtils.getFirstChildElementByName(element, "Group");
+        Element groupElement = XMLHelperMethods.getFirstChildElementByName(element, "Group");
         if (groupElement == null) {
             throw new ConfigurationException("Parameter reference missing Group element");
         }
         groupName = groupElement.getTextContent().trim();
 
-        Element paramElement = XMLUtils.getFirstChildElementByName(element, "Parameter");
+        Element paramElement = XMLHelperMethods.getFirstChildElementByName(element, "Parameter");
         if (paramElement == null) {
             throw new ConfigurationException("Parameter reference missing Parameter element");
         }

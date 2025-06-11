@@ -1,6 +1,6 @@
 package org.megaknytes.ftc.decisiontable.core.drivers;
 
-import org.megaknytes.ftc.decisiontable.core.xml.parameters.ParameterRegistry;
+import org.megaknytes.ftc.decisiontable.core.xml.ParameterRegistry;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 
 public interface DTDevice {

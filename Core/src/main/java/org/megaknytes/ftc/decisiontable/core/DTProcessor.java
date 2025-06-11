@@ -3,16 +3,15 @@ package org.megaknytes.ftc.decisiontable.core;
 import android.content.Context;
 
 import org.firstinspires.ftc.ftccommon.external.OnCreateEventLoop;
-import org.firstinspires.ftc.ftccommon.internal.AnnotatedHooksClassFilter;
 import org.firstinspires.ftc.robotcore.internal.opmode.OpModeMeta;
-import org.megaknytes.ftc.decisiontable.core.utils.DTClassDiscoveryUtil;
+import org.megaknytes.ftc.decisiontable.core.utils.discovery.DTClassDiscovery;
 import org.megaknytes.ftc.decisiontable.core.drivers.DTDevice;
-import org.megaknytes.ftc.decisiontable.core.utils.DTFileDiscovery;
-import org.megaknytes.ftc.decisiontable.core.xml.parameters.ParameterRegistry;
-import org.megaknytes.ftc.decisiontable.core.xml.structure.Action;
-import org.megaknytes.ftc.decisiontable.core.xml.structure.Condition;
+import org.megaknytes.ftc.decisiontable.core.utils.discovery.DTFileDiscovery;
+import org.megaknytes.ftc.decisiontable.core.xml.ParameterRegistry;
+import org.megaknytes.ftc.decisiontable.core.xml.structure.ruleset.Action;
+import org.megaknytes.ftc.decisiontable.core.xml.structure.ruleset.Condition;
 import org.megaknytes.ftc.decisiontable.core.xml.structure.Ruleset;
-import org.megaknytes.ftc.decisiontable.core.xml.structure.Rule;
+import org.megaknytes.ftc.decisiontable.core.xml.structure.ruleset.Rule;
 
 import com.qualcomm.ftccommon.FtcEventLoop;
 import com.qualcomm.robotcore.eventloop.opmode.AnnotatedOpModeManager;
@@ -44,7 +43,7 @@ public class DTProcessor {
     private final List<Action> pendingActions = new ArrayList<>();
     private Map<String, SystemConfiguration> enabledSystemConfigurations = new HashMap<>();
     private Map<String, Ruleset> enabledRulesets = new HashMap<>();
-    private final Map<String, DTDevice> availableDeviceDrivers = DTClassDiscoveryUtil.getDriverInstances();
+    private final Map<String, DTDevice> availableDeviceDrivers = DTClassDiscovery.getDriverInstances();
     private final ParameterRegistry parameterRegistry = ParameterRegistry.getInstance();
 
     public DTProcessor() {}

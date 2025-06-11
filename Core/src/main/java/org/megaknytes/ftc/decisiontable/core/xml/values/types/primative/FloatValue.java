@@ -1,16 +1,16 @@
-package org.megaknytes.ftc.decisiontable.core.xml.values.valuetypes.primative;
+package org.megaknytes.ftc.decisiontable.core.xml.values.types.primative;
 
 import org.megaknytes.ftc.decisiontable.core.utils.exceptions.ConfigurationException;
 import org.megaknytes.ftc.decisiontable.core.xml.values.Value;
 import org.w3c.dom.Node;
 
-public class BooleanValue implements Value<Boolean> {
-    private Boolean value;
+public class FloatValue implements Value<Float> {
+    private Float value;
 
-    public BooleanValue() {}
+    public FloatValue() {}
 
     @Override
-    public Boolean parseValue(Node parameterNode) {
+    public Float parseValue(Node parameterNode) {
         if (parameterNode == null) {
             throw new ConfigurationException("Parameter node cannot be null");
         }
@@ -21,17 +21,17 @@ public class BooleanValue implements Value<Boolean> {
             throw new ConfigurationException("Parameter node text content cannot be null or empty");
         }
 
-        this.value = Boolean.parseBoolean(valueString);
-        return this.value;
-    }
-
-    @Override
-    public Boolean getValue() {
+        this.value = Float.parseFloat(valueString);
         return value;
     }
 
     @Override
-    public Class<Boolean> getType() {
-        return Boolean.class;
+    public Float getValue() {
+        return value;
+    }
+
+    @Override
+    public Class<Float> getType() {
+        return Float.class;
     }
 }

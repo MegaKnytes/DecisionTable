@@ -4,19 +4,18 @@ import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 
 import org.megaknytes.ftc.decisiontable.core.drivers.DTDevice;
 import org.megaknytes.ftc.decisiontable.core.drivers.DTDeviceExtended;
-import org.megaknytes.ftc.decisiontable.core.utils.XMLUtils;
+import org.megaknytes.ftc.decisiontable.core.utils.XMLHelperMethods;
 import org.megaknytes.ftc.decisiontable.core.utils.exceptions.ConfigurationException;
 import org.megaknytes.ftc.decisiontable.core.utils.exceptions.DriverNotFoundException;
 import org.megaknytes.ftc.decisiontable.core.utils.exceptions.IllegalParameterException;
-import org.megaknytes.ftc.decisiontable.core.xml.parameters.Parameter;
-import org.megaknytes.ftc.decisiontable.core.xml.parameters.ParameterGroup;
-import org.megaknytes.ftc.decisiontable.core.xml.parameters.ParameterRegistry;
-import org.megaknytes.ftc.decisiontable.core.xml.structure.Action;
-import org.megaknytes.ftc.decisiontable.core.xml.structure.Condition;
-import org.megaknytes.ftc.decisiontable.core.xml.structure.Rule;
+import org.megaknytes.ftc.decisiontable.core.xml.structure.parameters.Parameter;
+import org.megaknytes.ftc.decisiontable.core.xml.structure.parameters.ParameterGroup;
+import org.megaknytes.ftc.decisiontable.core.xml.structure.ruleset.Action;
+import org.megaknytes.ftc.decisiontable.core.xml.structure.ruleset.Condition;
+import org.megaknytes.ftc.decisiontable.core.xml.structure.ruleset.Rule;
 import org.megaknytes.ftc.decisiontable.core.xml.values.Value;
 import org.megaknytes.ftc.decisiontable.core.xml.values.ValueParser;
-import org.megaknytes.ftc.decisiontable.core.xml.values.valuetypes.ParameterValue;
+import org.megaknytes.ftc.decisiontable.core.xml.values.types.ParameterValue;
 import org.w3c.dom.Element;
 import org.w3c.dom.NodeList;
 
@@ -34,7 +33,7 @@ public class XMLProcessor {
         LOGGER.log(Level.INFO, "Processing devices...");
 
         Map<String, DTDevice> deviceInstances = new HashMap<>();
-        List<Element> driverElements = XMLUtils.getElementNodes(elementNodes);
+        List<Element> driverElements = XMLHelperMethods.getElementNodes(elementNodes);
 
         for (Element driverElement : driverElements) {
             String driverName = driverElement.getNodeName();
@@ -48,9 +47,8 @@ public class XMLProcessor {
             DTDevice driverTemplate = availableDeviceDrivers.get(driverName);
             assert driverTemplate != null;
             Class<?> driverClass = driverTemplate.getClass();
-            Class<?> superClass = driverClass.getSuperclass();
 
-            List<Element> deviceElements = XMLUtils.getElementNodes(driverElement.getChildNodes());
+            List<Element> deviceElements = XMLHelperMethods.getElementNodes(driverElement.getChildNodes());
 
             for (Element deviceElement : deviceElements) {
                 String deviceName = deviceElement.getNodeName();
@@ -77,7 +75,7 @@ public class XMLProcessor {
                         throw new ConfigurationException("Driver class " + driverClass.getName() + " is not a valid DTDevice or DTDeviceExtended");
                     }
 
-                    List<Element> groupElements = XMLUtils.getElementNodes(deviceElement.getChildNodes());
+                    List<Element> groupElements = XMLHelperMethods.getElementNodes(deviceElement.getChildNodes());
 
                     for (Element groupElement : groupElements) {
                         String groupName = groupElement.getNodeName();
@@ -88,7 +86,7 @@ public class XMLProcessor {
                             throw new ConfigurationException("Group " + groupName + " not found in device " + deviceName);
                         }
 
-                        List<Element> paramElements = XMLUtils.getElementNodes(groupElement.getChildNodes());
+                        List<Element> paramElements = XMLHelperMethods.getElementNodes(groupElement.getChildNodes());
 
                         for (Element paramElement : paramElements) {
                             String parameterName = paramElement.getNodeName();
@@ -116,7 +114,7 @@ public class XMLProcessor {
 
     public static List<Rule> processRules(NodeList elementNodes, Map<String, DTDevice> availableDeviceDrivers, ParameterRegistry parameterRegistry) {
         List<Rule> rules = new ArrayList<>();
-        List<Element> ruleElements = XMLUtils.getElementNodes(elementNodes);
+        List<Element> ruleElements = XMLHelperMethods.getElementNodes(elementNodes);
 
         for (DTDevice device : availableDeviceDrivers.values()) {
             device.registerParameters(parameterRegistry);
@@ -139,7 +137,7 @@ public class XMLProcessor {
 
         for (int conditionCount = 0; conditionCount < conditionNodes.getLength(); conditionCount++) {
             Element conditionElement = (Element) conditionNodes.item(conditionCount);
-            List<Element> deviceElements = XMLUtils.getElementNodes(conditionElement.getChildNodes());
+            List<Element> deviceElements = XMLHelperMethods.getElementNodes(conditionElement.getChildNodes());
 
             for (Element deviceElement : deviceElements) {
                 String deviceName = deviceElement.getNodeName();
@@ -150,7 +148,7 @@ public class XMLProcessor {
                     throw new IllegalParameterException("Device not found: " + deviceName);
                 }
 
-                List<Element> groupElements = XMLUtils.getElementNodes(deviceElement.getChildNodes());
+                List<Element> groupElements = XMLHelperMethods.getElementNodes(deviceElement.getChildNodes());
 
                 for (Element groupElement : groupElements) {
                     String groupName = groupElement.getNodeName();
@@ -161,7 +159,7 @@ public class XMLProcessor {
                         throw new IllegalParameterException("Group " + groupName + " not found in device " + deviceName);
                     }
 
-                    List<Element> paramElements = XMLUtils.getElementNodes(groupElement.getChildNodes());
+                    List<Element> paramElements = XMLHelperMethods.getElementNodes(groupElement.getChildNodes());
 
                     for (Element paramElement : paramElements) {
                         String parameterName = paramElement.getNodeName();
@@ -196,7 +194,7 @@ public class XMLProcessor {
 
         for (int actionCount = 0; actionCount < actionNodes.getLength(); actionCount++) {
             Element actionElement = (Element) actionNodes.item(actionCount);
-            List<Element> deviceElements = XMLUtils.getElementNodes(actionElement.getChildNodes());
+            List<Element> deviceElements = XMLHelperMethods.getElementNodes(actionElement.getChildNodes());
 
             for (Element deviceElement : deviceElements) {
                 String deviceName = deviceElement.getNodeName();
@@ -207,7 +205,7 @@ public class XMLProcessor {
                     throw new IllegalParameterException("Device not found: " + deviceName);
                 }
 
-                List<Element> groupElements = XMLUtils.getElementNodes(deviceElement.getChildNodes());
+                List<Element> groupElements = XMLHelperMethods.getElementNodes(deviceElement.getChildNodes());
 
                 for (Element groupElement : groupElements) {
                     String groupName = groupElement.getNodeName();
@@ -218,7 +216,7 @@ public class XMLProcessor {
                         throw new IllegalParameterException("Group " + groupName + " not found in device " + deviceName);
                     }
 
-                    List<Element> paramElements = XMLUtils.getElementNodes(groupElement.getChildNodes());
+                    List<Element> paramElements = XMLHelperMethods.getElementNodes(groupElement.getChildNodes());
 
                     for (Element paramElement : paramElements) {
                         String parameterName = paramElement.getNodeName();

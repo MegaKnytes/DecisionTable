@@ -1,7 +1,9 @@
-package org.megaknytes.ftc.decisiontable.core.xml.parameters;
+package org.megaknytes.ftc.decisiontable.core.xml;
 
 import org.megaknytes.ftc.decisiontable.core.drivers.DTDevice;
 import org.megaknytes.ftc.decisiontable.core.utils.exceptions.IllegalParameterException;
+import org.megaknytes.ftc.decisiontable.core.xml.structure.parameters.Parameter;
+import org.megaknytes.ftc.decisiontable.core.xml.structure.parameters.ParameterGroup;
 
 import java.util.HashMap;
 import java.util.Map;

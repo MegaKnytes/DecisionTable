@@ -1,7 +1,7 @@
-package org.megaknytes.ftc.decisiontable.core.xml.structure;
+package org.megaknytes.ftc.decisiontable.core.xml.structure.ruleset;
 
 import org.megaknytes.ftc.decisiontable.core.utils.exceptions.TypeMismatchException;
-import org.megaknytes.ftc.decisiontable.core.xml.parameters.Parameter;
+import org.megaknytes.ftc.decisiontable.core.xml.structure.parameters.Parameter;
 import org.megaknytes.ftc.decisiontable.core.xml.values.Value;
 
 public class Action {

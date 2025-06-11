@@ -1,10 +1,11 @@
-package org.megaknytes.ftc.decisiontable.core.utils;
+package org.megaknytes.ftc.decisiontable.core.utils.discovery;
 
 import android.content.Context;
 import com.qualcomm.ftccommon.FtcEventLoop;
 import org.firstinspires.ftc.ftccommon.external.OnCreateEventLoop;
 import org.megaknytes.ftc.decisiontable.core.drivers.DTDevice;
 import org.megaknytes.ftc.decisiontable.core.drivers.DTDeviceExtended;
+import org.megaknytes.ftc.decisiontable.core.utils.DisabledDTClass;
 import org.megaknytes.ftc.decisiontable.core.xml.values.Value;
 
 import java.io.IOException;
@@ -15,13 +16,13 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 import dalvik.system.DexFile;
 
-public class DTClassDiscoveryUtil {
-    private static final Logger LOGGER = Logger.getLogger(DTClassDiscoveryUtil.class.getName());
-    private static final DTClassDiscoveryUtil INSTANCE = new DTClassDiscoveryUtil();
+public class DTClassDiscovery {
+    private static final Logger LOGGER = Logger.getLogger(DTClassDiscovery.class.getName());
+    private static final DTClassDiscovery INSTANCE = new DTClassDiscovery();
     private static final Map<String, DTDevice> driverInstances = new ConcurrentHashMap<>();
     private static final Map<Class<?>, Value<?>> valueParserInstances = new ConcurrentHashMap<>();
 
-    private DTClassDiscoveryUtil() {}
+    private DTClassDiscovery() {}
 
     private static final Set<String> IGNORED_PACKAGES = new HashSet<>(Arrays.asList(
         "android", "com.android", "com.google", "com.qualcomm.robotcore.wifi", "com.sun", "gnu.kawa.swingviews",
@@ -46,7 +47,7 @@ public class DTClassDiscoveryUtil {
     private void instantiateDriver(Class<?> configClass) {
         try {
             DTDevice driverInstance = (DTDevice) configClass.getDeclaredConstructor().newInstance();
-            DTClassDiscoveryUtil.driverInstances.put(configClass.getSimpleName(), driverInstance);
+            DTClassDiscovery.driverInstances.put(configClass.getSimpleName(), driverInstance);
         } catch (InstantiationException | IllegalAccessException | InvocationTargetException | NoSuchMethodException e) {
             LOGGER.log(Level.WARNING, "Failed to instantiate driver class: " + configClass.getName() + ", reason: " + e.getMessage());
         }
@@ -67,7 +68,7 @@ public class DTClassDiscoveryUtil {
             }
 
             try {
-                Class<?> configClass = Class.forName(className, false, DTClassDiscoveryUtil.class.getClassLoader());
+                Class<?> configClass = Class.forName(className, false, DTClassDiscovery.class.getClassLoader());
                 if (DTDeviceExtended.class.isAssignableFrom(configClass) && !configClass.isInterface() && !configClass.isAnnotationPresent(DisabledDTClass.class)) {
                     instantiateDriver(configClass);
                     continue;
@@ -95,7 +96,7 @@ public class DTClassDiscoveryUtil {
             }
 
             try {
-                Class<?> valueParserClass = Class.forName(className, false, DTClassDiscoveryUtil.class.getClassLoader());
+                Class<?> valueParserClass = Class.forName(className, false, DTClassDiscovery.class.getClassLoader());
 
                 if (Value.class.isAssignableFrom(valueParserClass) && !valueParserClass.isInterface() && !valueParserClass.isAnnotationPresent(DisabledDTClass.class)) {
                     Value<?> valueParserInstance = (Value<?>) valueParserClass.getDeclaredConstructor().newInstance();
@@ -108,7 +109,7 @@ public class DTClassDiscoveryUtil {
         }
     }
 
-    public static DTClassDiscoveryUtil getInstance() {
+    public static DTClassDiscovery getInstance() {
         return INSTANCE;
     }
 

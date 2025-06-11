@@ -1,4 +1,4 @@
-package org.megaknytes.ftc.decisiontable.core.xml.structure;
+package org.megaknytes.ftc.decisiontable.core.xml.structure.ruleset;
 
 import java.util.List;
 

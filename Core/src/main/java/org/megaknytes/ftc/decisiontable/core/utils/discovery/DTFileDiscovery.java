@@ -1,9 +1,10 @@
-package org.megaknytes.ftc.decisiontable.core.utils;
+package org.megaknytes.ftc.decisiontable.core.utils.discovery;
 
 import android.content.Context;
 import android.os.Environment;
 
 import org.firstinspires.ftc.robotcore.internal.opmode.OpModeMeta;
+import org.megaknytes.ftc.decisiontable.core.utils.XMLHelperMethods;
 import org.megaknytes.ftc.decisiontable.core.utils.exceptions.ConfigurationException;
 import org.megaknytes.ftc.decisiontable.core.xml.structure.Ruleset;
 import org.megaknytes.ftc.decisiontable.core.xml.structure.SystemConfiguration;
@@ -16,7 +17,6 @@ import java.io.File;
 import java.io.IOException;
 import java.util.Arrays;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.logging.Level;
@@ -68,14 +68,14 @@ public class DTFileDiscovery {
                     NodeList configNodes = doc.getElementsByTagName("Configuration");
                     if (configNodes.getLength() > 0) {
                         Element configElement = (Element) configNodes.item(0);
-                        String systemConfigurationName = XMLUtils.getElementTextContent(configElement, "Name");
+                        String systemConfigurationName = XMLHelperMethods.getElementTextContent(configElement, "Name");
 
                         if (systemConfigurationName == null || systemConfigurationName.isEmpty()) {
                             LOGGER.log(Level.WARNING, "Configuration name is empty, using file name as system configuration name: " + xmlFile.getName());
                             systemConfigurationName = xmlFile.getName().replace(".xml", "");
                         }
 
-                        String enabledValue = XMLUtils.getElementTextContent(configElement, "Enabled");
+                        String enabledValue = XMLHelperMethods.getElementTextContent(configElement, "Enabled");
                         if ("true".equalsIgnoreCase(enabledValue)) {
                             if (enabledSystemConfigurations.containsKey(systemConfigurationName)) {
                                 LOGGER.log(Level.SEVERE, "Duplicate decision table name found: " + systemConfigurationName);
@@ -138,24 +138,24 @@ public class DTFileDiscovery {
                     if (configNodes.getLength() > 0) {
                         Element configElement = (Element) configNodes.item(0);
 
-                        String tableName = XMLUtils.getElementTextContent(configElement, "Name");
+                        String tableName = XMLHelperMethods.getElementTextContent(configElement, "Name");
 
                         if (tableName == null || tableName.isEmpty()) {
                             LOGGER.log(Level.WARNING, "Decision table name is empty, using file name as table name: " + xmlFile.getName());
                             tableName = xmlFile.getName().replace(".xml", "");
                         }
 
-                        String enabledValue = XMLUtils.getElementTextContent(configElement, "Enabled");
+                        String enabledValue = XMLHelperMethods.getElementTextContent(configElement, "Enabled");
                         if ("true".equalsIgnoreCase(enabledValue)) {
                             if (enabledRulesets.containsKey(tableName)) {
                                 LOGGER.log(Level.SEVERE, "Duplicate decision table name found: " + tableName);
                                 throw new ConfigurationException("Duplicate decision table name: " + tableName);
                             }
                             try {
-                                String transitionTarget = XMLUtils.getElementTextContent(configElement, "TransitionTarget");
-                                String systemConfigurationName = XMLUtils.getElementTextContent(configElement, "SystemConfiguration");
+                                String transitionTarget = XMLHelperMethods.getElementTextContent(configElement, "TransitionTarget");
+                                String systemConfigurationName = XMLHelperMethods.getElementTextContent(configElement, "SystemConfiguration");
 
-                                String flavourValue = XMLUtils.getElementTextContent(configElement, "Type");
+                                String flavourValue = XMLHelperMethods.getElementTextContent(configElement, "Type");
                                 SystemConfiguration systemConfiguration = enabledSystemConfigurations.get(systemConfigurationName);
 
                                 if (systemConfiguration == null) {

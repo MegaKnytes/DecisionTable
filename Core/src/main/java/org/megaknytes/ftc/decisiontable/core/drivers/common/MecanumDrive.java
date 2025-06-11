@@ -3,7 +3,7 @@ package org.megaknytes.ftc.decisiontable.core.drivers.common;
 import static com.qualcomm.robotcore.hardware.DcMotorSimple.Direction.FORWARD;
 
 import org.megaknytes.ftc.decisiontable.core.drivers.DTDevice;
-import org.megaknytes.ftc.decisiontable.core.xml.parameters.ParameterRegistry;
+import org.megaknytes.ftc.decisiontable.core.xml.ParameterRegistry;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.hardware.HardwareMap;

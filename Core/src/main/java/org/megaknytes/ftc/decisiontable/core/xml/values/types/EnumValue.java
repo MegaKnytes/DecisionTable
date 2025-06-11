@@ -1,4 +1,4 @@
-package org.megaknytes.ftc.decisiontable.core.xml.values.valuetypes;
+package org.megaknytes.ftc.decisiontable.core.xml.values.types;
 
 import org.megaknytes.ftc.decisiontable.core.utils.exceptions.ConfigurationException;
 import org.megaknytes.ftc.decisiontable.core.xml.values.Value;

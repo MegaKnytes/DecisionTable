@@ -7,7 +7,7 @@ import org.w3c.dom.NodeList;
 import java.util.ArrayList;
 import java.util.List;
 
-public class XMLUtils {
+public class XMLHelperMethods {
     
     public static Element getFirstChildElementByName(Element parent, String name) {
         for (int i = 0; i < parent.getChildNodes().getLength(); i++) {

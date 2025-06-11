@@ -1,18 +1,18 @@
 package org.megaknytes.ftc.decisiontable.core.xml.values;
 
-import org.megaknytes.ftc.decisiontable.core.utils.DTClassDiscoveryUtil;
-import org.megaknytes.ftc.decisiontable.core.utils.XMLUtils;
+import org.megaknytes.ftc.decisiontable.core.utils.discovery.DTClassDiscovery;
+import org.megaknytes.ftc.decisiontable.core.utils.XMLHelperMethods;
 import org.megaknytes.ftc.decisiontable.core.utils.exceptions.ConfigurationException;
 import org.megaknytes.ftc.decisiontable.core.utils.exceptions.NoRegisteredParserException;
-import org.megaknytes.ftc.decisiontable.core.xml.values.valuetypes.EnumValue;
-import org.megaknytes.ftc.decisiontable.core.xml.values.valuetypes.ParameterValue;
+import org.megaknytes.ftc.decisiontable.core.xml.values.types.EnumValue;
+import org.megaknytes.ftc.decisiontable.core.xml.values.types.ParameterValue;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 
 import java.util.Map;
 
 public class ValueParser {
-    private static final Map<Class<?>, Value<?>> parserCache = DTClassDiscoveryUtil.getInstance().getValueParserClasses();
+    private static final Map<Class<?>, Value<?>> parserCache = DTClassDiscovery.getValueParserClasses();
 
     @SuppressWarnings({"unchecked", "rawtypes"})
     public static <T> Value<T> parseValue(Node parameterNode, Class<T> expectedType) throws IllegalAccessException, InstantiationException {
@@ -22,7 +22,7 @@ public class ValueParser {
 
         if (parameterNode.getNodeType() == Node.ELEMENT_NODE) {
             Element element = (Element) parameterNode;
-            if (XMLUtils.hasParameterElement(element)) {
+            if (XMLHelperMethods.hasParameterElement(element)) {
                 ParameterValue<T> paramValue = new ParameterValue<>();
                 paramValue.parseValue(parameterNode);
                 return paramValue;

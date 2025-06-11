@@ -1,4 +1,4 @@
-package org.megaknytes.ftc.decisiontable.core.xml.parameters;
+package org.megaknytes.ftc.decisiontable.core.xml.structure.parameters;
 
 import java.util.HashMap;
 import java.util.Map;

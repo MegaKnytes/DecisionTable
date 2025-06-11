@@ -1,7 +1,7 @@
 package org.megaknytes.ftc.decisiontable.core.drivers.common;
 
 import org.megaknytes.ftc.decisiontable.core.drivers.DTDeviceExtended;
-import org.megaknytes.ftc.decisiontable.core.xml.parameters.ParameterRegistry;
+import org.megaknytes.ftc.decisiontable.core.xml.ParameterRegistry;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 

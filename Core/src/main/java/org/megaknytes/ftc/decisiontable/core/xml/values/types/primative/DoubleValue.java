@@ -1,16 +1,16 @@
-package org.megaknytes.ftc.decisiontable.core.xml.values.valuetypes.primative;
+package org.megaknytes.ftc.decisiontable.core.xml.values.types.primative;
 
 import org.megaknytes.ftc.decisiontable.core.utils.exceptions.ConfigurationException;
 import org.megaknytes.ftc.decisiontable.core.xml.values.Value;
 import org.w3c.dom.Node;
 
-public class IntegerValue implements Value<Integer> {
-    private Integer value;
+public class DoubleValue implements Value<Double> {
+    private Double value;
 
-    public IntegerValue() {}
+    public DoubleValue() {}
 
     @Override
-    public Integer parseValue(Node parameterNode) {
+    public Double parseValue(Node parameterNode) {
         if (parameterNode == null) {
             throw new ConfigurationException("Parameter node cannot be null");
         }
@@ -21,17 +21,17 @@ public class IntegerValue implements Value<Integer> {
             throw new ConfigurationException("Parameter node text content cannot be null or empty");
         }
 
-        this.value = Integer.parseInt(valueString);
+        this.value = Double.parseDouble(valueString);
         return this.value;
     }
 
     @Override
-    public Integer getValue() {
+    public Double getValue() {
         return value;
     }
 
     @Override
-    public Class<Integer> getType() {
-        return Integer.class;
+    public Class<Double> getType() {
+        return Double.class;
     }
 }
