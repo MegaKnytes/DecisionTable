@@ -7,9 +7,10 @@ import org.firstinspires.ftc.robotcore.internal.opmode.OpModeMeta;
 import org.megaknytes.ftc.decisiontable.core.utils.DTClassDiscoveryUtil;
 import org.megaknytes.ftc.decisiontable.core.drivers.DTDevice;
 import org.megaknytes.ftc.decisiontable.core.utils.DTFileDiscovery;
+import org.megaknytes.ftc.decisiontable.core.xml.parameters.ParameterRegistry;
 import org.megaknytes.ftc.decisiontable.core.xml.structure.Action;
 import org.megaknytes.ftc.decisiontable.core.xml.structure.Condition;
-import org.megaknytes.ftc.decisiontable.core.xml.structure.DecisionTable;
+import org.megaknytes.ftc.decisiontable.core.xml.structure.Ruleset;
 import org.megaknytes.ftc.decisiontable.core.xml.structure.Rule;
 
 import com.qualcomm.ftccommon.FtcEventLoop;
@@ -18,6 +19,7 @@ import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.eventloop.opmode.OpModeRegistrar;
 
 import org.megaknytes.ftc.decisiontable.core.xml.XMLProcessor;
+import org.megaknytes.ftc.decisiontable.core.xml.structure.SystemConfiguration;
 import org.w3c.dom.Document;
 import org.w3c.dom.NodeList;
 import org.xml.sax.SAXException;
@@ -33,26 +35,29 @@ import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
 
 public class DTProcessor {
-    private final XMLProcessor xmlProcessor = new XMLProcessor();
     private static final DTProcessor INSTANCE = new DTProcessor();
+    private final ParameterRegistry parameterRegistry = ParameterRegistry.getInstance();
     private final List<Rule> loadedRules = new ArrayList<>();
     private final List<Action> pendingActions = new ArrayList<>();
-    private Map<String, DecisionTable> enabledDecisionTables = new HashMap<>();
+    private Map<String, SystemConfiguration> enabledSystemConfigurations = new HashMap<>();
+    private Map<String, Ruleset> enabledRulesets = new HashMap<>();
     private final Map<String, DTDevice> availableDeviceDrivers = DTClassDiscoveryUtil.getDriverInstances();
 
     public DTProcessor() {}
 
     @OnCreateEventLoop
     public static void onCreateEventLoop(Context context, FtcEventLoop eventLoop) throws ParserConfigurationException {
-        INSTANCE.enabledDecisionTables = DTFileDiscovery.getEnabledDecisionTables(context);
+        INSTANCE.enabledSystemConfigurations = DTFileDiscovery.getEnabledSystemConfigurations(context);
+        INSTANCE.enabledRulesets = DTFileDiscovery.getEnabledRulesets(context, INSTANCE.enabledSystemConfigurations);
     }
 
     @OpModeRegistrar
     public static void registerOpModes(AnnotatedOpModeManager opModeManager) {
-        for (Map.Entry<String, DecisionTable> entry : INSTANCE.enabledDecisionTables.entrySet()) {
+        for (Map.Entry<String, Ruleset> entry : INSTANCE.enabledRulesets.entrySet()) {
             String tableName = entry.getKey();
-            OpModeMeta.Flavor opmodeFlavor = entry.getValue().getFlavor();
-            String transitionTarget = entry.getValue().getTransitionTarget();
+            Ruleset ruleset = entry.getValue();
+            OpModeMeta.Flavor opmodeFlavor = ruleset.getFlavor();
+            String transitionTarget = ruleset.getTransitionTarget();
 
             opModeManager.register(
                     new OpModeMeta.Builder()
@@ -65,7 +70,7 @@ public class DTProcessor {
                     new OpMode() {
                         @Override
                         public void init() {
-                            INSTANCE.initializeDiscoveredTable(this, tableName);
+                            INSTANCE.initializeRuleset(this, ruleset);
                             telemetry.addData("Status: ", tableName + " has been initialized");
                         }
 
@@ -77,27 +82,27 @@ public class DTProcessor {
         }
     }
 
-    private void initializeDiscoveredTable(OpMode opMode, String tableName) {
+    private void initializeRuleset(OpMode opMode, Ruleset ruleset) {
+        Map<String, DTDevice> deviceInstances = new HashMap<>();
         try {
-            DecisionTable decisionTable = enabledDecisionTables.get(tableName);
+            DocumentBuilder builder = DocumentBuilderFactory.newInstance().newDocumentBuilder();
+            Document rulesetDocument = builder.parse(ruleset.getFile());
+            Document systemConfigDocument = builder.parse(ruleset.getConfiguration().getFile());
 
-            if (decisionTable == null) {
-                throw new RuntimeException("Decision table not found: " + tableName);
+            rulesetDocument.getDocumentElement().normalize();
+            systemConfigDocument.getDocumentElement().normalize();
+
+            NodeList deviceElements = systemConfigDocument.getElementsByTagName("Devices");
+            for (int i = 0; i < deviceElements.getLength(); i++) {
+                deviceInstances.putAll(XMLProcessor.processDevices(deviceElements.item(i).getChildNodes(), opMode, availableDeviceDrivers, parameterRegistry));
             }
 
-            DocumentBuilder builder = DocumentBuilderFactory.newInstance().newDocumentBuilder();
-            Document document = builder.parse(decisionTable.getFile());
-            document.getDocumentElement().normalize();
-
-            NodeList deviceNodes = document.getElementsByTagName("Devices").item(0).getChildNodes();
-            Map<String, DTDevice> deviceInstances = xmlProcessor.processDevices(deviceNodes, opMode, availableDeviceDrivers);
-
-            NodeList rulesElement = document.getElementsByTagName("Rules");
-            for (int i = 0; i < rulesElement.getLength(); i++) {
-                loadedRules.addAll(xmlProcessor.processRules(rulesElement.item(i).getChildNodes(), deviceInstances));
+            NodeList rulesElements = rulesetDocument.getElementsByTagName("Rules");
+            for (int i = 0; i < rulesElements.getLength(); i++) {
+                loadedRules.addAll(XMLProcessor.processRules(rulesElements.item(i).getChildNodes(), deviceInstances, parameterRegistry));
             }
         } catch (IOException e) {
-            throw new RuntimeException("Failed to load configuration file: " + tableName, e);
+            throw new RuntimeException("Failed to load configuration file", e);
         } catch (ParserConfigurationException | SAXException e) {
             throw new RuntimeException("Error parsing XML configuration: " + e.getMessage(), e);
         }

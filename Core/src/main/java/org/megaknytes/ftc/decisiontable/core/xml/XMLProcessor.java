@@ -8,9 +8,9 @@ import org.megaknytes.ftc.decisiontable.core.utils.XMLUtils;
 import org.megaknytes.ftc.decisiontable.core.utils.exceptions.ConfigurationException;
 import org.megaknytes.ftc.decisiontable.core.utils.exceptions.DriverNotFoundException;
 import org.megaknytes.ftc.decisiontable.core.utils.exceptions.IllegalParameterException;
-import org.megaknytes.ftc.decisiontable.core.xml.structure.parameters.Parameter;
-import org.megaknytes.ftc.decisiontable.core.xml.structure.parameters.ParameterGroup;
-import org.megaknytes.ftc.decisiontable.core.xml.structure.parameters.ParameterRegistry;
+import org.megaknytes.ftc.decisiontable.core.xml.parameters.Parameter;
+import org.megaknytes.ftc.decisiontable.core.xml.parameters.ParameterGroup;
+import org.megaknytes.ftc.decisiontable.core.xml.parameters.ParameterRegistry;
 import org.megaknytes.ftc.decisiontable.core.xml.structure.Action;
 import org.megaknytes.ftc.decisiontable.core.xml.structure.Condition;
 import org.megaknytes.ftc.decisiontable.core.xml.structure.Rule;
@@ -26,9 +26,8 @@ import java.util.List;
 import java.util.Map;
 
 public class XMLProcessor {
-    private final ParameterRegistry parameterRegistry = ParameterRegistry.getInstance();
 
-    public Map<String, DTDevice> processDevices(NodeList elementNodes, OpMode opMode, Map<String, DTDevice> availableDeviceDrivers) {
+    public static Map<String, DTDevice> processDevices(NodeList elementNodes, OpMode opMode, Map<String, DTDevice> availableDeviceDrivers, ParameterRegistry parameterRegistry) {
         Map<String, DTDevice> deviceInstances = new HashMap<>();
         List<Element> driverElements = XMLUtils.getElementNodes(elementNodes);
 
@@ -103,14 +102,14 @@ public class XMLProcessor {
         return deviceInstances;
     }
 
-    public List<Rule> processRules(NodeList elementNodes, Map<String, DTDevice> availableDeviceDrivers) {
+    public static List<Rule> processRules(NodeList elementNodes, Map<String, DTDevice> availableDeviceDrivers, ParameterRegistry parameterRegistry) {
         List<Rule> rules = new ArrayList<>();
         List<Element> ruleElements = XMLUtils.getElementNodes(elementNodes);
 
         for (Element ruleElement : ruleElements) {
             String description = ruleElement.getAttribute("description");
-            List<Condition> conditions = processConditions(ruleElement, availableDeviceDrivers);
-            List<Action> actions = processActions(ruleElement, availableDeviceDrivers);
+            List<Condition> conditions = processConditions(ruleElement, availableDeviceDrivers, parameterRegistry);
+            List<Action> actions = processActions(ruleElement, availableDeviceDrivers, parameterRegistry);
 
             rules.add(new Rule(description, conditions, actions));
         }
@@ -118,7 +117,7 @@ public class XMLProcessor {
         return rules;
     }
 
-    private List<Condition> processConditions(Element element, Map<String, DTDevice> availableDeviceDrivers) {
+    private static List<Condition> processConditions(Element element, Map<String, DTDevice> availableDeviceDrivers, ParameterRegistry parameterRegistry) {
         List<Condition> conditions = new ArrayList<>();
         NodeList conditionNodes = element.getElementsByTagName("Condition");
 
@@ -171,7 +170,7 @@ public class XMLProcessor {
         return conditions;
     }
 
-    private List<Action> processActions(Element element, Map<String, DTDevice> availableDeviceDrivers) {
+    private static List<Action> processActions(Element element, Map<String, DTDevice> availableDeviceDrivers, ParameterRegistry parameterRegistry) {
         List<Action> actions = new ArrayList<>();
         NodeList actionNodes = element.getElementsByTagName("Action");
 

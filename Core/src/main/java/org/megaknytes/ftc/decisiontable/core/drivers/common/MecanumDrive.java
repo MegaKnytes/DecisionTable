@@ -3,12 +3,10 @@ package org.megaknytes.ftc.decisiontable.core.drivers.common;
 import static com.qualcomm.robotcore.hardware.DcMotorSimple.Direction.FORWARD;
 
 import org.megaknytes.ftc.decisiontable.core.drivers.DTDevice;
-import org.megaknytes.ftc.decisiontable.core.xml.structure.parameters.ParameterRegistry;
+import org.megaknytes.ftc.decisiontable.core.xml.parameters.ParameterRegistry;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.hardware.HardwareMap;
-
-import java.util.function.Supplier;
 
 public class MecanumDrive implements DTDevice {
     private String frontLeftName, frontRightName, backLeftName, backRightName;

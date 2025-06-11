@@ -50,4 +50,12 @@ public class XMLUtils {
         }
         return elements;
     }
+
+    public static String getElementTextContent(Element parent, String tagName) {
+        NodeList elements = parent.getElementsByTagName(tagName);
+        if (elements.getLength() > 0) {
+            return elements.item(0).getTextContent();
+        }
+        return null;
+    }
 }

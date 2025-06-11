@@ -1,4 +1,4 @@
-package org.megaknytes.ftc.decisiontable.core.xml.structure.parameters;
+package org.megaknytes.ftc.decisiontable.core.xml.parameters;
 
 import java.util.ArrayList;
 import java.util.List;
