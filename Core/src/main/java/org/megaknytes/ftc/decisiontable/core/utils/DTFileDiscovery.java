@@ -16,8 +16,11 @@ import java.io.File;
 import java.io.IOException;
 import java.util.Arrays;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import java.util.stream.Stream;
 
 import javax.xml.parsers.DocumentBuilder;
@@ -25,18 +28,23 @@ import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
 
 public class DTFileDiscovery {
+    private static final Logger LOGGER = Logger.getLogger(DTFileDiscovery.class.getName());
 
     public static Map<String, SystemConfiguration> getEnabledSystemConfigurations(Context context) throws ParserConfigurationException {
+        LOGGER.log(Level.INFO, "Beginning to scan for enabled system configurations...");
+
         Map<String, SystemConfiguration> enabledSystemConfigurations = new HashMap<>();
 
         File userDataDir = new File(Environment.getExternalStorageDirectory(), "DecisionTables");
         File appContextDir = context.getExternalFilesDir(null);
 
         if (appContextDir == null) {
+            LOGGER.log(Level.SEVERE, "Error: Unable to access app context directory while scanning for system configurations");
             throw new RuntimeException("Unable to access app context directory");
         }
 
         if (!userDataDir.exists() && !userDataDir.mkdirs()) {
+            LOGGER.log(Level.SEVERE, "Error: Failed to create user data directory while scanning for system configurations");
             throw new RuntimeException("Failed to create user data directory");
         }
 
@@ -47,36 +55,43 @@ public class DTFileDiscovery {
                 .flatMap(dir -> Arrays.stream(Objects.requireNonNull(dir.listFiles((d, name) -> name.toLowerCase().endsWith(".xml")))))
                 .toArray(File[]::new);
 
+        LOGGER.log(Level.INFO, "Found " +  allFileSources.length +" XML files to process for system configurations");
+
         for (File xmlFile : allFileSources) {
             try {
                 Document doc = builder.parse(xmlFile);
                 doc.getDocumentElement().normalize();
 
                 if (doc.getDocumentElement().getNodeName().equals("SystemConfiguration")) {
+                    LOGGER.log(Level.INFO, "Processing system configuration file: " + xmlFile.getAbsolutePath());
+
                     NodeList configNodes = doc.getElementsByTagName("Configuration");
                     if (configNodes.getLength() > 0) {
                         Element configElement = (Element) configNodes.item(0);
-
                         String systemConfigurationName = XMLUtils.getElementTextContent(configElement, "Name");
 
                         if (systemConfigurationName == null || systemConfigurationName.isEmpty()) {
+                            LOGGER.log(Level.WARNING, "Configuration name is empty, using file name as system configuration name: " + xmlFile.getName());
                             systemConfigurationName = xmlFile.getName().replace(".xml", "");
                         }
 
                         String enabledValue = XMLUtils.getElementTextContent(configElement, "Enabled");
                         if ("true".equalsIgnoreCase(enabledValue)) {
                             if (enabledSystemConfigurations.containsKey(systemConfigurationName)) {
+                                LOGGER.log(Level.SEVERE, "Duplicate decision table name found: " + systemConfigurationName);
                                 throw new ConfigurationException("Duplicate decision table name: " + systemConfigurationName);
                             }
                             try {
                                 enabledSystemConfigurations.put(systemConfigurationName, new SystemConfiguration(xmlFile));
                             } catch (IllegalArgumentException e) {
+                                LOGGER.log(Level.SEVERE, "Invalid decision table type in file: " + xmlFile.getAbsolutePath(), e);
                                 throw new ConfigurationException("Invalid decision table type: " + e.getMessage());
                             }
                         }
                     }
                 }
             } catch (IOException | SAXException e) {
+                LOGGER.log(Level.SEVERE, "Error parsing decision table file: " + xmlFile.getAbsolutePath(), e);
                 throw new RuntimeException("Error parsing decision table file: " + xmlFile.getAbsolutePath(), e);
             }
         }
@@ -85,16 +100,20 @@ public class DTFileDiscovery {
     }
 
     public static Map<String, Ruleset> getEnabledRulesets(Context context, Map<String, SystemConfiguration> enabledSystemConfigurations) throws ParserConfigurationException {
-        Map<String, Ruleset> enabledTables = new HashMap<>();
+        LOGGER.log(Level.INFO, "Beginning to scan for enabled rulesets...");
+
+        Map<String, Ruleset> enabledRulesets = new HashMap<>();
 
         File userDataDir = new File(Environment.getExternalStorageDirectory(), "DecisionTables");
         File appContextDir = context.getExternalFilesDir(null);
 
         if (appContextDir == null) {
+            LOGGER.log(Level.SEVERE, "Error: Unable to access app context directory while scanning for rulesets");
             throw new RuntimeException("Unable to access app context directory");
         }
 
         if (!userDataDir.exists() && !userDataDir.mkdirs()) {
+            LOGGER.log(Level.SEVERE, "Error: Failed to create user data directory while scanning for rulesets");
             throw new RuntimeException("Failed to create user data directory");
         }
 
@@ -105,12 +124,16 @@ public class DTFileDiscovery {
                 .flatMap(dir -> Arrays.stream(Objects.requireNonNull(dir.listFiles((d, name) -> name.toLowerCase().endsWith(".xml")))))
                 .toArray(File[]::new);
 
+        LOGGER.log(Level.INFO, "Found " + allFileSources.length + " XML files to process for rulesets");
+
         for (File xmlFile : allFileSources) {
             try {
                 Document doc = builder.parse(xmlFile);
                 doc.getDocumentElement().normalize();
 
                 if (doc.getDocumentElement().getNodeName().equals("DecisionTable")) {
+                    LOGGER.log(Level.INFO, "Processing decision table file: " + xmlFile.getAbsolutePath());
+
                     NodeList configNodes = doc.getElementsByTagName("Configuration");
                     if (configNodes.getLength() > 0) {
                         Element configElement = (Element) configNodes.item(0);
@@ -118,41 +141,47 @@ public class DTFileDiscovery {
                         String tableName = XMLUtils.getElementTextContent(configElement, "Name");
 
                         if (tableName == null || tableName.isEmpty()) {
+                            LOGGER.log(Level.WARNING, "Decision table name is empty, using file name as table name: " + xmlFile.getName());
                             tableName = xmlFile.getName().replace(".xml", "");
                         }
 
                         String enabledValue = XMLUtils.getElementTextContent(configElement, "Enabled");
                         if ("true".equalsIgnoreCase(enabledValue)) {
-                            if (enabledTables.containsKey(tableName)) {
+                            if (enabledRulesets.containsKey(tableName)) {
+                                LOGGER.log(Level.SEVERE, "Duplicate decision table name found: " + tableName);
                                 throw new ConfigurationException("Duplicate decision table name: " + tableName);
                             }
                             try {
                                 String transitionTarget = XMLUtils.getElementTextContent(configElement, "TransitionTarget");
-                                String systemConfigurationName = XMLUtils.getElementTextContent(configElement, "SystemConfigurationName");
+                                String systemConfigurationName = XMLUtils.getElementTextContent(configElement, "SystemConfiguration");
 
                                 String flavourValue = XMLUtils.getElementTextContent(configElement, "Type");
                                 SystemConfiguration systemConfiguration = enabledSystemConfigurations.get(systemConfigurationName);
 
                                 if (systemConfiguration == null) {
+                                    LOGGER.log(Level.SEVERE, "System configuration not found: " + systemConfigurationName);
                                     throw new ConfigurationException("System configuration not found: " + systemConfigurationName);
                                 }
 
                                 if (flavourValue == null) {
+                                    LOGGER.log(Level.SEVERE, "Decision table configuration missing required element: Type");
                                     throw new ConfigurationException("Decision table configuration missing required element: Type");
                                 }
 
-                                enabledTables.put(tableName, new Ruleset(xmlFile, systemConfiguration, OpModeMeta.Flavor.valueOf(flavourValue.toUpperCase()), transitionTarget));
+                                enabledRulesets.put(tableName, new Ruleset(xmlFile, systemConfiguration, OpModeMeta.Flavor.valueOf(flavourValue.toUpperCase()), transitionTarget));
                             } catch (IllegalArgumentException e) {
+                                LOGGER.log(Level.SEVERE, "Invalid decision table type in file: " + xmlFile.getAbsolutePath(), e);
                                 throw new ConfigurationException("Invalid decision table type: " + e.getMessage());
                             }
                         }
                     }
                 }
             } catch (IOException | SAXException e) {
+                LOGGER.log(Level.SEVERE, "Error parsing decision table file: " + xmlFile.getAbsolutePath(), e);
                 throw new RuntimeException("Error parsing decision table file: " + xmlFile.getAbsolutePath(), e);
             }
         }
 
-        return enabledTables;
+        return enabledRulesets;
     }
 }

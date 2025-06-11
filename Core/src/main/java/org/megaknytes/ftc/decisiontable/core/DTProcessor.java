@@ -3,6 +3,7 @@ package org.megaknytes.ftc.decisiontable.core;
 import android.content.Context;
 
 import org.firstinspires.ftc.ftccommon.external.OnCreateEventLoop;
+import org.firstinspires.ftc.ftccommon.internal.AnnotatedHooksClassFilter;
 import org.firstinspires.ftc.robotcore.internal.opmode.OpModeMeta;
 import org.megaknytes.ftc.decisiontable.core.utils.DTClassDiscoveryUtil;
 import org.megaknytes.ftc.decisiontable.core.drivers.DTDevice;
@@ -29,6 +30,8 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
@@ -36,19 +39,28 @@ import javax.xml.parsers.ParserConfigurationException;
 
 public class DTProcessor {
     private static final DTProcessor INSTANCE = new DTProcessor();
-    private final ParameterRegistry parameterRegistry = ParameterRegistry.getInstance();
+    private static final Logger LOGGER = Logger.getLogger(DTProcessor.class.getName());
     private final List<Rule> loadedRules = new ArrayList<>();
     private final List<Action> pendingActions = new ArrayList<>();
     private Map<String, SystemConfiguration> enabledSystemConfigurations = new HashMap<>();
     private Map<String, Ruleset> enabledRulesets = new HashMap<>();
     private final Map<String, DTDevice> availableDeviceDrivers = DTClassDiscoveryUtil.getDriverInstances();
+    private final ParameterRegistry parameterRegistry = ParameterRegistry.getInstance();
 
     public DTProcessor() {}
 
     @OnCreateEventLoop
-    public static void onCreateEventLoop(Context context, FtcEventLoop eventLoop) throws ParserConfigurationException {
-        INSTANCE.enabledSystemConfigurations = DTFileDiscovery.getEnabledSystemConfigurations(context);
-        INSTANCE.enabledRulesets = DTFileDiscovery.getEnabledRulesets(context, INSTANCE.enabledSystemConfigurations);
+    public static void onCreateEventLoop(Context context, FtcEventLoop eventLoop) {
+        LOGGER.log(Level.INFO, "Beginning to scan for enabled system configurations and rulesets...");
+        try {
+            INSTANCE.enabledSystemConfigurations = DTFileDiscovery.getEnabledSystemConfigurations(context);
+            LOGGER.log(Level.INFO, "Enabled system configurations: " + INSTANCE.enabledSystemConfigurations.keySet());
+            INSTANCE.enabledRulesets = DTFileDiscovery.getEnabledRulesets(context, INSTANCE.enabledSystemConfigurations);
+            LOGGER.log(Level.INFO, "Enabled rulesets: " + INSTANCE.enabledRulesets.keySet());
+        } catch (ParserConfigurationException e) {
+            LOGGER.log(Level.SEVERE, "Error during XML parsing: " + e.getMessage());
+            throw new RuntimeException(e);
+        }
     }
 
     @OpModeRegistrar

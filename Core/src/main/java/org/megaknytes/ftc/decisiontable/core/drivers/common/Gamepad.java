@@ -41,7 +41,7 @@ public class Gamepad implements DTDeviceExtended {
                 .addParameter("LeftTrigger",  Float.class, () -> gamepad.left_trigger)
                 .addParameter("RightTrigger", Float.class, () -> gamepad.right_trigger);
 
-        registry.createParameterGroup(this, "Sticks")
+        registry.createParameterGroup(this, "Joysticks")
                 .addParameter("LeftStickX",  Float.class, () -> gamepad.left_stick_x)
                 .addParameter("LeftStickY",  Float.class, () -> gamepad.left_stick_y)
                 .addParameter("RightStickX", Float.class, () -> gamepad.right_stick_x)

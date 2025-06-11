@@ -24,17 +24,24 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 public class XMLProcessor {
+    private static final Logger LOGGER = Logger.getLogger(XMLProcessor.class.getName());
 
     public static Map<String, DTDevice> processDevices(NodeList elementNodes, OpMode opMode, Map<String, DTDevice> availableDeviceDrivers, ParameterRegistry parameterRegistry) {
+        LOGGER.log(Level.INFO, "Processing devices...");
+
         Map<String, DTDevice> deviceInstances = new HashMap<>();
         List<Element> driverElements = XMLUtils.getElementNodes(elementNodes);
 
         for (Element driverElement : driverElements) {
             String driverName = driverElement.getNodeName();
+            LOGGER.log(Level.INFO, "Processing driver: " + driverName);
 
             if (!availableDeviceDrivers.containsKey(driverName)) {
+                LOGGER.log(Level.SEVERE, "Driver with name " + driverName + " not found, has it been enabled?");
                 throw new DriverNotFoundException("Driver with name " + driverName + " not found, has it been enabled?");
             }
 
@@ -49,22 +56,24 @@ public class XMLProcessor {
                 String deviceName = deviceElement.getNodeName();
 
                 if (deviceInstances.containsKey(deviceName)) {
+                    LOGGER.log(Level.SEVERE, "Duplicate device name found: " + deviceName);
                     throw new ConfigurationException("Duplicate device name: " + deviceName);
                 }
 
                 try {
                     DTDevice deviceInstance;
-                    if (superClass == DTDeviceExtended.class) {
+                    if (DTDeviceExtended.class.isAssignableFrom(driverClass)) {
                         deviceInstance = (DTDeviceExtended) driverClass.newInstance();
                         deviceInstances.put(deviceName, deviceInstance);
 
                         ((DTDeviceExtended) deviceInstance).registerConfiguration(opMode, parameterRegistry);
-                    } else if (superClass == DTDevice.class) {
+                    } else if (DTDevice.class.isAssignableFrom(driverClass)) {
                         deviceInstance = (DTDevice) driverClass.newInstance();
                         deviceInstances.put(deviceName, deviceInstance);
 
                         deviceInstance.registerConfiguration(opMode.hardwareMap, parameterRegistry);
                     } else {
+                        LOGGER.log(Level.SEVERE, "Driver class " + driverClass.getName() + " is not a valid DTDevice or DTDeviceExtended");
                         throw new ConfigurationException("Driver class " + driverClass.getName() + " is not a valid DTDevice or DTDeviceExtended");
                     }
 
@@ -75,6 +84,7 @@ public class XMLProcessor {
                         ParameterGroup group = parameterRegistry.getGroup(deviceInstance, groupName);
 
                         if (group == null) {
+                            LOGGER.log(Level.SEVERE, "Group " + groupName + " not found in device " + deviceName);
                             throw new ConfigurationException("Group " + groupName + " not found in device " + deviceName);
                         }
 
@@ -85,6 +95,7 @@ public class XMLProcessor {
                             Parameter<?> parameter = group.getParameter(parameterName);
 
                             if (parameter == null) {
+                                LOGGER.log(Level.SEVERE, "Parameter " + parameterName + " not found in group " + groupName);
                                 throw new ConfigurationException("Parameter " + parameterName + " not found in group " + groupName);
                             }
 
@@ -93,6 +104,7 @@ public class XMLProcessor {
                         }
                     }
                 } catch (InstantiationException | IllegalAccessException e) {
+                    LOGGER.log(Level.SEVERE, "Failed to instantiate device class for " + deviceName + ": " + e.getMessage(), e);
                     throw new ConfigurationException("Failed to instantiate device class for " + deviceName + ": " + e.getMessage());
                 }
             }
@@ -105,6 +117,10 @@ public class XMLProcessor {
     public static List<Rule> processRules(NodeList elementNodes, Map<String, DTDevice> availableDeviceDrivers, ParameterRegistry parameterRegistry) {
         List<Rule> rules = new ArrayList<>();
         List<Element> ruleElements = XMLUtils.getElementNodes(elementNodes);
+
+        for (DTDevice device : availableDeviceDrivers.values()) {
+            device.registerParameters(parameterRegistry);
+        }
 
         for (Element ruleElement : ruleElements) {
             String description = ruleElement.getAttribute("description");
@@ -130,6 +146,7 @@ public class XMLProcessor {
                 DTDevice deviceInstance = availableDeviceDrivers.get(deviceName);
 
                 if (deviceInstance == null) {
+                    LOGGER.log(Level.SEVERE, "Device not found: " + deviceName);
                     throw new IllegalParameterException("Device not found: " + deviceName);
                 }
 
@@ -140,6 +157,7 @@ public class XMLProcessor {
                     ParameterGroup group = parameterRegistry.getGroup(deviceInstance, groupName);
 
                     if (group == null) {
+                        LOGGER.log(Level.SEVERE, "Group " + groupName + " not found in device " + deviceName);
                         throw new IllegalParameterException("Group " + groupName + " not found in device " + deviceName);
                     }
 
@@ -153,6 +171,7 @@ public class XMLProcessor {
                         Parameter<?> parameter = group.getParameter(parameterName);
 
                         if (parameter == null) {
+                            LOGGER.log(Level.SEVERE, "Parameter " + parameterName + " not found in group " + groupName);
                             throw new IllegalParameterException("Parameter " + parameterName + " not found in group " + groupName);
                         }
 
@@ -160,6 +179,7 @@ public class XMLProcessor {
                             Value<?> expectedValue = ValueParser.parseValue(paramElement, parameter.getType());
                             conditions.add(new Condition(parameter, operator, expectedValue));
                         } catch (InstantiationException | IllegalAccessException e) {
+                            LOGGER.log(Level.SEVERE, "Failed to parse value for parameter " + parameterName + " in group " + groupName, e);
                             throw new RuntimeException("Failed to parse value for parameter " + parameterName + " in group " + groupName, e);
                         }
                     }
@@ -183,6 +203,7 @@ public class XMLProcessor {
                 DTDevice deviceInstance = availableDeviceDrivers.get(deviceName);
 
                 if (deviceInstance == null) {
+                    LOGGER.log(Level.SEVERE, "Device not found: " + deviceName);
                     throw new IllegalParameterException("Device not found: " + deviceName);
                 }
 
@@ -193,6 +214,7 @@ public class XMLProcessor {
                     ParameterGroup group = parameterRegistry.getGroup(deviceInstance, groupName);
 
                     if (group == null) {
+                        LOGGER.log(Level.SEVERE, "Group " + groupName + " not found in device " + deviceName);
                         throw new IllegalParameterException("Group " + groupName + " not found in device " + deviceName);
                     }
 
@@ -203,6 +225,7 @@ public class XMLProcessor {
                         Parameter<?> parameter = group.getParameter(parameterName);
 
                         if (parameter == null) {
+                            LOGGER.log(Level.SEVERE, "Parameter " + parameterName + " not found in group " + groupName);
                             throw new IllegalParameterException("Parameter " + parameterName + " not found in group " + groupName);
                         }
 
@@ -210,6 +233,7 @@ public class XMLProcessor {
                             Value<?> value = ValueParser.parseValue(paramElement, parameter.getType());
                             actions.add(new Action(parameter, value));
                         } catch (InstantiationException | IllegalAccessException e) {
+                            LOGGER.log(Level.SEVERE, "Failed to parse value for parameter " + parameterName + " in group " + groupName, e);
                             throw new RuntimeException("Failed to parse value for parameter " + parameterName + " in group " + groupName, e);
                         }
                     }
