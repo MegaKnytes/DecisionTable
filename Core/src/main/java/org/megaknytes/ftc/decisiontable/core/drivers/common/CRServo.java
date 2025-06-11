@@ -1,12 +1,9 @@
 package org.megaknytes.ftc.decisiontable.core.drivers.common;
 
 import org.megaknytes.ftc.decisiontable.core.drivers.DTDevice;
-import org.megaknytes.ftc.decisiontable.core.xml.structure.parameters.Parameter;
 import org.megaknytes.ftc.decisiontable.core.xml.structure.parameters.ParameterRegistry;
-import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
-
-import java.util.function.Supplier;
+import com.qualcomm.robotcore.hardware.HardwareMap;
 
 public class CRServo implements DTDevice {
     private String crServoName;
@@ -15,22 +12,21 @@ public class CRServo implements DTDevice {
     private DcMotorSimple.Direction direction = DcMotorSimple.Direction.FORWARD;
 
     @Override
-    public void registerParameters(OpMode opMode, ParameterRegistry registry) {
-        Supplier<String> crServoNameSupplier = () -> crServoName;
-        Supplier<DcMotorSimple.Direction> directionSupplier = () -> direction;
-        Supplier<Double> powerSupplier = () -> crServo.getPower();
-
+    public void registerConfiguration(HardwareMap hardwareMap, ParameterRegistry registry) {
         registry.createParameterGroup(this, "Configuration")
-                .addParameter("ServoName", String.class, crServoNameSupplier, (name) -> {
-                    this.crServoName = name;
-                    this.crServo = opMode.hardwareMap.get(com.qualcomm.robotcore.hardware.CRServo.class, name);
+                .addParameter("Name", String.class, () -> crServoName, (crServoName) -> {
+                    this.crServoName = crServoName;
+                    crServo = hardwareMap.get(com.qualcomm.robotcore.hardware.CRServo.class, crServoName);
                 })
-                .addParameter("Direction", DcMotorSimple.Direction.class, directionSupplier, (dir) -> {
-                    this.direction = dir;
-                    this.crServo.setDirection(dir);
+                .addParameter("Direction", DcMotorSimple.Direction.class, () -> direction, (direction) -> {
+                    this.direction = direction;
+                    crServo.setDirection(direction);
                 });
+    }
 
+    @Override
+    public void registerParameters(ParameterRegistry registry) {
         registry.createParameterGroup(this, "Value")
-                .addParameter("Power", Double.class, powerSupplier, (power) -> crServo.setPower(power));
+                .addParameter("Power", Double.class, () -> crServo.getPower(), (power) -> crServo.setPower(power));
     }
 }

@@ -3,6 +3,7 @@ package org.megaknytes.ftc.decisiontable.core.xml;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 
 import org.megaknytes.ftc.decisiontable.core.drivers.DTDevice;
+import org.megaknytes.ftc.decisiontable.core.drivers.DTDeviceExtended;
 import org.megaknytes.ftc.decisiontable.core.utils.XMLUtils;
 import org.megaknytes.ftc.decisiontable.core.utils.exceptions.ConfigurationException;
 import org.megaknytes.ftc.decisiontable.core.utils.exceptions.DriverNotFoundException;
@@ -41,6 +42,7 @@ public class XMLProcessor {
             DTDevice driverTemplate = availableDeviceDrivers.get(driverName);
             assert driverTemplate != null;
             Class<?> driverClass = driverTemplate.getClass();
+            Class<?> superClass = driverClass.getSuperclass();
 
             List<Element> deviceElements = XMLUtils.getElementNodes(driverElement.getChildNodes());
 
@@ -52,10 +54,20 @@ public class XMLProcessor {
                 }
 
                 try {
-                    DTDevice deviceInstance = (DTDevice) driverClass.newInstance();
-                    deviceInstances.put(deviceName, deviceInstance);
+                    DTDevice deviceInstance;
+                    if (superClass == DTDeviceExtended.class) {
+                        deviceInstance = (DTDeviceExtended) driverClass.newInstance();
+                        deviceInstances.put(deviceName, deviceInstance);
 
-                    deviceInstance.registerParameters(opMode, parameterRegistry);
+                        ((DTDeviceExtended) deviceInstance).registerConfiguration(opMode, parameterRegistry);
+                    } else if (superClass == DTDevice.class) {
+                        deviceInstance = (DTDevice) driverClass.newInstance();
+                        deviceInstances.put(deviceName, deviceInstance);
+
+                        deviceInstance.registerConfiguration(opMode.hardwareMap, parameterRegistry);
+                    } else {
+                        throw new ConfigurationException("Driver class " + driverClass.getName() + " is not a valid DTDevice or DTDeviceExtended");
+                    }
 
                     List<Element> groupElements = XMLUtils.getElementNodes(deviceElement.getChildNodes());
 
@@ -82,7 +94,7 @@ public class XMLProcessor {
                         }
                     }
                 } catch (InstantiationException | IllegalAccessException e) {
-                    throw new RuntimeException("Failed to create device " + deviceName, e);
+                    throw new ConfigurationException("Failed to instantiate device class for " + deviceName + ": " + e.getMessage());
                 }
             }
         }

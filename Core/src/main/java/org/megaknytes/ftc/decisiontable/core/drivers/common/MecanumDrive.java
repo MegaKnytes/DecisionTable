@@ -3,11 +3,10 @@ package org.megaknytes.ftc.decisiontable.core.drivers.common;
 import static com.qualcomm.robotcore.hardware.DcMotorSimple.Direction.FORWARD;
 
 import org.megaknytes.ftc.decisiontable.core.drivers.DTDevice;
-import org.megaknytes.ftc.decisiontable.core.xml.structure.parameters.Parameter;
 import org.megaknytes.ftc.decisiontable.core.xml.structure.parameters.ParameterRegistry;
-import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
+import com.qualcomm.robotcore.hardware.HardwareMap;
 
 import java.util.function.Supplier;
 
@@ -18,77 +17,64 @@ public class MecanumDrive implements DTDevice {
     private Float x_power = 0.0F, y_power = 0.0F, rx_power = 0.0F, speed = 1.0F;
 
     @Override
-    public void registerParameters(OpMode opMode, ParameterRegistry registry) {
-        Supplier<String> frontLeftNameSupplier = () -> frontLeftName;
-        Supplier<String> frontRightNameSupplier = () -> frontRightName;
-        Supplier<String> backLeftNameSupplier = () -> backLeftName;
-        Supplier<String> backRightNameSupplier = () -> backRightName;
-
-        Supplier<DcMotor.Direction> frontLeftDirectionSupplier = () -> frontLeftDirection;
-        Supplier<DcMotor.Direction> frontRightDirectionSupplier = () -> frontRightDirection;
-        Supplier<DcMotor.Direction> backLeftDirectionSupplier = () -> backLeftDirection;
-        Supplier<DcMotor.Direction> backRightDirectionSupplier = () -> backRightDirection;
-
-        Supplier<Float> xSupplier = () -> x_power;
-        Supplier<Float> ySupplier = () -> y_power;
-        Supplier<Float> rxSupplier = () -> rx_power;
-
-        Supplier<Float> speedModifierSupplier = () -> speed;
-
+    public void registerConfiguration(HardwareMap hardwareMap, ParameterRegistry registry) {
         registry.createParameterGroup(this, "FrontLeft")
-                .addParameter("MotorName", String.class, frontLeftNameSupplier, (name) -> {
-                    this.frontLeftName = name;
-                    this.frontLeft = opMode.hardwareMap.get(DcMotor.class, name);
+                .addParameter("MotorName", String.class, () -> frontLeftName, (frontLeftName) -> {
+                    this.frontLeftName = frontLeftName;
+                    frontLeft = hardwareMap.get(DcMotor.class, frontLeftName);
                 })
-                .addParameter("Direction", DcMotorSimple.Direction.class, frontLeftDirectionSupplier, (direction) -> {
-                    this.frontLeftDirection = direction;
-                    this.frontLeft.setDirection(direction);
+                .addParameter("Direction", DcMotorSimple.Direction.class, () -> frontLeftDirection, (frontLeftDirection) -> {
+                    this.frontLeftDirection = frontLeftDirection;
+                    frontLeft.setDirection(frontLeftDirection);
                 });
 
         registry.createParameterGroup(this, "FrontRight")
-                .addParameter("MotorName", String.class, frontRightNameSupplier, (name) -> {
-                    this.frontRightName = name;
-                    this.frontRight = opMode.hardwareMap.get(DcMotor.class, name);
+                .addParameter("MotorName", String.class, () -> frontRightName, (frontRightName) -> {
+                    this.frontRightName = frontRightName;
+                    frontRight = hardwareMap.get(DcMotor.class, frontRightName);
                 })
-                .addParameter("Direction", DcMotorSimple.Direction.class, frontRightDirectionSupplier, (direction) -> {
-                    this.frontRightDirection = direction;
-                    this.frontRight.setDirection(direction);
+                .addParameter("Direction", DcMotorSimple.Direction.class, () -> frontRightDirection, (frontRightDirection) -> {
+                    this.frontRightDirection = frontRightDirection;
+                    frontRight.setDirection(frontRightDirection);
                 });
 
         registry.createParameterGroup(this, "BackLeft")
-                .addParameter("MotorName", String.class, backLeftNameSupplier, (name) -> {
-                    this.backLeftName = name;
-                    this.backLeft = opMode.hardwareMap.get(DcMotor.class, name);
+                .addParameter("MotorName", String.class, () -> backLeftName, (backLeftName) -> {
+                    this.backLeftName = backLeftName;
+                    backLeft = hardwareMap.get(DcMotor.class, backLeftName);
                 })
-                .addParameter("Direction", DcMotorSimple.Direction.class, backLeftDirectionSupplier, (direction) -> {
-                    this.backLeftDirection = direction;
-                    this.backLeft.setDirection(direction);
+                .addParameter("Direction", DcMotorSimple.Direction.class, () -> backLeftDirection, (backLeftDirection) -> {
+                    this.backLeftDirection = backLeftDirection;
+                    backLeft.setDirection(backLeftDirection);
                 });
 
         registry.createParameterGroup(this, "BackRight")
-                .addParameter("MotorName", String.class, backRightNameSupplier, (name) -> {
-                    this.backRightName = name;
-                    this.backRight = opMode.hardwareMap.get(DcMotor.class, name);
+                .addParameter("MotorName", String.class, () -> backRightName, (backRightName) -> {
+                    this.backRightName = backRightName;
+                    backRight = hardwareMap.get(DcMotor.class, backRightName);
                 })
-                .addParameter("Direction", DcMotorSimple.Direction.class, backRightDirectionSupplier, (direction) -> {
-                    this.backRightDirection = direction;
-                    this.backRight.setDirection(direction);
+                .addParameter("Direction", DcMotorSimple.Direction.class, () -> backRightDirection, (backRightDirection) -> {
+                    this.backRightDirection = backRightDirection;
+                    backRight.setDirection(backRightDirection);
                 });
+    }
 
-        registry.createParameterGroup(this, "DrivePowers")
-                .addParameter("X", Float.class, xSupplier, (x_power) -> {
+    @Override
+    public void registerParameters(ParameterRegistry registry) {
+        registry.createParameterGroup(this, "DrivePower")
+                .addParameter("X", Float.class, () -> x_power, (x_power) -> {
                     this.x_power = x_power;
                     update();
                 })
-                .addParameter("Y", Float.class, ySupplier, (y_power) -> {
+                .addParameter("Y", Float.class, () -> y_power, (y_power) -> {
                     this.y_power = y_power;
                     update();
                 })
-                .addParameter("RX", Float.class, rxSupplier, (rx_power) -> {
+                .addParameter("RX", Float.class, () -> rx_power, (rx_power) -> {
                     this.rx_power = rx_power;
                     update();
                 })
-                .addParameter("Speed", Float.class, speedModifierSupplier, (speed) -> {
+                .addParameter("Speed", Float.class, () -> speed, (speed) -> {
                     this.speed = speed;
                     update();
                 });

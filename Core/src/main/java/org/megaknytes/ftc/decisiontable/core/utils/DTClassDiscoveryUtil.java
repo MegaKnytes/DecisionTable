@@ -6,7 +6,6 @@ import com.qualcomm.ftccommon.FtcEventLoop;
 
 import org.firstinspires.ftc.ftccommon.external.OnCreateEventLoop;
 import org.megaknytes.ftc.decisiontable.core.drivers.DTDevice;
-import org.megaknytes.ftc.decisiontable.core.drivers.DisabledClass;
 import org.megaknytes.ftc.decisiontable.core.xml.values.Value;
 
 import java.io.IOException;
@@ -67,7 +66,7 @@ public class DTClassDiscoveryUtil {
             try {
                 Class<?> valueParserClass = Class.forName(className, false, DTClassDiscoveryUtil.class.getClassLoader());
 
-                if (Value.class.isAssignableFrom(valueParserClass) && !valueParserClass.isInterface() && !valueParserClass.isAnnotationPresent(DisabledClass.class)) {
+                if (Value.class.isAssignableFrom(valueParserClass) && !valueParserClass.isInterface() && !valueParserClass.isAnnotationPresent(DisabledDTClass.class)) {
                     Value<?> valueParserInstance = (Value<?>) valueParserClass.getDeclaredConstructor().newInstance();
                     valueParserInstances.put(valueParserInstance.getType(), valueParserInstance);
                 }
@@ -93,7 +92,7 @@ public class DTClassDiscoveryUtil {
 
             try {
                 Class<?> configClass = Class.forName(className, false, DTClassDiscoveryUtil.class.getClassLoader());
-                if (DTDevice.class.isAssignableFrom(configClass) && !configClass.isInterface() && !configClass.isAnnotationPresent(DisabledClass.class)) {
+                if (DTDevice.class.isAssignableFrom(configClass) && !configClass.isInterface() && !configClass.isAnnotationPresent(DisabledDTClass.class)) {
                     try {
                         @SuppressWarnings("unchecked")
                         DTDevice driverInstance = (DTDevice) configClass.newInstance();

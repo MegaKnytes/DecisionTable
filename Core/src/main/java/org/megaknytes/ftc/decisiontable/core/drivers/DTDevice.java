@@ -1,10 +1,11 @@
 package org.megaknytes.ftc.decisiontable.core.drivers;
 
 import org.megaknytes.ftc.decisiontable.core.xml.structure.parameters.ParameterRegistry;
-import com.qualcomm.robotcore.eventloop.opmode.OpMode;
+import com.qualcomm.robotcore.hardware.HardwareMap;
 
 public interface DTDevice {
 
-    void registerParameters(OpMode opMode, ParameterRegistry registry);
+    void registerConfiguration(HardwareMap hardwareMap, ParameterRegistry registry);
+    void registerParameters(ParameterRegistry registry);
 
 }

@@ -1,8 +1,8 @@
-package org.megaknytes.ftc.decisiontable.core.drivers;
+package org.megaknytes.ftc.decisiontable.core.utils;
 
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 
 @Retention(RetentionPolicy.RUNTIME)
-public @interface DisabledClass {
+public @interface DisabledDTClass {
 }
