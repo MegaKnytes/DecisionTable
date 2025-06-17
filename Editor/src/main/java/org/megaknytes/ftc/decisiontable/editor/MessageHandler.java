@@ -1,6 +1,7 @@
 package org.megaknytes.ftc.decisiontable.editor;
 
 
+import org.megaknytes.ftc.decisiontable.core.DTProcessor;
 import org.megaknytes.ftc.decisiontable.editor.message.Message;
 import org.megaknytes.ftc.decisiontable.editor.message.types.incoming.InitOpMode;
 import org.megaknytes.ftc.decisiontable.editor.message.types.outgoing.Heartbeat;
@@ -35,6 +36,14 @@ public class MessageHandler {
                         response = Error.generateError("OpMode Name Not Provided", e.toString()).toString();
                     }
                     break;
+                case RESTART_ROBOT:
+                    try {
+                        DTProcessor.getInstance().restartRobot();
+                        response = Success.generateSuccess().toString();
+                    } catch (Exception e) {
+                        LOGGER.log(Level.WARNING, e.toString());
+                        response = Error.generateError("", e.toString()).toString();
+                    }
                 case HEARTBEAT:
                     try{
                         response = Heartbeat.getHeartbeat(

@@ -8,6 +8,7 @@ import android.os.IBinder;
 
 import org.firstinspires.ftc.ftccommon.external.OnCreate;
 import org.firstinspires.ftc.ftccommon.external.OnCreateEventLoop;
+import org.firstinspires.ftc.ftccommon.internal.AnnotatedHooksClassFilter;
 import org.firstinspires.ftc.robotcore.internal.opmode.OpModeMeta;
 import org.megaknytes.ftc.decisiontable.core.utils.discovery.DTClassDiscovery;
 import org.megaknytes.ftc.decisiontable.core.drivers.DTDevice;
@@ -54,33 +55,26 @@ public class DTProcessor {
     private Map<String, Ruleset> enabledRulesets = new HashMap<>();
     private final Map<String, DTDevice> availableDeviceDrivers = DTClassDiscovery.getDriverInstances();
     private final ParameterRegistry parameterRegistry = ParameterRegistry.getInstance();
-    private static Context appContext;
+    private FtcRobotControllerService robotControllerService;
 
     public DTProcessor() {}
 
     @OnCreateEventLoop
     public static void onCreateEventLoop(Context context, FtcEventLoop eventLoop) {
         LOGGER.log(Level.INFO, "Beginning to scan for enabled system configurations and rulesets...");
-        appContext = context;
         try {
-            context.bindService(new Intent(context, FtcRobotControllerService.class), INSTANCE.serviceConnection, Context.BIND_AUTO_CREATE);
-        } catch (Exception e) {
-            LOGGER.log(Level.SEVERE, "Error during XML parsing: " + e.getMessage());
-            throw new RuntimeException(e);
-        }
-    }
+            context.bindService(new Intent(context, FtcRobotControllerService.class), new ServiceConnection() {
+                @Override
+                public void onServiceConnected(ComponentName name, IBinder service) {
+                    INSTANCE.robotControllerService = ((FtcRobotControllerService.FtcRobotControllerBinder) service).getService();
+                }
 
-    private boolean isBound = false;
+                @Override
+                public void onServiceDisconnected(ComponentName name) {
+                }
+            }, Context.BIND_AUTO_CREATE);
 
-    private final ServiceConnection serviceConnection = new ServiceConnection() {
-        @Override
-        public void onServiceConnected(ComponentName name, IBinder service) {
-            FtcRobotControllerService.FtcRobotControllerBinder binder =
-                    (FtcRobotControllerService.FtcRobotControllerBinder) service;
-            FtcRobotControllerService robotControllerService = binder.getService();
-            isBound = true;
-
-            while (robotControllerService.getRobot() == null) {
+            while (INSTANCE.robotControllerService.getRobot() == null) {
                 try {
                     Thread.sleep(100);
                 } catch (InterruptedException e) {
@@ -90,20 +84,18 @@ public class DTProcessor {
             }
 
             try {
-                INSTANCE.enabledSystemConfigurations = DTFileDiscovery.getEnabledSystemConfigurations(appContext);
+                INSTANCE.enabledSystemConfigurations = DTFileDiscovery.getEnabledSystemConfigurations(context);
                 LOGGER.log(Level.INFO, "Enabled system configurations: " + INSTANCE.enabledSystemConfigurations.keySet());
-                INSTANCE.enabledRulesets = DTFileDiscovery.getEnabledRulesets(appContext, robotControllerService.getRobot().eventLoopManager, INSTANCE.enabledSystemConfigurations);
+                INSTANCE.enabledRulesets = DTFileDiscovery.getEnabledRulesets(context, INSTANCE.robotControllerService.getRobot().eventLoopManager, INSTANCE.enabledSystemConfigurations);
                 LOGGER.log(Level.INFO, "Enabled rulesets: " + INSTANCE.enabledRulesets.keySet());
             } catch (Exception e) {
                 LOGGER.log(Level.SEVERE, "Error loading rulesets: " + e.getMessage());
             }
+        } catch (Exception e) {
+            LOGGER.log(Level.SEVERE, "Error during XML parsing: " + e.getMessage());
+            throw new RuntimeException(e);
         }
-
-        @Override
-        public void onServiceDisconnected(ComponentName name) {
-            isBound = false;
-        }
-    };
+    }
 
     @OpModeRegistrar
     public static void registerOpModes(AnnotatedOpModeManager opModeManager) {
@@ -195,5 +187,9 @@ public class DTProcessor {
 
     public static DTProcessor getInstance() {
         return INSTANCE;
+    }
+
+    public void restartRobot(){
+        INSTANCE.robotControllerService.shutdownRobot();
     }
 }
