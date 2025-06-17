@@ -37,7 +37,6 @@ public class DecisionViewer {
             .create();
     private static final Logger LOGGER = Logger.getLogger(DecisionViewer.class.getName());
     private static final DecisionViewer INSTANCE = new DecisionViewer();
-    private static final DTProcessor dtProcessor = DTProcessor.getInstance();
     private NanoWSD server;
 
     public DecisionViewer() {}

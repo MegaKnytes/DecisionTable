@@ -58,33 +58,42 @@ public class DTProcessor {
 
     @OnCreateEventLoop
     public static void bindRobot(Context context, FtcEventLoop eventLoop) {
-        LOGGER.log(Level.INFO, "Beginning to scan for enabled system configurations and rulesets...");
-        try {
-            context.bindService(new Intent(context, FtcRobotControllerService.class), new ServiceConnection() {
+        LOGGER.log(Level.INFO, "Attempting to bind to the FtcRobotControllerService...");
+        context.bindService(new Intent(context, FtcRobotControllerService.class), new ServiceConnection() {
+            private final android.os.Handler handler = new android.os.Handler();
+            private IBinder service;
+            private static final int MAX_RETRY_COUNT = 75;
+            private int retryCount = 0;
+
+            private final Runnable robotChecker = new Runnable() {
                 @Override
-                public void onServiceConnected(ComponentName name, IBinder service) {
+                public void run() {
                     FtcRobotControllerService robotControllerService = ((FtcRobotControllerService.FtcRobotControllerBinder) service).getService();
 
-                    while (robotControllerService.getRobot() == null) {
-                        try {
-                            Thread.sleep(100);
-                        } catch (InterruptedException e) {
-                            Thread.currentThread().interrupt();
-                            LOGGER.log(Level.SEVERE, "Service connection interrupted: " + e.getMessage());
-                        }
+                    if (robotControllerService.getRobot() != null) {
+                        INSTANCE.robot = robotControllerService.getRobot();
+                        LOGGER.log(Level.INFO, "Robot successfully bound");
+                    } else if (retryCount < MAX_RETRY_COUNT) {
+                        retryCount++;
+                        handler.postDelayed(this, 100);
+                    } else {
+                        LOGGER.log(Level.WARNING, "Timed out waiting for robot to initialize");
                     }
-
-                    INSTANCE.robot = robotControllerService.getRobot();
                 }
+            };
 
-                @Override
-                public void onServiceDisconnected(ComponentName name) {
-                }
-            }, Context.BIND_AUTO_CREATE);
-        } catch (Exception e) {
-            LOGGER.log(Level.SEVERE, "Error during XML parsing: " + e.getMessage());
-            throw new RuntimeException(e);
-        }
+            @Override
+            public void onServiceConnected(ComponentName name, IBinder service) {
+                this.service = service;
+                handler.post(robotChecker);
+            }
+
+            @Override
+            public void onServiceDisconnected(ComponentName name) {
+                handler.removeCallbacks(robotChecker);
+                INSTANCE.robot = null;
+            }
+        }, Context.BIND_AUTO_CREATE);
     }
 
     @OnCreateEventLoop
@@ -194,12 +203,7 @@ public class DTProcessor {
         return INSTANCE;
     }
 
-    public void restartRobot(){
-        if (robot != null) {
-            LOGGER.log(Level.INFO, "Restarting robot...");
-            robot.shutdown();
-        } else {
-            LOGGER.log(Level.WARNING, "RobotControllerService is not bound. Cannot restart robot.");
-        }
+    public static Robot getRobot() {
+        return INSTANCE.robot;
     }
 }
