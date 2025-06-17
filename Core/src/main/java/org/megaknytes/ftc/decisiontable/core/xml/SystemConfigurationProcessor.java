@@ -108,4 +108,50 @@ public class SystemConfigurationProcessor {
         ParameterValue.setDeviceInstances(deviceInstances);
         return deviceInstances;
     }
+
+    @SuppressWarnings("unchecked")
+    public static <valueType> void processInternalVariables(NodeList internalVariablesNodes, Map<Class<?>, Value<?>> valueParserClasses) {
+        InternalVariableRegistry internalVariableRegistry = InternalVariableRegistry.getInstance();
+        List<Element> groupElements = XMLHelperMethods.getElementNodes(internalVariablesNodes);
+
+        Map<String, Class<?>> typeNameMap = new HashMap<>();
+        for (Class<?> type : valueParserClasses.keySet()) {
+            typeNameMap.put(type.getSimpleName(), type);
+        }
+
+        for (Element groupElement : groupElements) {
+            String groupName = groupElement.getNodeName();
+            LOGGER.log(Level.INFO, "Processing internal variable group: " + groupName);
+
+            List<Element> typeElements = XMLHelperMethods.getElementNodes(groupElement.getChildNodes());
+
+            for (Element typeElement : typeElements) {
+                String typeName = typeElement.getNodeName();
+                Class<?> valueType = typeNameMap.get(typeName);
+
+                if (valueType == null) {
+                    LOGGER.log(Level.WARNING, "Unknown internal variable type: " + typeName);
+                    continue;
+                }
+
+                List<Element> variableElements = XMLHelperMethods.getElementNodes(typeElement.getChildNodes());
+
+                for (Element variableElement : variableElements) {
+                    String variableName = variableElement.getNodeName();
+                    String description = variableElement.getAttribute("description");
+
+                    try {
+                        Value<?> parsedValue = ValueParser.parseValue(variableElement, valueType);
+                        Object value = parsedValue.getValue();
+
+                        internalVariableRegistry.addVariable(groupName, variableName, description, (valueType) value, (Class<valueType>) valueType);
+                        LOGGER.log(Level.INFO, "Added internal variable: " + variableName + " of type " + valueType.getSimpleName());
+                    } catch (Exception e) {
+                        LOGGER.log(Level.SEVERE, "Error parsing internal variable " + variableName, e);
+                        throw new ConfigurationException("Invalid value for " + variableName + ": " + e.getMessage());
+                    }
+                }
+            }
+        }
+    }
 }

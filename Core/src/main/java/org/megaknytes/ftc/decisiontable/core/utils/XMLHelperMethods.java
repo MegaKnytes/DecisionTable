@@ -68,4 +68,15 @@ public class XMLHelperMethods {
         }
         return null;
     }
+
+    public static boolean hasInternalVariableElement(Element element) {
+        NodeList childNodes = element.getChildNodes();
+        for (int i = 0; i < childNodes.getLength(); i++) {
+            Node node = childNodes.item(i);
+            if (node.getNodeType() == Node.ELEMENT_NODE && node.getNodeName().equals("InternalVariable")) {
+                return true;
+            }
+        }
+        return false;
+    }
 }

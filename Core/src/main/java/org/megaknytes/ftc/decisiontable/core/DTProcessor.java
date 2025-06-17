@@ -18,6 +18,7 @@ import org.firstinspires.ftc.robotcore.internal.opmode.OpModeMeta;
 import org.megaknytes.ftc.decisiontable.core.drivers.DTDevice;
 import org.megaknytes.ftc.decisiontable.core.utils.discovery.DTClassDiscovery;
 import org.megaknytes.ftc.decisiontable.core.utils.discovery.DTFileDiscovery;
+import org.megaknytes.ftc.decisiontable.core.xml.InternalVariableRegistry;
 import org.megaknytes.ftc.decisiontable.core.xml.ParameterRegistry;
 import org.megaknytes.ftc.decisiontable.core.xml.RulesetProcessor;
 import org.megaknytes.ftc.decisiontable.core.xml.SystemConfigurationProcessor;
@@ -157,6 +158,11 @@ public class DTProcessor {
                 deviceInstances.putAll(SystemConfigurationProcessor.processDevices(deviceElements.item(i).getChildNodes(), opMode, availableDeviceDrivers));
             }
 
+            NodeList internalVariablesElements = systemConfigDocument.getElementsByTagName("InternalVariables");
+            for (int i = 0; i < internalVariablesElements.getLength(); i++) {
+                SystemConfigurationProcessor.processInternalVariables(internalVariablesElements.item(i).getChildNodes(), DTClassDiscovery.getValueParserClasses());
+            }
+
             NodeList rulesElements = rulesetDocument.getElementsByTagName("Rules");
             for (int i = 0; i < rulesElements.getLength(); i++) {
                 loadedRules.addAll(RulesetProcessor.processRules(rulesElements.item(i).getChildNodes(), deviceInstances));
@@ -203,6 +209,7 @@ public class DTProcessor {
         INSTANCE.loadedRules.clear();
         INSTANCE.pendingActions.clear();
         ParameterRegistry.reset();
+        InternalVariableRegistry.reset();
         LOGGER.log(Level.INFO, "DTProcessor has been reset");
     }
 

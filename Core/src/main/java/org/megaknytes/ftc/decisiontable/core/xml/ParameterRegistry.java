@@ -49,9 +49,13 @@ public class ParameterRegistry {
 
     public ParameterGroupBuilder createParameterGroup(DTDevice device, String groupName) {
         Map<String, ParameterGroup> groups = deviceGroups.computeIfAbsent(device, k -> new HashMap<>());
-        ParameterGroup group = new ParameterGroup(groupName);
-        groups.put(groupName, group);
-        return new ParameterGroupBuilder(group);
+        if (groups.containsKey(groupName)) {
+            return new ParameterGroupBuilder(groups.get(groupName));
+        } else {
+            ParameterGroup group = new ParameterGroup(groupName);
+            groups.put(groupName, group);
+            return new ParameterGroupBuilder(group);
+        }
     }
 
     public static class ParameterGroupBuilder {

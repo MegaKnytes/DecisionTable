@@ -5,6 +5,7 @@ import org.megaknytes.ftc.decisiontable.core.utils.discovery.DTClassDiscovery;
 import org.megaknytes.ftc.decisiontable.core.utils.exceptions.ConfigurationException;
 import org.megaknytes.ftc.decisiontable.core.utils.exceptions.NoRegisteredParserException;
 import org.megaknytes.ftc.decisiontable.core.xml.values.types.EnumValue;
+import org.megaknytes.ftc.decisiontable.core.xml.values.types.InternalVariableValue;
 import org.megaknytes.ftc.decisiontable.core.xml.values.types.ParameterValue;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
@@ -22,6 +23,13 @@ public class ValueParser {
 
         if (parameterNode.getNodeType() == Node.ELEMENT_NODE) {
             Element element = (Element) parameterNode;
+
+            if (XMLHelperMethods.hasInternalVariableElement(element)) {
+                InternalVariableValue<T> internalVarValue = new InternalVariableValue<>();
+                internalVarValue.parseValue(parameterNode);
+                return internalVarValue;
+            }
+
             if (XMLHelperMethods.hasParameterElement(element)) {
                 ParameterValue<T> paramValue = new ParameterValue<>();
                 paramValue.parseValue(parameterNode);
