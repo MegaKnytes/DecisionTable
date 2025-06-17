@@ -39,10 +39,8 @@ public class MessageHandler {
                 case RESTART_ROBOT:
                     try {
                         DTProcessor.getInstance().restartRobot();
-                        response = Success.generateSuccess().toString();
                     } catch (Exception e) {
                         LOGGER.log(Level.WARNING, e.toString());
-                        response = Error.generateError("", e.toString()).toString();
                     }
                 case HEARTBEAT:
                     try{
