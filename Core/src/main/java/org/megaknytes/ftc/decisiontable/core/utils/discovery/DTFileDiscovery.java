@@ -3,6 +3,9 @@ package org.megaknytes.ftc.decisiontable.core.utils.discovery;
 import android.content.Context;
 import android.os.Environment;
 
+import com.qualcomm.robotcore.eventloop.EventLoop;
+import com.qualcomm.robotcore.eventloop.EventLoopManager;
+
 import org.firstinspires.ftc.robotcore.internal.opmode.OpModeMeta;
 import org.megaknytes.ftc.decisiontable.core.utils.XMLHelperMethods;
 import org.megaknytes.ftc.decisiontable.core.utils.exceptions.ConfigurationException;
@@ -99,7 +102,7 @@ public class DTFileDiscovery {
         return enabledSystemConfigurations;
     }
 
-    public static Map<String, Ruleset> getEnabledRulesets(Context context, Map<String, SystemConfiguration> enabledSystemConfigurations) throws ParserConfigurationException {
+    public static Map<String, Ruleset> getEnabledRulesets(Context context, EventLoopManager eventLoopManager, Map<String, SystemConfiguration> enabledSystemConfigurations) throws ParserConfigurationException {
         LOGGER.log(Level.INFO, "Beginning to scan for enabled rulesets...");
 
         Map<String, Ruleset> enabledRulesets = new HashMap<>();
@@ -160,6 +163,7 @@ public class DTFileDiscovery {
 
                                 if (systemConfiguration == null) {
                                     LOGGER.log(Level.SEVERE, "System configuration not found: " + systemConfigurationName);
+                                    eventLoopManager.reportGlobalError("System configuration not found: " + systemConfigurationName, true);
                                     throw new ConfigurationException("System configuration not found: " + systemConfigurationName);
                                 }
 
