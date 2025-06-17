@@ -8,6 +8,8 @@ import org.megaknytes.ftc.decisiontable.core.utils.discovery.DTClassDiscovery;
 import org.megaknytes.ftc.decisiontable.core.drivers.DTDevice;
 import org.megaknytes.ftc.decisiontable.core.utils.discovery.DTFileDiscovery;
 import org.megaknytes.ftc.decisiontable.core.xml.ParameterRegistry;
+import org.megaknytes.ftc.decisiontable.core.xml.RulesetProcessor;
+import org.megaknytes.ftc.decisiontable.core.xml.SystemConfigurationProcessor;
 import org.megaknytes.ftc.decisiontable.core.xml.structure.ruleset.Action;
 import org.megaknytes.ftc.decisiontable.core.xml.structure.ruleset.Condition;
 import org.megaknytes.ftc.decisiontable.core.xml.structure.Ruleset;
@@ -18,7 +20,6 @@ import com.qualcomm.robotcore.eventloop.opmode.AnnotatedOpModeManager;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.eventloop.opmode.OpModeRegistrar;
 
-import org.megaknytes.ftc.decisiontable.core.xml.XMLProcessor;
 import org.megaknytes.ftc.decisiontable.core.xml.structure.SystemConfiguration;
 import org.w3c.dom.Document;
 import org.w3c.dom.NodeList;
@@ -105,12 +106,12 @@ public class DTProcessor {
 
             NodeList deviceElements = systemConfigDocument.getElementsByTagName("Devices");
             for (int i = 0; i < deviceElements.getLength(); i++) {
-                deviceInstances.putAll(XMLProcessor.processDevices(deviceElements.item(i).getChildNodes(), opMode, availableDeviceDrivers, parameterRegistry));
+                deviceInstances.putAll(SystemConfigurationProcessor.processDevices(deviceElements.item(i).getChildNodes(), opMode, availableDeviceDrivers, parameterRegistry));
             }
 
             NodeList rulesElements = rulesetDocument.getElementsByTagName("Rules");
             for (int i = 0; i < rulesElements.getLength(); i++) {
-                loadedRules.addAll(XMLProcessor.processRules(rulesElements.item(i).getChildNodes(), deviceInstances, parameterRegistry));
+                loadedRules.addAll(RulesetProcessor.processRules(rulesElements.item(i).getChildNodes(), deviceInstances, parameterRegistry));
             }
         } catch (IOException e) {
             throw new RuntimeException("Failed to load configuration file", e);

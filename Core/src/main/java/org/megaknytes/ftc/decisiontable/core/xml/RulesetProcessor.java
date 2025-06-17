@@ -26,8 +26,8 @@ import java.util.Map;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-public class XMLProcessor {
-    private static final Logger LOGGER = Logger.getLogger(XMLProcessor.class.getName());
+public class RulesetProcessor {
+    private static final Logger LOGGER = Logger.getLogger(RulesetProcessor.class.getName());
 
     public static Map<String, DTDevice> processDevices(NodeList elementNodes, OpMode opMode, Map<String, DTDevice> availableDeviceDrivers, ParameterRegistry parameterRegistry) {
         LOGGER.log(Level.INFO, "Processing devices...");
