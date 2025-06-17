@@ -20,6 +20,7 @@ public class Ruleset {
     public File getFile() {
         return file;
     }
+
     public SystemConfiguration getConfiguration() {
         return configuration;
     }

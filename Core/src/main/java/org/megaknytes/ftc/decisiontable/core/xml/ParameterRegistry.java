@@ -16,14 +16,15 @@ public class ParameterRegistry {
 
     private final Map<DTDevice, Map<String, ParameterGroup>> deviceGroups = new HashMap<>();
 
-    private ParameterRegistry() {}
+    private ParameterRegistry() {
+    }
 
-    public ParameterGroup getGroup(DTDevice device, String groupName) {
-        Map<String, ParameterGroup> groups = deviceGroups.get(device);
-        if (groups == null) {
-            return null;
-        }
-        return groups.get(groupName);
+    public static void reset() {
+        INSTANCE.deviceGroups.clear();
+    }
+
+    public static ParameterRegistry getInstance() {
+        return INSTANCE;
     }
 
     public Parameter<?> getParameter(DTDevice device, String groupName, String parameterName) {
@@ -36,6 +37,14 @@ public class ParameterRegistry {
             throw new IllegalParameterException("Parameter not found: " + parameterName);
         }
         return parameter;
+    }
+
+    public ParameterGroup getGroup(DTDevice device, String groupName) {
+        Map<String, ParameterGroup> groups = deviceGroups.get(device);
+        if (groups == null) {
+            return null;
+        }
+        return groups.get(groupName);
     }
 
     public ParameterGroupBuilder createParameterGroup(DTDevice device, String groupName) {
@@ -61,9 +70,5 @@ public class ParameterRegistry {
             group.addParameter(name, type, getter, listener);
             return this;
         }
-    }
-
-    public static ParameterRegistry getInstance() {
-        return INSTANCE;
     }
 }

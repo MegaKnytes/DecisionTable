@@ -7,7 +7,8 @@ import org.w3c.dom.Node;
 public class FloatValue implements Value<Float> {
     private Float value;
 
-    public FloatValue() {}
+    public FloatValue() {
+    }
 
     @Override
     public Float parseValue(Node parameterNode) {

@@ -21,19 +21,19 @@ public class Parameter<T> {
         return name;
     }
 
-    @SuppressWarnings("unchecked")
-    public void setValue(Object value) {
-        for (Consumer<T> listener : listeners) {
-            listener.accept((T) value);
-        }
-    }
-
     public void addListener(Consumer<T> listener) {
         listeners.add(listener);
     }
 
     public T getValue() {
         return defaultValueSupplier.get();
+    }
+
+    @SuppressWarnings("unchecked")
+    public void setValue(Object value) {
+        for (Consumer<T> listener : listeners) {
+            listener.accept((T) value);
+        }
     }
 
     public Class<T> getType() {

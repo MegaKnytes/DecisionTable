@@ -7,7 +7,8 @@ import org.w3c.dom.Node;
 public class IntegerValue implements Value<Integer> {
     private Integer value;
 
-    public IntegerValue() {}
+    public IntegerValue() {
+    }
 
     @Override
     public Integer parseValue(Node parameterNode) {

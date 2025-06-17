@@ -8,7 +8,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class XMLHelperMethods {
-    
+
     public static Element getFirstChildElementByName(Element parent, String name) {
         for (int i = 0; i < parent.getChildNodes().getLength(); i++) {
             Node child = parent.getChildNodes().item(i);
@@ -55,6 +55,16 @@ public class XMLHelperMethods {
         NodeList elements = parent.getElementsByTagName(tagName);
         if (elements.getLength() > 0) {
             return elements.item(0).getTextContent();
+        }
+        return null;
+    }
+
+    public static Element getFirstChildElement(NodeList parent) {
+        for (int i = 0; i < parent.getLength(); i++) {
+            Node child = parent.item(i);
+            if (child.getNodeType() == Node.ELEMENT_NODE) {
+                return (Element) child;
+            }
         }
         return null;
     }

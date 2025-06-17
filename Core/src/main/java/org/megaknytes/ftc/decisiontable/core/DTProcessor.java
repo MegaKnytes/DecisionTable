@@ -6,19 +6,6 @@ import android.content.Intent;
 import android.content.ServiceConnection;
 import android.os.IBinder;
 
-import org.firstinspires.ftc.ftccommon.external.OnCreateEventLoop;
-import org.firstinspires.ftc.robotcore.internal.opmode.OpModeMeta;
-import org.megaknytes.ftc.decisiontable.core.utils.discovery.DTClassDiscovery;
-import org.megaknytes.ftc.decisiontable.core.drivers.DTDevice;
-import org.megaknytes.ftc.decisiontable.core.utils.discovery.DTFileDiscovery;
-import org.megaknytes.ftc.decisiontable.core.xml.ParameterRegistry;
-import org.megaknytes.ftc.decisiontable.core.xml.RulesetProcessor;
-import org.megaknytes.ftc.decisiontable.core.xml.SystemConfigurationProcessor;
-import org.megaknytes.ftc.decisiontable.core.xml.structure.ruleset.Action;
-import org.megaknytes.ftc.decisiontable.core.xml.structure.ruleset.Condition;
-import org.megaknytes.ftc.decisiontable.core.xml.structure.Ruleset;
-import org.megaknytes.ftc.decisiontable.core.xml.structure.ruleset.Rule;
-
 import com.qualcomm.ftccommon.FtcEventLoop;
 import com.qualcomm.ftccommon.FtcRobotControllerService;
 import com.qualcomm.robotcore.eventloop.opmode.AnnotatedOpModeManager;
@@ -26,7 +13,19 @@ import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.eventloop.opmode.OpModeRegistrar;
 import com.qualcomm.robotcore.robot.Robot;
 
+import org.firstinspires.ftc.ftccommon.external.OnCreateEventLoop;
+import org.firstinspires.ftc.robotcore.internal.opmode.OpModeMeta;
+import org.megaknytes.ftc.decisiontable.core.drivers.DTDevice;
+import org.megaknytes.ftc.decisiontable.core.utils.discovery.DTClassDiscovery;
+import org.megaknytes.ftc.decisiontable.core.utils.discovery.DTFileDiscovery;
+import org.megaknytes.ftc.decisiontable.core.xml.ParameterRegistry;
+import org.megaknytes.ftc.decisiontable.core.xml.RulesetProcessor;
+import org.megaknytes.ftc.decisiontable.core.xml.SystemConfigurationProcessor;
+import org.megaknytes.ftc.decisiontable.core.xml.structure.Ruleset;
 import org.megaknytes.ftc.decisiontable.core.xml.structure.SystemConfiguration;
+import org.megaknytes.ftc.decisiontable.core.xml.structure.ruleset.Action;
+import org.megaknytes.ftc.decisiontable.core.xml.structure.ruleset.Condition;
+import org.megaknytes.ftc.decisiontable.core.xml.structure.ruleset.Rule;
 import org.w3c.dom.Document;
 import org.w3c.dom.NodeList;
 import org.xml.sax.SAXException;
@@ -49,20 +48,20 @@ public class DTProcessor {
     private final List<Rule> loadedRules = new ArrayList<>();
     private final List<Action> pendingActions = new ArrayList<>();
     private final Map<String, DTDevice> availableDeviceDrivers = DTClassDiscovery.getDriverInstances();
-    private final ParameterRegistry parameterRegistry = ParameterRegistry.getInstance();
     private Map<String, SystemConfiguration> enabledSystemConfigurations = new HashMap<>();
     private Map<String, Ruleset> enabledRulesets = new HashMap<>();
     private Robot robot;
 
-    public DTProcessor() {}
+    public DTProcessor() {
+    }
 
     @OnCreateEventLoop
     public static void bindRobot(Context context, FtcEventLoop eventLoop) {
         LOGGER.log(Level.INFO, "Attempting to bind to the FtcRobotControllerService...");
         context.bindService(new Intent(context, FtcRobotControllerService.class), new ServiceConnection() {
+            private static final int MAX_RETRY_COUNT = 75;
             private final android.os.Handler handler = new android.os.Handler();
             private IBinder service;
-            private static final int MAX_RETRY_COUNT = 75;
             private int retryCount = 0;
 
             private final Runnable robotChecker = new Runnable() {
@@ -121,7 +120,7 @@ public class DTProcessor {
 
             opModeManager.register(
                     new OpModeMeta.Builder()
-                            .setName(tableName + " [DT]")
+                            .setName(tableName)
                             .setFlavor(opmodeFlavor)
                             .setGroup("DecisionTable")
                             .setSource(OpModeMeta.Source.EXTERNAL_LIBRARY)
@@ -143,6 +142,7 @@ public class DTProcessor {
     }
 
     private void initializeRuleset(OpMode opMode, Ruleset ruleset) {
+        reset();
         Map<String, DTDevice> deviceInstances = new HashMap<>();
         try {
             DocumentBuilder builder = DocumentBuilderFactory.newInstance().newDocumentBuilder();
@@ -154,12 +154,12 @@ public class DTProcessor {
 
             NodeList deviceElements = systemConfigDocument.getElementsByTagName("Devices");
             for (int i = 0; i < deviceElements.getLength(); i++) {
-                deviceInstances.putAll(SystemConfigurationProcessor.processDevices(deviceElements.item(i).getChildNodes(), opMode, availableDeviceDrivers, parameterRegistry));
+                deviceInstances.putAll(SystemConfigurationProcessor.processDevices(deviceElements.item(i).getChildNodes(), opMode, availableDeviceDrivers));
             }
 
             NodeList rulesElements = rulesetDocument.getElementsByTagName("Rules");
             for (int i = 0; i < rulesElements.getLength(); i++) {
-                loadedRules.addAll(RulesetProcessor.processRules(rulesElements.item(i).getChildNodes(), deviceInstances, parameterRegistry));
+                loadedRules.addAll(RulesetProcessor.processRules(rulesElements.item(i).getChildNodes(), deviceInstances));
             }
         } catch (IOException e) {
             throw new RuntimeException("Failed to load configuration file", e);
@@ -197,6 +197,13 @@ public class DTProcessor {
         } catch (Exception e) {
             throw new RuntimeException("Error during update cycle: " + e.getMessage(), e);
         }
+    }
+
+    public static void reset() {
+        INSTANCE.loadedRules.clear();
+        INSTANCE.pendingActions.clear();
+        ParameterRegistry.reset();
+        LOGGER.log(Level.INFO, "DTProcessor has been reset");
     }
 
     public static DTProcessor getInstance() {

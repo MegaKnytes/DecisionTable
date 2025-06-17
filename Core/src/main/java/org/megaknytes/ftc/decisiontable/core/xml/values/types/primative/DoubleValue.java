@@ -7,7 +7,8 @@ import org.w3c.dom.Node;
 public class DoubleValue implements Value<Double> {
     private Double value;
 
-    public DoubleValue() {}
+    public DoubleValue() {
+    }
 
     @Override
     public Double parseValue(Node parameterNode) {

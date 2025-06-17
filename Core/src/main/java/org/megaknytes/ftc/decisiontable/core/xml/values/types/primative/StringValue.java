@@ -7,7 +7,8 @@ import org.w3c.dom.Node;
 public class StringValue implements Value<String> {
     private String value;
 
-    public StringValue() {}
+    public StringValue() {
+    }
 
     @Override
     public String parseValue(Node parameterNode) {

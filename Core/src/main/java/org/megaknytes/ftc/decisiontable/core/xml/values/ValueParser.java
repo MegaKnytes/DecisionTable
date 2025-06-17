@@ -1,7 +1,7 @@
 package org.megaknytes.ftc.decisiontable.core.xml.values;
 
-import org.megaknytes.ftc.decisiontable.core.utils.discovery.DTClassDiscovery;
 import org.megaknytes.ftc.decisiontable.core.utils.XMLHelperMethods;
+import org.megaknytes.ftc.decisiontable.core.utils.discovery.DTClassDiscovery;
 import org.megaknytes.ftc.decisiontable.core.utils.exceptions.ConfigurationException;
 import org.megaknytes.ftc.decisiontable.core.utils.exceptions.NoRegisteredParserException;
 import org.megaknytes.ftc.decisiontable.core.xml.values.types.EnumValue;

@@ -3,8 +3,6 @@ package org.megaknytes.ftc.decisiontable.core.utils.discovery;
 import android.content.Context;
 import android.os.Environment;
 
-import com.qualcomm.robotcore.eventloop.EventLoop;
-import com.qualcomm.robotcore.eventloop.EventLoopManager;
 import com.qualcomm.robotcore.util.RobotLog;
 
 import org.firstinspires.ftc.robotcore.internal.opmode.OpModeMeta;
@@ -59,7 +57,7 @@ public class DTFileDiscovery {
                 .flatMap(dir -> Arrays.stream(Objects.requireNonNull(dir.listFiles((d, name) -> name.toLowerCase().endsWith(".xml")))))
                 .toArray(File[]::new);
 
-        LOGGER.log(Level.INFO, "Found " +  allFileSources.length +" XML files to process for system configurations");
+        LOGGER.log(Level.INFO, "Found " + allFileSources.length + " XML files to process for system configurations");
 
         for (File xmlFile : allFileSources) {
             try {

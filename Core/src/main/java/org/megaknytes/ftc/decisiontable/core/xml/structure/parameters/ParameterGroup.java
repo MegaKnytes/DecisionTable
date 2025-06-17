@@ -17,15 +17,15 @@ public class ParameterGroup {
         return name;
     }
 
+    public <T> void addParameter(String parameterName, Class<T> type, Supplier<T> defaultValueSupplier, Consumer<T> listener) {
+        Parameter<T> param = addParameter(parameterName, type, defaultValueSupplier);
+        param.addListener(listener);
+    }
+
     public <T> Parameter<T> addParameter(String parameterName, Class<T> type, Supplier<T> defaultValueSupplier) {
         Parameter<T> param = new Parameter<>(parameterName, type, defaultValueSupplier);
         parameters.put(parameterName, param);
         return param;
-    }
-
-    public <T> void addParameter(String parameterName, Class<T> type, Supplier<T> defaultValueSupplier, Consumer<T> listener) {
-        Parameter<T> param = addParameter(parameterName, type, defaultValueSupplier);
-        param.addListener(listener);
     }
 
     public Parameter<?> getParameter(String parameterName) {

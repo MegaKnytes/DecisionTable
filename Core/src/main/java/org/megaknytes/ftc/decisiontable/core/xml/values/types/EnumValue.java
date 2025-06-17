@@ -8,7 +8,8 @@ public class EnumValue<T extends Enum<T>> implements Value<T> {
     private T value;
     private Class<T> enumType;
 
-    public EnumValue() {}
+    public EnumValue() {
+    }
 
     @Override
     public T parseValue(Node parameterNode) {

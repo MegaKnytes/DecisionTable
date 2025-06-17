@@ -20,8 +20,10 @@ public class Condition {
         Object expected = expectedValue.getValue();
 
         switch (operator) {
-            case "==": return actualValue.equals(expected);
-            case "!=": return !actualValue.equals(expected);
+            case "==":
+                return actualValue.equals(expected);
+            case "!=":
+                return !actualValue.equals(expected);
             case ">":
                 if (actualValue instanceof Comparable) {
                     return ((Comparable) actualValue).compareTo(expected) > 0;

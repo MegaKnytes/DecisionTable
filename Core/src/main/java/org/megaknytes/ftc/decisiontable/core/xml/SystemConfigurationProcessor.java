@@ -7,19 +7,15 @@ import org.megaknytes.ftc.decisiontable.core.drivers.DTDeviceExtended;
 import org.megaknytes.ftc.decisiontable.core.utils.XMLHelperMethods;
 import org.megaknytes.ftc.decisiontable.core.utils.exceptions.ConfigurationException;
 import org.megaknytes.ftc.decisiontable.core.utils.exceptions.DriverNotFoundException;
-import org.megaknytes.ftc.decisiontable.core.utils.exceptions.IllegalParameterException;
 import org.megaknytes.ftc.decisiontable.core.xml.structure.parameters.Parameter;
 import org.megaknytes.ftc.decisiontable.core.xml.structure.parameters.ParameterGroup;
 import org.megaknytes.ftc.decisiontable.core.xml.structure.ruleset.Action;
-import org.megaknytes.ftc.decisiontable.core.xml.structure.ruleset.Condition;
-import org.megaknytes.ftc.decisiontable.core.xml.structure.ruleset.Rule;
 import org.megaknytes.ftc.decisiontable.core.xml.values.Value;
 import org.megaknytes.ftc.decisiontable.core.xml.values.ValueParser;
 import org.megaknytes.ftc.decisiontable.core.xml.values.types.ParameterValue;
 import org.w3c.dom.Element;
 import org.w3c.dom.NodeList;
 
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -28,8 +24,9 @@ import java.util.logging.Logger;
 
 public class SystemConfigurationProcessor {
     private static final Logger LOGGER = Logger.getLogger(SystemConfigurationProcessor.class.getName());
+    private static final ParameterRegistry PARAMETER_REGISTRY = ParameterRegistry.getInstance();
 
-    public static Map<String, DTDevice> processDevices(NodeList elementNodes, OpMode opMode, Map<String, DTDevice> availableDeviceDrivers, ParameterRegistry parameterRegistry) {
+    public static Map<String, DTDevice> processDevices(NodeList elementNodes, OpMode opMode, Map<String, DTDevice> availableDeviceDrivers) {
         LOGGER.log(Level.INFO, "Processing devices...");
 
         Map<String, DTDevice> deviceInstances = new HashMap<>();
@@ -64,12 +61,12 @@ public class SystemConfigurationProcessor {
                         deviceInstance = (DTDeviceExtended) driverClass.newInstance();
                         deviceInstances.put(deviceName, deviceInstance);
 
-                        ((DTDeviceExtended) deviceInstance).registerConfiguration(opMode, parameterRegistry);
+                        ((DTDeviceExtended) deviceInstance).registerConfiguration(opMode, PARAMETER_REGISTRY);
                     } else if (DTDevice.class.isAssignableFrom(driverClass)) {
                         deviceInstance = (DTDevice) driverClass.newInstance();
                         deviceInstances.put(deviceName, deviceInstance);
 
-                        deviceInstance.registerConfiguration(opMode.hardwareMap, parameterRegistry);
+                        deviceInstance.registerConfiguration(opMode.hardwareMap, PARAMETER_REGISTRY);
                     } else {
                         LOGGER.log(Level.SEVERE, "Driver class " + driverClass.getName() + " is not a valid DTDevice or DTDeviceExtended");
                         throw new ConfigurationException("Driver class " + driverClass.getName() + " is not a valid DTDevice or DTDeviceExtended");
@@ -79,7 +76,7 @@ public class SystemConfigurationProcessor {
 
                     for (Element groupElement : groupElements) {
                         String groupName = groupElement.getNodeName();
-                        ParameterGroup group = parameterRegistry.getGroup(deviceInstance, groupName);
+                        ParameterGroup group = PARAMETER_REGISTRY.getGroup(deviceInstance, groupName);
 
                         if (group == null) {
                             LOGGER.log(Level.SEVERE, "Group " + groupName + " not found in device " + deviceName);

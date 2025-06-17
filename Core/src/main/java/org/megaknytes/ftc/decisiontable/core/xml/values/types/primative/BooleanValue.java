@@ -7,7 +7,8 @@ import org.w3c.dom.Node;
 public class BooleanValue implements Value<Boolean> {
     private Boolean value;
 
-    public BooleanValue() {}
+    public BooleanValue() {
+    }
 
     @Override
     public Boolean parseValue(Node parameterNode) {

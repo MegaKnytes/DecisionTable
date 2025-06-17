@@ -2,15 +2,16 @@ package org.megaknytes.ftc.decisiontable.core.drivers.common;
 
 import static com.qualcomm.robotcore.hardware.DcMotorSimple.Direction.FORWARD;
 
-import org.megaknytes.ftc.decisiontable.core.drivers.DTDevice;
-import org.megaknytes.ftc.decisiontable.core.xml.ParameterRegistry;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 
+import org.megaknytes.ftc.decisiontable.core.drivers.DTDevice;
+import org.megaknytes.ftc.decisiontable.core.xml.ParameterRegistry;
+
 public class MecanumDrive implements DTDevice {
     private String frontLeftName, frontRightName, backLeftName, backRightName;
-    private DcMotor.Direction frontLeftDirection = FORWARD, frontRightDirection = FORWARD, backLeftDirection = FORWARD,backRightDirection = FORWARD;
+    private DcMotor.Direction frontLeftDirection = FORWARD, frontRightDirection = FORWARD, backLeftDirection = FORWARD, backRightDirection = FORWARD;
     private DcMotor frontLeft, frontRight, backLeft, backRight;
     private Float x_power = 0.0F, y_power = 0.0F, rx_power = 0.0F, speed = 1.0F;
 
@@ -78,12 +79,12 @@ public class MecanumDrive implements DTDevice {
                 });
     }
 
-    public void update(){
+    public void update() {
         double denominator = Math.max(Math.abs(y_power) + Math.abs(x_power) + Math.abs(rx_power), 1);
-        double frontLeftPower  = ((y_power + x_power + rx_power) / denominator) * speed;
-        double backLeftPower   = ((y_power - x_power + rx_power) / denominator) * speed;
+        double frontLeftPower = ((y_power + x_power + rx_power) / denominator) * speed;
+        double backLeftPower = ((y_power - x_power + rx_power) / denominator) * speed;
         double frontRightPower = ((y_power - x_power - rx_power) / denominator) * speed;
-        double backRightPower  = ((y_power + x_power - rx_power) / denominator) * speed;
+        double backRightPower = ((y_power + x_power - rx_power) / denominator) * speed;
 
         frontLeft.setPower(frontLeftPower);
         frontRight.setPower(frontRightPower);

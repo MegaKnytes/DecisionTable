@@ -3,8 +3,8 @@ package org.megaknytes.ftc.decisiontable.core.xml.values.types;
 import org.megaknytes.ftc.decisiontable.core.drivers.DTDevice;
 import org.megaknytes.ftc.decisiontable.core.utils.XMLHelperMethods;
 import org.megaknytes.ftc.decisiontable.core.utils.exceptions.ConfigurationException;
-import org.megaknytes.ftc.decisiontable.core.xml.structure.parameters.Parameter;
 import org.megaknytes.ftc.decisiontable.core.xml.ParameterRegistry;
+import org.megaknytes.ftc.decisiontable.core.xml.structure.parameters.Parameter;
 import org.megaknytes.ftc.decisiontable.core.xml.values.Value;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
@@ -12,14 +12,15 @@ import org.w3c.dom.Node;
 import java.util.Map;
 
 public class ParameterValue<T> implements Value<T> {
+    private static Map<String, DTDevice> deviceInstances;
+    ParameterRegistry registry = ParameterRegistry.getInstance();
     private String deviceName;
     private String groupName;
     private String paramName;
     private Parameter<T> sourceParameter;
-    private static Map<String, DTDevice> deviceInstances;
-    ParameterRegistry registry = ParameterRegistry.getInstance();
 
-    public ParameterValue() {}
+    public ParameterValue() {
+    }
 
     public static void setDeviceInstances(Map<String, DTDevice> instances) {
         deviceInstances = instances;
@@ -31,45 +32,35 @@ public class ParameterValue<T> implements Value<T> {
             throw new ConfigurationException("Parameter node cannot be null");
         }
 
-        Element paramWrapper = (Element) parameterNode;
+        Element parameterElement = XMLHelperMethods.getFirstChildElementByName((Element) parameterNode, "Parameter");
 
-        Element element = XMLHelperMethods.getFirstChildElementByName(paramWrapper, "Parameter");
-
-        if (element == null) {
-            throw new ConfigurationException("Parameter reference missing Parameter element");
+        if (parameterElement == null) {
+            throw new ConfigurationException("Missing Parameter element");
         }
 
-        Element deviceElement = XMLHelperMethods.getFirstChildElementByName(element, "Device");
+        Element deviceElement = XMLHelperMethods.getFirstChildElement(parameterElement.getChildNodes());
 
-        if (deviceElement == null) {
-            throw new ConfigurationException("Parameter reference missing Device element");
+        if (deviceElement != null) {
+            deviceName = deviceElement.getNodeName();
+        } else {
+            throw new ConfigurationException("Device element missing in Parameter");
         }
 
-        Element deviceTypeElement = null;
+        Element groupElement = XMLHelperMethods.getFirstChildElement(deviceElement.getChildNodes());
 
-        for (int i = 0; i < deviceElement.getChildNodes().getLength(); i++) {
-            Node child = deviceElement.getChildNodes().item(i);
-            if (child.getNodeType() == Node.ELEMENT_NODE) {
-                deviceTypeElement = (Element) child;
-                deviceName = deviceTypeElement.getNodeName();
-            }
+        if (groupElement != null) {
+            groupName = groupElement.getNodeName();
+        } else {
+            throw new ConfigurationException("Group element missing in Device");
         }
 
-        if (deviceTypeElement == null) {
-            throw new ConfigurationException("Device element has no device type child");
-        }
+        Element paramElement = XMLHelperMethods.getFirstChildElement(groupElement.getChildNodes());
 
-        Element groupElement = XMLHelperMethods.getFirstChildElementByName(element, "Group");
-        if (groupElement == null) {
-            throw new ConfigurationException("Parameter reference missing Group element");
+        if (paramElement != null) {
+            paramName = paramElement.getNodeName();
+        } else {
+            throw new ConfigurationException("Parameter element missing in Group");
         }
-        groupName = groupElement.getTextContent().trim();
-
-        Element paramElement = XMLHelperMethods.getFirstChildElementByName(element, "Parameter");
-        if (paramElement == null) {
-            throw new ConfigurationException("Parameter reference missing Parameter element");
-        }
-        paramName = paramElement.getTextContent().trim();
 
         return null;
     }
