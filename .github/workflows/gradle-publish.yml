@@ -61,7 +61,7 @@ jobs:
           GRADLE_FILE="FtcRobotController/build.dependencies.gradle"
 
           sed -i '/repositories {/,/}/{s/}/    maven {\n        url "https:\/\/maven.megaknytes.org\/releases"\n    }\n}/}' $GRADLE_FILE
-          sed -i '/dependencies {/,/}/{s/}/    implementation "org.megaknytes.ftc.decisiontable:Core:${{ env.RELEASE_VERSION }}"\n}/}' $GRADLE_FILE
+          sed -i '/dependencies {/,/}/{s/}/    implementation "org.megaknytes.ftc.decisiontable:Core:${{ env.RELEASE_VERSION }}"\n    implementation "org.megaknytes.ftc.decisiontable:Editor:${{ env.RELEASE_VERSION }}"\n}/}' $GRADLE_FILE
 
           cat $GRADLE_FILE
 
