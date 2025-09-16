@@ -1,9 +1,13 @@
 [versions]
 ftcSDK = "11.0.0"
+javaxServletApi = "4.0.1"
+nanohttpdWebsocket = "2.3.1"
 
 [libraries]
 ftccommon = { module = "org.firstinspires.ftc:FtcCommon", version.ref = "ftcSDK" }
 hardware = { module = "org.firstinspires.ftc:Hardware", version.ref = "ftcSDK" }
 robotserver = { module = "org.firstinspires.ftc:RobotServer", version.ref = "ftcSDK" }
 robotcore = { module = "org.firstinspires.ftc:RobotCore", version.ref = "ftcSDK" }
-vision = { module = "org.firstinspires.ftc:Vision", version.ref = "ftcSDK" }
+javax-servlet-api = { module = "javax.servlet:javax.servlet-api", version.ref = "javaxServletApi" }
+nanohttpd-apache-fileupload = { module = "org.nanohttpd:nanohttpd-apache-fileupload", version.ref = "nanohttpdWebsocket" }
+nanohttpd-websocket = { module = "org.nanohttpd:nanohttpd-websocket", version.ref = "nanohttpdWebsocket" }

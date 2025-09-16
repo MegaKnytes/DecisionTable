@@ -38,11 +38,6 @@ publishing {
                         name = 'MegaKnytes 11093'
                         email = 'hccsarobotics@gmail.com'
                     }
-                    developer {
-                        id = 'UntitledMoose'
-                        name = 'Noah Blaut'
-                        email = 'noah@untitledmoose.dev'
-                    }
                 }
                 scm {
                     connection = 'scm:git:git://github.com/MegaKnytes/DecisionTable.git'

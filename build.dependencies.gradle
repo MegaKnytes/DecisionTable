@@ -8,5 +8,4 @@ dependencies {
     implementation libs.robotcore
     implementation libs.hardware
     implementation libs.ftccommon
-    implementation libs.vision
 }

@@ -1,0 +1,152 @@
+plugins {
+    id 'maven-publish'
+    id 'com.android.library'
+    id("com.github.node-gradle.node") version "7.1.0"
+}
+
+apply from: '../build.dependencies.gradle'
+
+dependencies {
+    implementation(libs.nanohttpd.websocket) {
+        exclude module: "nanohttpd"
+    }
+
+    implementation(libs.nanohttpd.apache.fileupload) {
+        exclude module: "nanohttpd"
+    }
+
+    implementation libs.javax.servlet.api
+
+    implementation(project(path: ':Core'))
+}
+
+
+android {
+    compileSdkVersion 34
+    namespace "org.megaknytes.ftc.decisiontable.editor"
+    defaultConfig {
+        minSdkVersion 24
+        targetSdkVersion 34
+        versionCode 1
+        aaptOptions {
+            ignoreAssetsPattern '!.svn:!.git:!.ds_store:!*.scc:!CVS:!thumbs.db:!picasa.ini:!_*'
+        }
+    }
+    publishing {
+        singleVariant("release") {
+            withSourcesJar()
+            withJavadocJar()
+        }
+    }
+}
+
+node {
+    nodeProjectDir = file("src/main/decisiontable/")
+    version = "23.10.0"
+    download = true
+}
+
+publishing {
+    publications {
+        def configureBasePom = { pub ->
+            pub.pom {
+                name = 'Editor'
+                description = 'FTC Decision Table Web Editor Library'
+                url = 'http://megaknytes.org'
+
+                developers {
+                    developer {
+                        id = 'hccsarobotics'
+                        name = 'MegaKnytes 11093'
+                        email = 'hccsarobotics@gmail.com'
+                    }
+                }
+                scm {
+                    connection = 'scm:git:git://github.com/MegaKnytes/DecisionTable.git'
+                    developerConnection = 'scm:git:ssh://git@github.com:MegaKnytes/DecisionTable.git'
+                    url = 'https://github.com/MegaKnytes/DecisionTable#'
+                }
+            }
+        }
+
+        if (System.getenv("CI")) {
+            referenceRelease(MavenPublication) {
+                groupId = 'org.megaknytes.ftc.decisiontable'
+                artifactId = 'Editor'
+
+                version = System.getenv("GITHUB_REF_TYPE") == "tag" ? System.getenv("GITHUB_REF_NAME") : System.getenv("GITHUB_REF_NAME") + "-SNAPSHOT"
+
+                configureBasePom(delegate)
+
+                afterEvaluate {
+                    from components.release
+                }
+            }
+        } else {
+            localRelease(MavenPublication) {
+                groupId = 'org.megaknytes.ftc.decisiontable'
+                artifactId = 'Editor'
+                version = "localDeployment-SNAPSHOT"
+
+                configureBasePom(delegate)
+
+                afterEvaluate {
+                    from components.release
+                }
+            }
+        }
+    }
+
+    repositories {
+        maven {
+            def releasesRepoUrl = "https://maven.megaknytes.org/releases"
+            def snapshotsRepoUrl = "https://maven.megaknytes.org/snapshots"
+
+            url = System.getenv("GITHUB_REF_TYPE") == "tag" ? releasesRepoUrl : snapshotsRepoUrl
+
+            credentials {
+                username = System.getenv("MEGAKNYTES_MAVEN_USERNAME")
+                password = System.getenv("MEGAKNYTES_MAVEN_PASSWORD")
+            }
+        }
+    }
+}
+
+tasks.register('generateStaticBuild', NpxTask) {
+    dependsOn npmInstall
+
+    outputs.upToDateWhen { false }
+
+    command = 'next'
+    args = ['build']
+
+    inputs.dir('src/main/decisiontable')
+}
+
+tasks.register('runNextDevelopmentServer', NpxTask) {
+    dependsOn npmInstall
+
+    outputs.upToDateWhen { false }
+
+    command = 'next'
+    args = ['dev']
+
+    inputs.dir('src/main/decisiontable')
+}
+
+tasks.register('copyStaticBuild', Copy) {
+    from "src/main/decisiontable/build"
+    into "src/main/assets/decisiontable"
+}
+
+clean.doFirst {
+    file('src/main/assets/decisiontable').deleteDir()
+    file('src/main/decisiontable/build').deleteDir()
+}
+
+publish.dependsOn 'generateStaticBuild'
+publishToMavenLocal.dependsOn 'generateStaticBuild'
+
+afterEvaluate {
+    packageReleaseAssets.dependsOn 'copyStaticBuild'
+}
