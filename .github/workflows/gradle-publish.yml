@@ -1,0 +1,86 @@
+name: Publishes MegaKnytes Gradle Packages to GitHub Packages
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - '**'
+    tags-ignore:
+      - '*'
+  release:
+    types: [created]
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    steps:
+      - uses: actions/checkout@v4.2.2
+
+      - uses: actions/setup-java@v4.7.0
+        with:
+          java-version: '21'
+          distribution: 'corretto'
+
+      - name: Setup Gradle
+        uses: gradle/actions/setup-gradle@v4.3.1
+
+      - name: Publish All Modules
+        run: ./gradlew publish
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          MEGAKNYTES_MAVEN_USERNAME: ${{ secrets.MEGAKNYTES_MAVEN_USERNAME }}
+          MEGAKNYTES_MAVEN_PASSWORD: ${{ secrets.MEGAKNYTES_MAVEN_PASSWORD }}
+
+  apk-build:
+    if: github.event_name == 'release'
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    needs: publish
+    steps:
+      - name: Checkout FtcRobotController repo
+        uses: actions/checkout@v4
+        with:
+          repository: FIRST-Tech-Challenge/FtcRobotController
+          path: FtcRobotController
+
+      - uses: actions/setup-java@v4.7.0
+        with:
+          java-version: '21'
+          distribution: 'corretto'
+
+      - name: Setup Gradle
+        uses: gradle/actions/setup-gradle@v4.3.1
+
+      - name: Get release tag
+        id: get_version
+        run: echo "RELEASE_VERSION=${GITHUB_REF_NAME}" >> $GITHUB_ENV
+
+      - name: Add DecisionTable to build.dependencies.gradle
+        run: |
+          GRADLE_FILE="FtcRobotController/build.dependencies.gradle"
+
+          sed -i '/repositories {/,/}/{s/}/    maven {\n        url "https:\/\/maven.megaknytes.org\/releases"\n    }\n}/}' $GRADLE_FILE
+          sed -i '/dependencies {/,/}/{s/}/    implementation "org.megaknytes.ftc.decisiontable:Core:${{ env.RELEASE_VERSION }}"\n}/}' $GRADLE_FILE
+
+          cat $GRADLE_FILE
+
+      - name: Build FtcRobotController APK
+        run: |
+          cd FtcRobotController
+          ./gradlew assembleRelease
+          
+          mv TeamCode/build/outputs/apk/release/TeamCode-release.apk TeamCode/build/outputs/apk/release/FtcRobotController-DTLibrary-${{ env.RELEASE_VERSION }}.apk
+
+      - name: Upload APK
+        uses: actions/upload-artifact@v4
+        with:
+          name: FtcRobotController-DTLibrary-${{ env.RELEASE_VERSION }}
+          path: FtcRobotController/TeamCode/build/outputs/apk/release/FtcRobotController-DTLibrary-${{ env.RELEASE_VERSION }}.apk
+
+      - name: Upload APK to Release Page
+        uses: softprops/action-gh-release@v2
+        with:
+          files: FtcRobotController/TeamCode/build/outputs/apk/release/FtcRobotController-DTLibrary-${{ env.RELEASE_VERSION }}.apk
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

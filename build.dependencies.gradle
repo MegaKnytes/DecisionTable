@@ -1,0 +1,12 @@
+repositories {
+    mavenCentral()
+    google()
+}
+
+dependencies {
+    implementation libs.robotserver
+    implementation libs.robotcore
+    implementation libs.hardware
+    implementation libs.ftccommon
+    implementation libs.vision
+}

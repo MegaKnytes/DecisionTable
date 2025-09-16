@@ -1,0 +1,96 @@
+plugins {
+    id 'maven-publish'
+    id 'com.android.library'
+}
+
+apply from: '../build.dependencies.gradle'
+
+android {
+    compileSdkVersion 34
+    namespace "org.megaknytes.ftc.decisiontable.core"
+    defaultConfig {
+        minSdkVersion 24
+        targetSdkVersion 34
+        versionCode 1
+        aaptOptions {
+            ignoreAssetsPattern '!.svn:!.git:!.ds_store:!*.scc:!CVS:!thumbs.db:!picasa.ini:!_*'
+        }
+    }
+    publishing {
+        singleVariant("release") {
+            withSourcesJar()
+            withJavadocJar()
+        }
+    }
+}
+
+publishing {
+    publications {
+        def configureBasePom = { pub ->
+            pub.pom {
+                name = 'Core'
+                description = 'FTC Decision Table Core Library'
+                url = 'http://megaknytes.org'
+
+                developers {
+                    developer {
+                        id = 'hccsarobotics'
+                        name = 'MegaKnytes 11093'
+                        email = 'hccsarobotics@gmail.com'
+                    }
+                    developer {
+                        id = 'UntitledMoose'
+                        name = 'Noah Blaut'
+                        email = 'noah@untitledmoose.dev'
+                    }
+                }
+                scm {
+                    connection = 'scm:git:git://github.com/MegaKnytes/DecisionTable.git'
+                    developerConnection = 'scm:git:ssh://git@github.com:MegaKnytes/DecisionTable.git'
+                    url = 'https://github.com/MegaKnytes/DecisionTable#'
+                }
+            }
+        }
+
+        if (System.getenv("CI")) {
+            referenceRelease(MavenPublication) {
+                groupId = 'org.megaknytes.ftc.decisiontable'
+                artifactId = 'Core'
+
+                version = System.getenv("GITHUB_REF_TYPE") == "tag" ? System.getenv("GITHUB_REF_NAME") : System.getenv("GITHUB_REF_NAME") + "-SNAPSHOT"
+
+                configureBasePom(delegate)
+
+                afterEvaluate {
+                    from components.release
+                }
+            }
+        } else {
+            localRelease(MavenPublication) {
+                groupId = 'org.megaknytes.ftc.decisiontable'
+                artifactId = 'Core'
+                version = "localDeployment-SNAPSHOT"
+
+                configureBasePom(delegate)
+
+                afterEvaluate {
+                    from components.release
+                }
+            }
+        }
+    }
+
+    repositories {
+        maven {
+            def releasesRepoUrl = "https://maven.megaknytes.org/releases"
+            def snapshotsRepoUrl = "https://maven.megaknytes.org/snapshots"
+
+            url = System.getenv("GITHUB_REF_TYPE") == "tag" ? releasesRepoUrl : snapshotsRepoUrl
+
+            credentials {
+                username = System.getenv("MEGAKNYTES_MAVEN_USERNAME")
+                password = System.getenv("MEGAKNYTES_MAVEN_PASSWORD")
+            }
+        }
+    }
+}
