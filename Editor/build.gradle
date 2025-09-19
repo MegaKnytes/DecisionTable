@@ -75,7 +75,6 @@ publishing {
                 artifactId = 'Editor'
 
                 version = (System.getenv("GITHUB_REF_TYPE") == "tag" ? System.getenv("GITHUB_REF_NAME") : System.getenv("GITHUB_REF_NAME") + "-SNAPSHOT").replace('/', '-')
-
                 configureBasePom(delegate)
 
                 afterEvaluate {
