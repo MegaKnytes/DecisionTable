@@ -57,7 +57,7 @@ publishing {
                 groupId = 'org.megaknytes.ftc.decisiontable'
                 artifactId = 'Core'
 
-                version = System.getenv("GITHUB_REF_TYPE") == "tag" ? System.getenv("GITHUB_REF_NAME") : System.getenv("GITHUB_REF_NAME") + "-SNAPSHOT"
+                version = (System.getenv("GITHUB_REF_TYPE") == "tag" ? System.getenv("GITHUB_REF_NAME") : System.getenv("GITHUB_REF_NAME") + "-SNAPSHOT").replace('/', '-')
 
                 configureBasePom(delegate)
 
