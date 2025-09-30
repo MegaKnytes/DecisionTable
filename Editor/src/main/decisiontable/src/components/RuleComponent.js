@@ -30,8 +30,8 @@ export default function RuleComponent() {
                 <FormControlLabel control={<Checkbox size="large" color="error"/>} label="Debug" />
             </Box>
             <Box sx={{ flexGrow: 1, margin: 1 }}>
-                <RuleTable/>
-                <RuleTable/>
+                <RuleTable inputOrOutput="Input" />
+                <RuleTable inputOrOutput="Output" />
             </Box>
         </Box>
     );

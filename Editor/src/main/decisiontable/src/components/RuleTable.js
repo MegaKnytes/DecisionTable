@@ -21,7 +21,7 @@ import AddIcon from '@mui/icons-material/Add';
 import RuleCondition from "@/components/RuleCondition";
 import RuleComparison from "@/components/RuleComparison";
 
-export default function RuleTable() {
+export default function RuleTable({ inputOrOutput }) {
     const [rows, setRows] = React.useState([]);
     const [row_ids, setRow_ids] = React.useState([]);
 
@@ -54,7 +54,7 @@ export default function RuleTable() {
     return (
         <Box sx={{ flexGrow: 1, margin: 1 }}>
             <Typography variant="p" component="div" sx={{ flexGrow: 1 }}>
-                Input Conditions
+                { inputOrOutput } Conditions
                 <IconButton onClick={handleClick} aria-label="add new condition">
                     <AddIcon />
                 </IconButton>
