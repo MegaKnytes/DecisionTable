@@ -15,7 +15,7 @@ This package contains all of the Java code required to host a Node.js webapp on 
 To use these packages, you must add a repository to your gradle project.
 
 - **Step 1**: Gradle Repository Setup
-    - Add the following sections into your repositories `build.dependencies.grade` file:
+    - Add the following sections into your repositories `build.dependencies.gradle` file:
         ```
           ...
   
@@ -26,7 +26,7 @@ To use these packages, you must add a repository to your gradle project.
           ...
         ```
 - **Step 2**: Gradle Dependency Setup
-    - Add the following section into the dependencies section of your repositories `build.dependencies.grade` file:
+    - Add the following section into the dependencies section of your repositories `build.dependencies.gradle` file:
         ```
         dependencies {
           ...
