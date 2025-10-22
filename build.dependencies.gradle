@@ -9,4 +9,5 @@ dependencies {
     implementation libs.hardware
     implementation libs.ftccommon
     implementation libs.vision
+    implementation libs.control
 }
