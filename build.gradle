@@ -10,6 +10,10 @@ buildscript {
     }
 }
 
+ext {
+    panelsVersion = '1.0.6'
+}
+
 allprojects {
     repositories {
         google()
