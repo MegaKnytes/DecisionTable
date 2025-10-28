@@ -22,6 +22,7 @@ import org.megaknytes.ftc.decisiontable.core.drivers.RTPMultiMotorDriver2;
 import org.megaknytes.ftc.decisiontable.core.drivers.ServoDriver;
 import org.megaknytes.ftc.decisiontable.core.drivers.SingleDCMotorDriver;
 import org.megaknytes.ftc.decisiontable.core.drivers.SmartIntakeSensorDriver;
+import org.megaknytes.ftc.decisiontable.core.drivers.FlywheelDriver;
 import org.megaknytes.ftc.decisiontable.core.drivers.TimerClass;
 
 import java.util.Arrays;
@@ -58,17 +59,18 @@ class DTDriverRegistryClass {
     DecisionTableClass.AllianceColor allianceColor;
     ChamberDistanceDriver chamberDistanceDriver;
     LimelightDriver limelightDriver;
+    FlywheelDriver flywheelDriver;
 
     // TODO:  ADDING DRIVER: Add int to hold number of IO definitions for your device driver (i.e. numDCMotors)
     int numRegistered=0, numInternals, numGamepads, numTimers, numDCMotors, numMotors, numCrServos, numRtpMotors,
             numServos, numAxonServos, numMecanum, numDistanceSensor, numKnyteVision, numIntakeSensors, numLED, numColorSensors,
-            numAllianceColorSensors, numGoBuildaHeadlights, numChamberDistance, numLimelight, numIODefs, numInputs, numOutputs, inputList[], outputList[];
+            numAllianceColorSensors, numGoBuildaHeadlights, numChamberDistance, numLimelight, numFlywheel, numIODefs, numInputs, numOutputs, inputList[], outputList[];
 
     // TODO:  ADDING DRIVER: add IO counter to parameter list for constructor (i.e. int numDCMotors)
     public DTDriverRegistryClass(int numInternals, int numGamepads, int numTimers, int numDCMotors, int numMotors,
                                  int numCrServos, int numRtpMotors, int numServos, int numAxonServos, int numMecanum, int numDistanceSensor,
                                  int numKnyteVision, int numIntakeSensors, int numLED, int numColorSensors, int numAllianceColorSensors,
-                                 int numGoBuildaHeadlights, int numChamberDistance, int numLimelight, int numInputs, int numOutputs, DecisionTableClass.AllianceColor allianceColor) {
+                                 int numGoBuildaHeadlights, int numChamberDistance, int numLimelight, int numFlywheel, int numInputs, int numOutputs, DecisionTableClass.AllianceColor allianceColor) {
         int i,c;
 
         this.numInternals = numInternals;
@@ -92,6 +94,7 @@ class DTDriverRegistryClass {
         this.numGoBuildaHeadlights = numGoBuildaHeadlights;
         this.numChamberDistance = numChamberDistance;
         this.numLimelight = numLimelight;
+        this.numFlywheel = numFlywheel;
 
         // TODO:  ADDING DRIVER: add number of IO definitions for new driver to the total count (see numDCMotors below)
         this.numIODefs = numInternals +
@@ -112,7 +115,8 @@ class DTDriverRegistryClass {
                 numAllianceColorSensors +
                 numGoBuildaHeadlights +
                 numChamberDistance +
-                numLimelight;
+                numLimelight +
+                numFlywheel;
 
         this.numInputs=numInputs;
         this.numOutputs=numOutputs;
@@ -139,6 +143,7 @@ class DTDriverRegistryClass {
         goBuildaHeadlightDriver = new GoBuildaHeadlightDriver(numGoBuildaHeadlights);
         chamberDistanceDriver = new ChamberDistanceDriver(numChamberDistance);
         limelightDriver = new LimelightDriver(numLimelight, allianceColor);
+        flywheelDriver = new FlywheelDriver(numFlywheel);
 
         IORegistry=new IORegistryClass[numIODefs];
         inputList=new int[numInputs];
@@ -276,6 +281,14 @@ class DTDriverRegistryClass {
             IORegistry[i].driver=18;
         }
 
+        // Flywheel Driver
+        for (c=0; c<numFlywheel; i++, c++)
+        {
+            IORegistry[i]=new IORegistryClass();
+            IORegistry[i].driver=19;
+        }
+
+
     }
     public void registerIODef(String IOName, int channel, double initVal, String deviceName, HardwareMap hwMap, Gamepad gp1, Gamepad gp2)
     {
@@ -361,6 +374,10 @@ class DTDriverRegistryClass {
 
             case 18:
                 limelightDriver.init(IOName, channel, initVal, deviceName, hwMap);
+                break;
+
+            case 19:
+                flywheelDriver.init(IOName, channel, initVal, deviceName, gp1, gp2, hwMap);
                 break;
 
             default :
@@ -449,6 +466,9 @@ class DTDriverRegistryClass {
                 limelightDriver.set(IORegistry[IORegistryIndex].channel, setVal);
                 break;
 
+            case 19:
+                flywheelDriver.set(IORegistry[IORegistryIndex].channel, setVal);
+                break;
 
             default :
                 break; // Do nothing
@@ -534,6 +554,10 @@ class DTDriverRegistryClass {
 
             case 18:
                 getVal= limelightDriver.get(IORegistry[IORegistryIndex].channel);
+                break;
+
+            case 19:
+                getVal= flywheelDriver.get(IORegistry[IORegistryIndex].channel);
                 break;
 
 

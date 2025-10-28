@@ -69,7 +69,7 @@ public class DecisionTableClass {
         // TODO:  ADDING DRIVER: Add counter for number of driver IO entries (see dcMotorCount)
         int channel, ioRegistryIndex, internalCount, gamepadCount, timerCount, dcMotorCount, motorCount,
                 crServoCount, rtpMotorCount, servoCount, axonCount, mecanumCount, distanceSensorCount, knyteVisionCount,
-                intakeSensorCount, ledCount, colorSensorCount, allianceColorSensorCount, gobuildaHeadlightCount, chamberDistanceCount, limelightCount;
+                intakeSensorCount, ledCount, colorSensorCount, allianceColorSensorCount, gobuildaHeadlightCount, chamberDistanceCount, limelightCount, flywheelCount;
         double initVal;
         String deviceName;
 
@@ -109,6 +109,7 @@ public class DecisionTableClass {
         gobuildaHeadlightCount = scan.nextInt();
         chamberDistanceCount = scan.nextInt();
         limelightCount = scan.nextInt();
+        flywheelCount = scan.nextInt();
 
         // these four scans should always fall after the number of drivers above have been specified
         numInputs = scan.nextInt();
@@ -135,6 +136,7 @@ public class DecisionTableClass {
                             "GoBuilda Headlight Count: " + gobuildaHeadlightCount + "\n" +
                             "Chamber Distance Count: " + chamberDistanceCount + "\n" +
                             "Limelight Count: " + limelightCount + "\n" +
+                            "Flywheel Count: " + flywheelCount + "\n" +
                            "numInputs          : " + numInputs + "\n" +
                            "numOutputs         : " + numOutputs + "\n" +
                            "maxInputOperators  : " + maxInputOperators + "\n" +
@@ -147,7 +149,7 @@ public class DecisionTableClass {
         DTDriverRegistry = new DTDriverRegistryClass(internalCount, gamepadCount, timerCount, dcMotorCount,
                 motorCount, crServoCount, rtpMotorCount, servoCount, axonCount, mecanumCount, distanceSensorCount,
                 knyteVisionCount, intakeSensorCount, ledCount, colorSensorCount, allianceColorSensorCount, gobuildaHeadlightCount, chamberDistanceCount,
-                limelightCount, numInputs, numOutputs, allianceColor);
+                limelightCount, limelightCount, numInputs, numOutputs, allianceColor);
 
         // Read IODefinitions
         tempString = scan.nextLine();        // Skip Abstract description
