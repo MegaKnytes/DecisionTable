@@ -15,7 +15,7 @@ public class MecanumTeleopDriver {
      */
     static double defaultPowerMultiplier = 0.5;
     static double minimumDrivetrainPower = 0.3;
-    static double maximumDrivetrainPower = 0.8;
+    static double maximumDrivetrainPower = 0.5;  // slowed from 0.8 for STEMFest
     int numGamePads;
     Gamepad gp1, gp2;
     DcMotorEx leftFront;
