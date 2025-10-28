@@ -1,11 +1,6 @@
 repositories {
     mavenCentral()
     google()
-
-
-// Panels Repository
-    maven { url = "https://mymaven.bylazar.com/releases" }
-
 }
 
 
@@ -15,14 +10,4 @@ dependencies {
     implementation libs.hardware
     implementation libs.ftccommon
     implementation libs.vision
-
-    // Panels Library
-    implementation "com.bylazar:fullpanels:$panelsVersion"
-
-    // NextFTC Libraries
-    implementation 'dev.nextftc:ftc:1.0.1'
-    implementation 'dev.nextftc:hardware:1.0.1'
-    implementation 'dev.nextftc:control:1.0.0'
-    implementation 'dev.nextftc:bindings:1.0.1'
-    implementation 'dev.nextftc.extensions:pedro:1.0.0'
 }

@@ -1,51 +1,64 @@
 package org.megaknytes.ftc.decisiontable.core.drivers;
 
+import com.qualcomm.robotcore.hardware.DcMotor;
+import com.qualcomm.robotcore.hardware.DcMotorEx;
 import com.qualcomm.robotcore.hardware.Gamepad;
 import com.qualcomm.robotcore.hardware.HardwareMap;
-import org.megaknytes.ftc.decisiontable.core.utilities.Flywheel;
-
-import dev.nextftc.ftc.Gamepads;
-
 
 public class FlywheelDriver {
 
-    int numGamePads;
+    int numFlywheelMotors;
+    DcMotorEx[] flywheelMotors;
     Gamepad gp1, gp2;
-    Flywheel flywheels = null;
 
-    public FlywheelDriver(int numGamePads) {
-        //int i;
-        this.numGamePads = numGamePads;
+    public FlywheelDriver(int numFlywheelMotors) {
+        this.numFlywheelMotors = numFlywheelMotors;
     }
 
     /**
-     * @return flywheel velocity
+     * @return The velocity of the leading flywheel motor in revolutions per minute (RPM)
      */
     public double get(int channel)
     {
-        return flywheels.getVelocity();
+        return ticksToRpm(flywheelMotors[0].getVelocity());
     }
 
     /**
-     * This method sets power values for all 4 wheels. It intentionally ignores the parameters of channel and value.
-     * This method will set all four wheels of the drive train, and calls the get method to take care of the power calculation.
-     * @param channel -- not used
-     * @param value -- velocity in degrees per second
+     * This method sets power values for all motors. It intentionally ignores the parameters of channel
+     * @param channel -- NoOp
+     * @param value -- velocity in revolutions per minute
      */
-    public void set(int channel, double value)
-    {
-        if (value == 0.0) {
-            flywheels.stopFlywheel();
-        } else {
-            flywheels.setTargetVelocity(value);
+    public void set(int channel, double value) {
+        for(int i = 0; i < numFlywheelMotors; i++) {
+            flywheelMotors[i].setVelocity(rpmToTicks(value));
         }
     }
 
     public void init(String IOName, int channel, double initVal, String deviceName, Gamepad gp1, Gamepad gp2, HardwareMap hwMap) {
-        // leaving in gamepads until we know for sure they aren't needed - akc 10-27-2025
         this.gp1 = gp1;
         this.gp2 = gp2;
 
-        flywheels = new Flywheel();
+        if(flywheelMotors == null) {
+            flywheelMotors = new DcMotorEx[numFlywheelMotors];
+        }
+
+        flywheelMotors[channel] = hwMap.get(DcMotorEx.class, deviceName);
+
+        // Requires that all flywheel motors have an encoder plugged into them so that output is consistent
+        flywheelMotors[channel].setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+
+        if (initVal == 0){
+            flywheelMotors[channel].setDirection(DcMotorEx.Direction.FORWARD);
+        } else {
+            flywheelMotors[channel].setDirection(DcMotorEx.Direction.REVERSE);
+        }
+    }
+
+    private static double rpmToTicks(double rpm) {
+        return (rpm / 60) * 28;
+    }
+
+    private static double ticksToRpm(double ticks) {
+        return (ticks / 28) * 60;
     }
 }
