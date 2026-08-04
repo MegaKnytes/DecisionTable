@@ -31,8 +31,8 @@ To use these packages, you must add a repository to your gradle project.
         dependencies {
           ...
         
-          implementation 'org.megaknytes.ftc.decisiontable:core:<VERSION_TAG>
-          implementation 'org.megaknytes.ftc.decisiontable:editor:<VERSION_TAG>
+          implementation 'org.megaknytes.decisiontable:core:<VERSION_TAG>
+          implementation 'org.megaknytes.decisiontable:editor:<VERSION_TAG>
         
           ...
         ```
