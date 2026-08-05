@@ -1,0 +1,74 @@
+plugins {
+    id 'maven-publish'
+    id 'java-library'
+}
+
+java {
+    sourceCompatibility = JavaVersion.VERSION_1_8
+    targetCompatibility = JavaVersion.VERSION_1_8
+
+    withSourcesJar()
+    withJavadocJar()
+}
+
+publishing {
+    publications {
+        def configureBasePom = { pub ->
+            pub.pom {
+                name = 'Core'
+                description = 'FTC Decision Table Core Library'
+                url = 'http://megaknytes.org'
+
+                developers {
+                    developer {
+                        id = 'hccsarobotics'
+                        name = 'MegaKnytes 11093'
+                        email = 'hccsarobotics@gmail.com'
+                    }
+                }
+                scm {
+                    connection = 'scm:git:git://github.com/MegaKnytes/DecisionTable.git'
+                    developerConnection = 'scm:git:ssh://git@github.com:MegaKnytes/DecisionTable.git'
+                    url = 'https://github.com/MegaKnytes/DecisionTable#'
+                }
+            }
+        }
+
+        if (System.getenv("CI")) {
+            referenceRelease(MavenPublication) {
+                groupId = 'org.megaknytes.decisiontable'
+                artifactId = 'Core'
+
+                version = (System.getenv("GITHUB_REF_TYPE") == "tag" ? System.getenv("GITHUB_REF_NAME") : System.getenv("GITHUB_REF_NAME") + "-SNAPSHOT").replace('/', '-')
+
+                configureBasePom(delegate)
+
+                from components.java
+            }
+        } else {
+            localRelease(MavenPublication) {
+                groupId = 'org.megaknytes.decisiontable'
+                artifactId = 'Core'
+                version = "localDeployment-SNAPSHOT"
+
+                configureBasePom(delegate)
+
+                from components.java
+            }
+        }
+    }
+
+    repositories {
+        maven {
+            def releasesRepoUrl = "https://maven.megaknytes.org/releases"
+            def snapshotsRepoUrl = "https://maven.megaknytes.org/snapshots"
+
+            url = System.getenv("GITHUB_REF_TYPE") == "tag" ? releasesRepoUrl : snapshotsRepoUrl
+
+            credentials {
+                username = System.getenv("MEGAKNYTES_MAVEN_USERNAME")
+                password = System.getenv("MEGAKNYTES_MAVEN_PASSWORD")
+            }
+        }
+    }
+}

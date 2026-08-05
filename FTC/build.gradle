@@ -4,11 +4,12 @@ plugins {
 }
 
 android {
-    compileSdk = 34
+    compileSdk = 30
     namespace = "org.megaknytes.decisiontable.ftc"
     defaultConfig {
         minSdk = 24
-        targetSdk = 34
+        //noinspection ExpiredTargetSdkVersion
+        targetSdk = 30
         versionCode = 1
         aaptOptions {
             ignoreAssetsPattern = '!.svn:!.git:!.ds_store:!*.scc:!CVS:!thumbs.db:!picasa.ini:!_*'
@@ -26,8 +27,8 @@ publishing {
     publications {
         def configureBasePom = { pub ->
             pub.pom {
-                name = 'Core'
-                description = 'FTC Decision Table Core Library'
+                name = 'FTC'
+                description = 'FTC Decision Table FTC SDK Integration'
                 url = 'http://megaknytes.org'
 
                 developers {
@@ -48,7 +49,7 @@ publishing {
         if (System.getenv("CI")) {
             referenceRelease(MavenPublication) {
                 groupId = 'org.megaknytes.decisiontable'
-                artifactId = 'Core'
+                artifactId = 'FTC'
 
                 version = (System.getenv("GITHUB_REF_TYPE") == "tag" ? System.getenv("GITHUB_REF_NAME") : System.getenv("GITHUB_REF_NAME") + "-SNAPSHOT").replace('/', '-')
 
@@ -61,7 +62,7 @@ publishing {
         } else {
             localRelease(MavenPublication) {
                 groupId = 'org.megaknytes.decisiontable'
-                artifactId = 'Core'
+                artifactId = 'FTC'
                 version = "localDeployment-SNAPSHOT"
 
                 configureBasePom(delegate)
@@ -89,6 +90,8 @@ publishing {
 }
 
 dependencies {
+    api project(':Core')
+
     implementation libs.robotserver
     implementation libs.robotcore
     implementation libs.hardware

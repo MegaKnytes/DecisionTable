@@ -1,5 +1,5 @@
 [versions]
-ftcSDK = "11.0.0"
+ftcSDK = "11.2.1"
 
 [libraries]
 ftccommon = { module = "org.firstinspires.ftc:FtcCommon", version.ref = "ftcSDK" }
