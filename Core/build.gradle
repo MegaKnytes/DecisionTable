@@ -1,27 +1,25 @@
 plugins {
     id 'maven-publish'
-    id 'com.android.library'
+    id 'java-library'
 }
 
-apply from: '../build.dependencies.gradle'
+java {
+    sourceCompatibility = JavaVersion.VERSION_1_8
+    targetCompatibility = JavaVersion.VERSION_1_8
 
-android {
-    compileSdkVersion 34
-    namespace "org.megaknytes.ftc.decisiontable.core"
-    defaultConfig {
-        minSdkVersion 24
-        targetSdkVersion 34
-        versionCode 1
-        aaptOptions {
-            ignoreAssetsPattern '!.svn:!.git:!.ds_store:!*.scc:!CVS:!thumbs.db:!picasa.ini:!_*'
-        }
-    }
-    publishing {
-        singleVariant("release") {
-            withSourcesJar()
-            withJavadocJar()
-        }
-    }
+    withSourcesJar()
+    withJavadocJar()
+}
+
+dependencies {
+    // JUnit 5.10.x is the last line that still supports a Java 8 baseline.
+    testImplementation platform('org.junit:junit-bom:5.10.2')
+    testImplementation 'org.junit.jupiter:junit-jupiter'
+    testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
+}
+
+test {
+    useJUnitPlatform()
 }
 
 publishing {
@@ -49,28 +47,24 @@ publishing {
 
         if (System.getenv("CI")) {
             referenceRelease(MavenPublication) {
-                groupId = 'org.megaknytes.ftc.decisiontable'
+                groupId = 'org.megaknytes.decisiontable'
                 artifactId = 'Core'
 
                 version = (System.getenv("GITHUB_REF_TYPE") == "tag" ? System.getenv("GITHUB_REF_NAME") : System.getenv("GITHUB_REF_NAME") + "-SNAPSHOT").replace('/', '-')
 
                 configureBasePom(delegate)
 
-                afterEvaluate {
-                    from components.release
-                }
+                from components.java
             }
         } else {
             localRelease(MavenPublication) {
-                groupId = 'org.megaknytes.ftc.decisiontable'
+                groupId = 'org.megaknytes.decisiontable'
                 artifactId = 'Core'
                 version = "localDeployment-SNAPSHOT"
 
                 configureBasePom(delegate)
 
-                afterEvaluate {
-                    from components.release
-                }
+                from components.java
             }
         }
     }
