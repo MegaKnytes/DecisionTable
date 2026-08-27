@@ -13,9 +13,9 @@ import TextField from '@mui/material/TextField';
 import AddIcon from '@mui/icons-material/Add';
 
 //Custom Components
-import RuleCondition from "@/components/RuleCondition";
 import RuleTable from "@/components/RuleTable";
 
+//Holds all of the data for a single rule
 export default function RuleComponent() {
     const [alignment, setAlignment] = React.useState('web');
 

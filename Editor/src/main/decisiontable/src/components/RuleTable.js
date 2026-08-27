@@ -21,6 +21,7 @@ import AddIcon from '@mui/icons-material/Add';
 import RuleCondition from "@/components/RuleCondition";
 import RuleComparison from "@/components/RuleComparison";
 
+//Table that holds Decision Table Rule Conditions, either all input or all output
 export default function RuleTable({ inputOrOutput }) {
     const [rows, setRows] = React.useState([]);
     const [row_ids, setRow_ids] = React.useState([]);

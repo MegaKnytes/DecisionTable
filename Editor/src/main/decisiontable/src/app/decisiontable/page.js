@@ -2,8 +2,9 @@
 
 import * as React from 'react';
 import Container from '@mui/material/Container';
-import MainAppBar from "@/components/MainAppBar";
 import RuleComponent from "@/components/RuleComponent";
+import StateViewComponent from "@/components/StateViewComponent";
+import VariableViewComponent from "@/components/VariableViewComponent";
 
 import RuleTable from "@/components/RuleTable";
 import { styled, useTheme } from '@mui/material/styles';
@@ -29,8 +30,6 @@ import FileOpenIcon from '@mui/icons-material/FileOpen';
 import AddIcon from '@mui/icons-material/Add';
 
 const drawerWidth = 240;
-
-
 
 const Main = styled('main', {
   shouldForwardProp: (prop) => prop !== 'open',
@@ -90,6 +89,21 @@ const DrawerHeader = styled('div')(({ theme }) => ({
 export default function MainView() {
   const theme = useTheme();
   const [open, setOpen] = React.useState(false);
+  const [currentPage, setCurrentPage] = React.useState(<VariableViewComponent />);
+
+
+  const handleVariableClick = () => {
+    setCurrentPage(<VariableViewComponent />);
+  }
+  const handleDeviceClick  = () => {
+    setCurrentPage(<VariableViewComponent />);
+  }
+  const handleRuleClick  = () => {
+    setCurrentPage(<RuleComponent />);
+  }
+  const handleStatesClick  = () => {
+    setCurrentPage(<StateViewComponent />);
+  }
 
   const handleDrawerOpen = () => {
     setOpen(true);
@@ -99,101 +113,119 @@ export default function MainView() {
     setOpen(false);
   };
   return (
-        <Container maxWidth={false} disableGutters>
-          <CssBaseline />
-          <AppBar position="static" open={open}>
-            <Toolbar>
-              <IconButton
-                color="inherit"
-                aria-label="open drawer"
-                onClick={handleDrawerOpen}
-                edge="start"
-                sx={[
-                  {
-                    mr: 2,
-                  },
-                  open && { display: 'none' },
-                ]}
-              >
-                <MenuIcon />
-              </IconButton>
-                    <Typography variant="h6" component="div" sx={{ flexGrow: 1 }}>
-                        Decision Table Editor
-                    </Typography>
-                    <ButtonGroup variant="contained" color="secondary">
-                        <Button>File</Button>
-                        <Button>Device</Button>
-                        <Button>Rule</Button>
-                    </ButtonGroup>
-            </Toolbar>
-          </AppBar>
-          <Drawer
-            sx={{
-              width: drawerWidth,
-              flexShrink: 0,
-              '& .MuiDrawer-paper': {
-                width: drawerWidth,
-                boxSizing: 'border-box',
+    <Container maxWidth={false} disableGutters>
+      <CssBaseline />
+      <AppBar position="static" open={open}>
+        <Toolbar>
+          <IconButton
+            color="inherit"
+            aria-label="open drawer"
+            onClick={handleDrawerOpen}
+            edge="start"
+            sx={[
+              {
+                mr: 2,
               },
-            }}
-            variant="persistent"
-            anchor="left"
-            open={open}
-            color="primary"
+              open && { display: 'none' },
+            ]}
           >
-            <DrawerHeader>
-              <IconButton onClick={handleDrawerClose}>
-                {theme.direction === 'ltr' ? <ChevronLeftIcon /> : <ChevronRightIcon />}
-              </IconButton>
-            </DrawerHeader>
-            <Divider />
-            <List>
-              {['New DTP', 'Open DTP', 'Save', 'Save as', 'New Robot Config', 'Save Robot Config'].map((text, index) => (
-                <ListItem key={text} disablePadding>
-                  <ListItemButton>
-                    <ListItemIcon>
-                      {index === 0 ? (
-                          <AddIcon />
-                        ) : index === 1 ? (
-                          <FileOpenIcon />
-                        ) : index === 2 ? (
-                        <SaveIcon />
-                      ) : index === 3 ? (
-                            <SaveAsIcon />
-                          ) : index === 4 ? (
-                        <AddIcon />
-                      ): (
-                          <SaveIcon />
-                        )}
-                    </ListItemIcon>
-                    <ListItemText primary={text} />
-                  </ListItemButton>
-                </ListItem>
-              ))}
-            </List>
-            <Divider />
-            <List>
-              {['Variables', 'Devices', 'Rules'].map((text, index) => (
-                <ListItem key={text} disablePadding>
-                  <ListItemButton>
-                    <ListItemIcon>
-                      {index === 0 ? (
-                        <InboxIcon /> // For 'Variables' (index 0)
-                      ) : index === 1 ? (
-                        <DevicesIcon /> // For 'Devices' (index 1)
-                      ) : (
-                        <MailIcon /> // For 'Rules' (index 2, or any other index)
-                      )}
-                    </ListItemIcon>
-                    <ListItemText primary={text} />
-                  </ListItemButton>
-                </ListItem>
-              ))}
-            </List>
-          </Drawer>
-        <Main open={open}>
-            <RuleComponent/>
-        </Main>
+            <MenuIcon />
+          </IconButton>
+
+          <Typography variant="h6" component="div" sx={{ flexGrow: 1 }}>
+            Decision Table Editor
+          </Typography>
+          <ButtonGroup variant="contained" color="secondary">
+            <Button>File</Button>
+            <Button>Device</Button>
+            <Button>Rule</Button>
+          </ButtonGroup>
+        </Toolbar>
+      </AppBar>
+      <Drawer
+        sx={{
+          width: drawerWidth,
+          flexShrink: 0,
+          '& .MuiDrawer-paper': {
+            width: drawerWidth,
+            boxSizing: 'border-box',
+          },
+        }}
+        variant="persistent"
+        anchor="left"
+        open={open}
+        color="primary"
+      >
+        <DrawerHeader>
+          <IconButton onClick={handleDrawerClose}>
+            {theme.direction === 'ltr' ? <ChevronLeftIcon /> : <ChevronRightIcon />}
+          </IconButton>
+        </DrawerHeader>
+        <Divider />
+        <List>
+          {['New DTP', 'Open DTP', 'Save', 'Save as', 'New Robot Config', 'Save Robot Config'].map((text, index) => (
+            <ListItem key={text} disablePadding>
+              <ListItemButton>
+                <ListItemIcon>
+                  {index === 0 ? (
+                      <AddIcon />
+                    ) : index === 1 ? (
+                      <FileOpenIcon />
+                    ) : index === 2 ? (
+                    <SaveIcon />
+                  ) : index === 3 ? (
+                        <SaveAsIcon />
+                      ) : index === 4 ? (
+                    <AddIcon />
+                  ): (
+                      <SaveIcon />
+                    )}
+                </ListItemIcon>
+                <ListItemText primary={text} />
+              </ListItemButton>
+            </ListItem>
+          ))}
+        </List>
+        <Divider />
+
+        <List>
+          <ListItem key="Variables" disablePadding>
+            <ListItemButton onClick={handleVariableClick}>
+              <ListItemIcon>
+                <InboxIcon />
+              </ListItemIcon>
+              <ListItemText primary="Variables" />
+            </ListItemButton>
+          </ListItem>
+          <ListItem key="Devices" disablePadding>
+            <ListItemButton onClick={handleDeviceClick}>
+              <ListItemIcon>
+                <DevicesIcon />
+              </ListItemIcon>
+              <ListItemText primary="Devices" />
+            </ListItemButton>
+          </ListItem>
+          <ListItem key="Rules" disablePadding>
+            <ListItemButton onClick={handleRuleClick}>
+              <ListItemIcon>
+                <MailIcon />
+              </ListItemIcon>
+              <ListItemText primary="Rules" />
+            </ListItemButton>
+          </ListItem>
+          <ListItem key="State Machines" disablePadding>
+            <ListItemButton onClick={handleStatesClick}>
+              <ListItemIcon>
+                <ChevronLeftIcon />
+              </ListItemIcon>
+              <ListItemText primary="State Machines" />
+            </ListItemButton>
+          </ListItem>
+        </List>
+      </Drawer>
+    <Main open={open}>
+        {currentPage}
+    </Main>
     </Container>
   );
 }

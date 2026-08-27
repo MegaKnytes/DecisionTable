@@ -4,7 +4,7 @@ import * as React from 'react'
 import {AppBar, Box, Button, IconButton, Toolbar, Typography, TextField, ToggleButtonGroup, ToggleButton} from "@mui/material";
 import DeleteIcon from '@mui/icons-material/Delete';
 
-
+// Button group that holds the comparison operators for the DTP rules
 export default function RuleComparison() {
     const [alignment, setAlignment] = React.useState('web');
 

@@ -4,7 +4,7 @@ import * as React from 'react'
 import {AppBar, Box, Button, IconButton, Toolbar, Typography, TextField, ToggleButtonGroup, ToggleButton} from "@mui/material";
 import DeleteIcon from '@mui/icons-material/Delete';
 
-
+//Provides a component to display a single i/o condition/command
 export default function RuleCondition() {
     const [alignment, setAlignment] = React.useState('web');
 
