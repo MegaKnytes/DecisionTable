@@ -18,7 +18,6 @@ import DeleteIcon from '@mui/icons-material/Delete';
 import AddIcon from '@mui/icons-material/Add';
 
 //Custom Components
-import RuleCondition from "@/components/RuleCondition";
 import RuleComparison from "@/components/RuleComparison";
 
 //Table that holds Decision Table Rule Conditions, either all input or all output
@@ -64,8 +63,7 @@ export default function RuleTable({ inputOrOutput }) {
                 <Table sx={{ minWidth: 650 }} aria-label="simple table">
                     <TableHead style={{backgroundColor:"primary"}}>
                         <TableRow color="primary">
-                            <TableCell>Rule Number</TableCell>
-                            <TableCell align="right">Device or Variable</TableCell>
+                            <TableCell align="left">Device or Variable</TableCell>
                             <TableCell align="right">Comparison</TableCell>
                             <TableCell align="right">Value</TableCell>
                             <TableCell align="right"></TableCell>
@@ -77,10 +75,7 @@ export default function RuleTable({ inputOrOutput }) {
                                 key={row.id}
                                 sx={{ '&:last-child td, &:last-child th': { border: 0 } }}
                             >
-                                <TableCell component="th" scope="row">
-                                    {row.id}
-                                </TableCell>
-                                <TableCell align="right">{row.name_box}</TableCell>
+                                <TableCell align="left">{row.name_box}</TableCell>
                                 <TableCell align="right">{row.comparison}</TableCell>
                                 <TableCell align="right">{row.value_box}</TableCell>
                                 <TableCell align="right">{<IconButton onClick={() => handleDeleteClick(index)} aria-label="add new condition"><DeleteIcon/></IconButton>}</TableCell>

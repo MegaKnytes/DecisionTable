@@ -15,7 +15,7 @@ import AddIcon from '@mui/icons-material/Add';
 //Custom Components
 import VariableGroup from "@/components/VariableGroup";
 
-//Holds all of the data for a single rule
+//Holds an entire Variable Group
 export default function RuleComponent() {
     const [alignment, setAlignment] = React.useState('web');
 

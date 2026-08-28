@@ -15,7 +15,7 @@ import AddIcon from '@mui/icons-material/Add';
 //Custom Components
 import StateMachine from "@/components/StateMachine";
 
-//Holds all of the data for a single rule
+//Holds an entire State Machine
 export default function RuleComponent() {
     const [alignment, setAlignment] = React.useState('web');
 

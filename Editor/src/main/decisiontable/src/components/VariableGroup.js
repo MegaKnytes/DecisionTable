@@ -19,7 +19,7 @@ import AddIcon from '@mui/icons-material/Add';
 
 //Custom Components
 
-//Table that holds Decision Table Rule Conditions, either all input or all output
+//Table that holds all variables in a variable group
 export default function VariableGroup() {
     const [rows, setRows] = React.useState([]);
     const [row_ids, setRow_ids] = React.useState([]);
@@ -35,7 +35,7 @@ export default function VariableGroup() {
     }
 
     function createData(id) {
-        let name_box = <TextField id="device2" label="Device or Variable" variant="outlined" sx={{ flexGrow: 1, margin: 1 }}/>
+        let name_box = <TextField id="device2" label="Variable" variant="outlined" sx={{ flexGrow: 1, margin: 1 }}/>
         let value_box = <TextField id="value" label="value" variant="outlined" sx={{ flexGrow: 1, margin: 1 }}/>
         return {id, name_box, value_box};
     }
@@ -61,8 +61,7 @@ export default function VariableGroup() {
                 <Table sx={{ minWidth: 650 }} aria-label="simple table">
                     <TableHead style={{backgroundColor:"primary"}}>
                         <TableRow color="primary">
-                            <TableCell>Rule Number</TableCell>
-                            <TableCell align="right">Name</TableCell>
+                            <TableCell align="left">Name</TableCell>
                             <TableCell align="right">Starting Value</TableCell>
                             <TableCell align="right"></TableCell>
                         </TableRow>
@@ -73,10 +72,7 @@ export default function VariableGroup() {
                                 key={row.id}
                                 sx={{ '&:last-child td, &:last-child th': { border: 0 } }}
                             >
-                                <TableCell component="th" scope="row">
-                                    {row.id}
-                                </TableCell>
-                                <TableCell align="right">{row.name_box}</TableCell>
+                                <TableCell align="left">{row.name_box}</TableCell>
                                 <TableCell align="right">{row.value_box}</TableCell>
                                 <TableCell align="right">{<IconButton onClick={() => handleDeleteClick(index)} aria-label="add new condition"><DeleteIcon/></IconButton>}</TableCell>
                             </TableRow>

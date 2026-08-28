@@ -19,7 +19,7 @@ import AddIcon from '@mui/icons-material/Add';
 
 //Custom Components
 
-//Table that holds Decision Table Rule Conditions, either all input or all output
+//Table that holds all possible states for a state machine
 export default function StateMachine() {
     const [rows, setRows] = React.useState([]);
     const [row_ids, setRow_ids] = React.useState([]);
@@ -35,7 +35,7 @@ export default function StateMachine() {
     }
 
     function createData(id) {
-        let name_box = <TextField id="device2" label="Device or Variable" variant="outlined" sx={{ flexGrow: 1, margin: 1 }}/>
+        let name_box = <TextField id="device2" label="Name" variant="outlined" sx={{ flexGrow: 1, margin: 1, width:'300px'}}/>
         return {id, name_box};
     }
 
@@ -51,7 +51,7 @@ export default function StateMachine() {
     return (
         <Box sx={{ flexGrow: 1, margin: 1 }}>
             <Typography variant="p" component="div" sx={{ flexGrow: 1 }}>
-                Variables
+                States
                 <IconButton onClick={handleClick} aria-label="add new condition">
                     <AddIcon />
                 </IconButton>
