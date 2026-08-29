@@ -3,8 +3,10 @@
  * In the future each class will also have a toXML function for output.
  */
 
+import * as React from 'react';
+
 //Represents the <Rule> XML tag
-class Rule {
+export class Rule {
   constructor(name,debug,priority,conditions,actions) {
     //Attributes
     this.name = name;
@@ -26,7 +28,7 @@ class Rule {
 }
 
 //Represents the items in the <Condition> XML tag, e.g. <Equals> and <NotEquals>
-class Condition {
+export class Condition {
   constructor(target,condition,value) {
     //Tag name (because the tag changes based on what condition it is)
     this.condition = condition;
@@ -43,7 +45,7 @@ class Condition {
 }
 
 //Represents the <Set> tags in the <Action> XML tag
-class Action {
+export class Action {
   constructor(device,value) {
     this.device = device;
     this.value = value;
@@ -53,7 +55,7 @@ class Action {
 //Classes to store variables, states, and devices
 
 //Represents the <Device> tag
-class Device {
+export class Device {
   constructor(name,driver,parameters) {
     //Attributes
     this.name = name;
@@ -73,7 +75,7 @@ class Device {
 }
 
 //Represents the <VariableGroup> XML tag
-class VariableGroup {
+export class VariableGroup {
   constructor(name,variables) {
     //Attributes
     this.name = name;
@@ -92,7 +94,7 @@ class VariableGroup {
 }
 
 //Represents the <Variable> XML tag
-class Variable {
+export class Variable {
   constructor(name,type,value,description) {
     //Attributes
     this.name = "var:" + name;
@@ -107,7 +109,7 @@ class Variable {
 }
 
 //Represents the <DecisionTable> tag
-class DecisionTable {
+export class DecisionTable {
   constructor(name,enabled,type,config,transitionTarget,rules) {
     //Attributes
     this.name = name;
@@ -130,7 +132,7 @@ class DecisionTable {
 }
 
 //Represents the <SystemConfiguration> tag
-class SystemConfiguration {
+export class SystemConfiguration {
   constructor(name,enabled,states,devices,variableGroups) {
     //Attributes
     this.name = name;
@@ -160,7 +162,7 @@ class SystemConfiguration {
   }
 }
 
-class State {
+export class State {
   constructor(name,values) {
     //Attributes
     this.name = name;
@@ -170,7 +172,7 @@ class State {
   }
 }
 
-class StateValue {
+export class StateValue {
   constructor(name) {
     //Attributes
     this.name = name;

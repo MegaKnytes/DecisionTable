@@ -17,12 +17,21 @@ import Paper from '@mui/material/Paper';
 import DeleteIcon from '@mui/icons-material/Delete';
 import AddIcon from '@mui/icons-material/Add';
 
+import {Variable} from "@/Rule.js"
+
+
 //Custom Components
 
 //Table that holds all variables in a variable group
-export default function VariableGroup() {
+export default function VariableGroup({variableGroup}) {
     const [rows, setRows] = React.useState([]);
     const [row_ids, setRow_ids] = React.useState([]);
+
+    for(let variable = 0; variable < variableGroup.variables.length; variable++) {
+        const newItem = createData(variable,variableGroup.variables[variable]);
+        setRows([...rows, newItem]);
+        setRow_ids([...row_ids, variable]);
+    }
 
     const handleDeleteClick = (indexToRemove) => {
         const newRows = [...rows]; // Create a copy to avoid direct mutation
@@ -34,10 +43,11 @@ export default function VariableGroup() {
         setRow_ids(newRowIds);
     }
 
-    function createData(id) {
-        let name_box = <TextField id="device2" label="Variable" variant="outlined" sx={{ flexGrow: 1, margin: 1 }}/>
-        let value_box = <TextField id="value" label="value" variant="outlined" sx={{ flexGrow: 1, margin: 1 }}/>
-        return {id, name_box, value_box};
+    function createData(id,name) {
+        let name_box = <TextField id="name" label="Name" variant="outlined" sx={{ flexGrow: 1, margin: 1 }}/>
+        let value_box = <TextField id="value" label="Value" variant="outlined" sx={{ flexGrow: 1, margin: 1 }}/>
+        let type_box = <TextField id="type" label="Type" variant="outlined" sx={{ flexGrow: 1, margin: 1 }}/>
+        return {id, name_box, value_box, type_box};
     }
 
     const handleClick = () => {
@@ -47,6 +57,20 @@ export default function VariableGroup() {
         const newItem = createData(currentrow);
         setRows([...rows, newItem]);
         setRow_ids([...row_ids, currentrow]);
+
+        console.log(rowsToVariables());
+    }
+
+    function rowsToVariables() {
+        let variables = [];
+
+        for(let variable = 0; variable < rows.length; variable++) {
+            let row = rows[variable];
+            console.log(row.name_box);
+            variables.push(new Variable(row.name_box.value,row.type_box.value,row.value_box.value,""));
+        }
+
+        return(variables);
     }
 
     return (
@@ -62,6 +86,7 @@ export default function VariableGroup() {
                     <TableHead style={{backgroundColor:"primary"}}>
                         <TableRow color="primary">
                             <TableCell align="left">Name</TableCell>
+                            <TableCell align="right">Data Type</TableCell>
                             <TableCell align="right">Starting Value</TableCell>
                             <TableCell align="right"></TableCell>
                         </TableRow>
@@ -73,6 +98,7 @@ export default function VariableGroup() {
                                 sx={{ '&:last-child td, &:last-child th': { border: 0 } }}
                             >
                                 <TableCell align="left">{row.name_box}</TableCell>
+                                <TableCell align="right">{row.type_box}</TableCell>
                                 <TableCell align="right">{row.value_box}</TableCell>
                                 <TableCell align="right">{<IconButton onClick={() => handleDeleteClick(index)} aria-label="add new condition"><DeleteIcon/></IconButton>}</TableCell>
                             </TableRow>

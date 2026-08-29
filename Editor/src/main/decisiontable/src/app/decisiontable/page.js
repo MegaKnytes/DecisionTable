@@ -29,6 +29,8 @@ import SaveIcon from '@mui/icons-material/Save';
 import FileOpenIcon from '@mui/icons-material/FileOpen';
 import AddIcon from '@mui/icons-material/Add';
 
+import {Editor} from "@/Editor.js"
+
 const drawerWidth = 240;
 
 const Main = styled('main', {
@@ -89,14 +91,14 @@ const DrawerHeader = styled('div')(({ theme }) => ({
 export default function MainView() {
   const theme = useTheme();
   const [open, setOpen] = React.useState(false);
-  const [currentPage, setCurrentPage] = React.useState(<VariableViewComponent />);
+  const [currentPage, setCurrentPage] = React.useState(<VariableViewComponent editor={Editor.instance} index="0" />);
 
 
   const handleVariableClick = () => {
-    setCurrentPage(<VariableViewComponent />);
+    setCurrentPage(<VariableViewComponent editor={Editor.instance} index="0" />);
   }
   const handleDeviceClick  = () => {
-    setCurrentPage(<VariableViewComponent />);
+    setCurrentPage(<VariableViewComponent editor={Editor.instance} index="0" />);
   }
   const handleRuleClick  = () => {
     setCurrentPage(<RuleComponent />);

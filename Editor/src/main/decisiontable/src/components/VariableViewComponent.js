@@ -16,20 +16,23 @@ import AddIcon from '@mui/icons-material/Add';
 import VariableGroup from "@/components/VariableGroup";
 
 //Holds an entire Variable Group
-export default function RuleComponent() {
+export default function VariableViewComponent({editor, index}) {
     const [alignment, setAlignment] = React.useState('web');
 
     const handleChange = (event, newAlignment) => {
         setAlignment(newAlignment);
     };
 
+    const variableGroup = editor.getVariableGroup(index);
+    let name = variableGroup.name;
+
     return (
         <Box>
             <Box sx={{ flexGrow: 1, margin: 1 }}>
-                <TextField id="device" label="Variable Group Name" variant="outlined" sx={{ flexGrow: 1, margin: 1 }}/>
+                <TextField id="device" label="Variable Group Name" variant="outlined" defaultValue={name} sx={{ flexGrow: 1, margin: 1 }}/>
             </Box>
             <Box sx={{ flexGrow: 1, margin: 1 }}>
-                <VariableGroup/>
+                <VariableGroup variableGroup={variableGroup}/>
             </Box>
         </Box>
     );
