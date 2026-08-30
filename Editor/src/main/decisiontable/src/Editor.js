@@ -54,9 +54,10 @@ export class Editor {
   getVariableGroup(index) {
     return(this.currentConfig.variableGroups[index]);
   }
-
-
-
-
-
+  setVariableGroupVariables(index,variables) {
+    this.currentConfig.variableGroups[index].variables = variables;
+  }
+  setVariableGroupName(index, groupName) {
+    this.currentConfig.variableGroups[index].name = groupName;
+  }
 }

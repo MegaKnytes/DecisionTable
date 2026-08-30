@@ -15,25 +15,50 @@ import AddIcon from '@mui/icons-material/Add';
 //Custom Components
 import VariableGroup from "@/components/VariableGroup";
 
+import {Variable} from "@/Rule.js"
+
+
 //Holds an entire Variable Group
 export default function VariableViewComponent({editor, index}) {
-    const [alignment, setAlignment] = React.useState('web');
+  const [alignment, setAlignment] = React.useState('web');
 
-    const handleChange = (event, newAlignment) => {
-        setAlignment(newAlignment);
-    };
+  const handleChange = (event, newAlignment) => {
+    setAlignment(newAlignment);
+  };
 
-    const variableGroup = editor.getVariableGroup(index);
-    let name = variableGroup.name;
+  let variableGroup = editor.getVariableGroup(index);
+  let name = variableGroup.name;
 
-    return (
-        <Box>
-            <Box sx={{ flexGrow: 1, margin: 1 }}>
-                <TextField id="device" label="Variable Group Name" variant="outlined" defaultValue={name} sx={{ flexGrow: 1, margin: 1 }}/>
-            </Box>
-            <Box sx={{ flexGrow: 1, margin: 1 }}>
-                <VariableGroup variableGroup={variableGroup}/>
-            </Box>
-        </Box>
-    );
+  const handleSave = (rows) => {
+    let variables = [];
+
+    for(let variable = 0; variable < rows.length; variable++) {
+        let row = rows[variable];
+        console.log(row);
+        variables.push(new Variable(row.name,row.type,row.value,""));
+    }
+
+
+    editor.setVariableGroupVariables(index, variables);
+    editor.setVariableGroupName(index, groupName);
+
+    console.log(variableGroup);
+  }
+
+  const [groupName, setGroupName] = React.useState(variableGroup.name);
+
+  const handleNameChange = (event) => {
+    setGroupName(event.target.value);
+  }
+
+  return (
+    <Box>
+      <Box sx={{ flexGrow: 1, margin: 1 }}>
+        <TextField id="device" label="Variable Group Name" variant="outlined" defaultValue={name} sx={{ flexGrow: 1, margin: 1 }} onChange={(e)=>handleNameChange(e)}/>
+      </Box>
+      <Box sx={{ flexGrow: 1, margin: 1 }}>
+        <VariableGroup variableGroup={editor.getVariableGroup(index)} editor={editor} varGroupIndex={index} handleSave={handleSave} />
+      </Box>
+    </Box>
+  );
 }

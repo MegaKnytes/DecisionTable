@@ -97,14 +97,15 @@ export class VariableGroup {
 export class Variable {
   constructor(name,type,value,description) {
     //Attributes
-    this.name = "var:" + name;
+    this.name = name;
+    this.varname = "var:" + name;
     this.type = type; //Should eventually use this to check value validity
     this.value = value;
     this.description = description;
   }
 
   checkTarget(nameToCheck) {
-    return(nameToCheck == this.name);
+    return(nameToCheck == this.varname);
   }
 }
 
