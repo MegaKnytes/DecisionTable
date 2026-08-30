@@ -11,7 +11,9 @@ export class Editor {
   constructor() {
     this.createNewConfig();
     this.createNewTable(this.currentConfig);
-    this.addNewVariableGroup("New Variable Group")
+
+    this.addNewVariableGroup("New Variable Group");
+    this.addNewState("New State");
   }
 
   //Functions to create new blank configs/tables
@@ -42,6 +44,12 @@ export class Editor {
   }
   getState(index) {
     return(this.currentConfig.states[index]);
+  }
+  setStateValues(index,values) {
+    this.currentConfig.states[index].values = values;
+  }
+  setStateName(index, stateName) {
+    this.currentConfig.states[index].name = stateName;
   }
 
   //Functions to handle variable groups list

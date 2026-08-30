@@ -109,7 +109,7 @@ export default function MainView() {
     setCurrentPage(<RuleComponent />);
   }
   const handleStatesClick  = () => {
-    setCurrentPage(<StateViewComponent />);
+    setCurrentPage(<StateViewComponent editor={Editor.instance} index="0" />);
   }
 
   //Functions to handle opening/closing drawer
