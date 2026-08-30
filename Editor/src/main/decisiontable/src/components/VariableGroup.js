@@ -18,11 +18,6 @@ import Paper from '@mui/material/Paper';
 import DeleteIcon from '@mui/icons-material/Delete';
 import AddIcon from '@mui/icons-material/Add';
 
-import {Variable} from "@/Rule.js"
-
-
-//Custom Components
-
 //Table that holds all variables in a variable group
 export default function VariableGroup({variableGroup,editor,varGroupIndex,setVariableGroup,handleSave}) {
   //Loads rows from editor's variable group
@@ -36,13 +31,28 @@ export default function VariableGroup({variableGroup,editor,varGroupIndex,setVar
     }
     return([startRows,startRowIDs]);
   }
-
   const [startRows,startRowIDs] = getExistingRows();
+
+  //Constants to track all of the rows that store variables
   const [rows, setRows] = React.useState(startRows);
   const [row_ids, setRow_ids] = React.useState(startRowIDs);
 
+  //Function to add new rows on button press
+  const handleAddButtonClick = () => {
+    let currentrow = 1;
+    if(row_ids.length > 0)
+      currentrow=Math.max(...row_ids)+1;
+    const newItem = createData(currentrow,"","","");
+    setRows([...rows, newItem]);
+    setRow_ids([...row_ids, currentrow]);
+  }
 
+  //Function to create the data that is stored in a row. This might be able to be done inline
+  function createData(id,name,value,type) {
+    return {id, name, value, type};
+  }
 
+  //Function to remove rows on delete
   const handleDeleteClick = (indexToRemove) => {
     const newRows = [...rows]; // Create a copy to avoid direct mutation
     newRows.splice(indexToRemove, 1);
@@ -53,10 +63,8 @@ export default function VariableGroup({variableGroup,editor,varGroupIndex,setVar
     setRow_ids(newRowIds);
   }
 
-  function createData(id,name,value,type) {
-    return {id, name, value, type};
-  }
-
+  //Function to handle text input and update the rows accordingly
+  //This handles the updates for all of the text boxes, in all rows and handling name, type, and value
   const handleChange = (event,index,field) => {
     const newRows = [...rows]; // Create a copy to avoid direct mutation
 
@@ -73,17 +81,6 @@ export default function VariableGroup({variableGroup,editor,varGroupIndex,setVar
     }
 
     setRows(newRows);
-  }
-
-
-
-  const handleAddButtonClick = () => {
-    let currentrow = 1;
-    if(row_ids.length > 0)
-      currentrow=Math.max(...row_ids)+1;
-    const newItem = createData(currentrow,"","","");
-    setRows([...rows, newItem]);
-    setRow_ids([...row_ids, currentrow]);
   }
 
   return (

@@ -15,38 +15,38 @@ import AddIcon from '@mui/icons-material/Add';
 //Custom Components
 import VariableGroup from "@/components/VariableGroup";
 
+//Classes for DTP
 import {Variable} from "@/Rule.js"
 
 
 //Holds an entire Variable Group
 export default function VariableViewComponent({editor, index}) {
-  const [alignment, setAlignment] = React.useState('web');
-
-  const handleChange = (event, newAlignment) => {
-    setAlignment(newAlignment);
-  };
-
+  //Gets data from editor and stores it to more easily accessed variables
   let variableGroup = editor.getVariableGroup(index);
   let name = variableGroup.name;
 
+  //Handles a click on the save button, which is in the VariableGroup component.
+  //This function is passes to the VariableGroup component for that purpose.
   const handleSave = (rows) => {
     let variables = [];
 
     for(let variable = 0; variable < rows.length; variable++) {
         let row = rows[variable];
-        console.log(row);
         variables.push(new Variable(row.name,row.type,row.value,""));
     }
 
-
+    //Update editor data
     editor.setVariableGroupVariables(index, variables);
     editor.setVariableGroupName(index, groupName);
 
+    //Log to console for debugging
     console.log(variableGroup);
   }
 
+  //Variables to keep track of the name in the textbox
   const [groupName, setGroupName] = React.useState(variableGroup.name);
 
+  //Handles changes to the name textbox
   const handleNameChange = (event) => {
     setGroupName(event.target.value);
   }

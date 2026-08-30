@@ -1,34 +1,39 @@
 'use client'
 
 import * as React from 'react';
-import Container from '@mui/material/Container';
-import RuleComponent from "@/components/RuleComponent";
-import StateViewComponent from "@/components/StateViewComponent";
-import VariableViewComponent from "@/components/VariableViewComponent";
 
-import RuleTable from "@/components/RuleTable";
+// Material-UI Components
 import { styled, useTheme } from '@mui/material/styles';
+import Container from '@mui/material/Container';
+import Divider from '@mui/material/Divider';
 import Drawer from '@mui/material/Drawer';
 import CssBaseline from '@mui/material/CssBaseline';
 import MuiAppBar from '@mui/material/AppBar';
 import List from '@mui/material/List';
-import Divider from '@mui/material/Divider';
-import ChevronLeftIcon from '@mui/icons-material/ChevronLeft';
-import ChevronRightIcon from '@mui/icons-material/ChevronRight';
 import ListItem from '@mui/material/ListItem';
 import ListItemButton from '@mui/material/ListItemButton';
-import ListItemIcon from '@mui/material/ListItemIcon';
 import ListItemText from '@mui/material/ListItemText';
-import InboxIcon from '@mui/icons-material/MoveToInbox';
-import MailIcon from '@mui/icons-material/Mail';
 import {Box, Button, IconButton, Toolbar, Typography, ButtonGroup} from "@mui/material";
-import MenuIcon from '@mui/icons-material/Menu';
+
+// Material-UI Icons
+import AddIcon from '@mui/icons-material/Add';
+import ChevronLeftIcon from '@mui/icons-material/ChevronLeft';
+import ChevronRightIcon from '@mui/icons-material/ChevronRight';
 import DevicesIcon from '@mui/icons-material/Devices';
+import FileOpenIcon from '@mui/icons-material/FileOpen';
+import InboxIcon from '@mui/icons-material/MoveToInbox';
+import ListItemIcon from '@mui/material/ListItemIcon';
+import MailIcon from '@mui/icons-material/Mail';
+import MenuIcon from '@mui/icons-material/Menu';
 import SaveAsIcon from '@mui/icons-material/SaveAs';
 import SaveIcon from '@mui/icons-material/Save';
-import FileOpenIcon from '@mui/icons-material/FileOpen';
-import AddIcon from '@mui/icons-material/Add';
 
+// Custom Components
+import RuleComponent from "@/components/RuleComponent";
+import StateViewComponent from "@/components/StateViewComponent";
+import VariableViewComponent from "@/components/VariableViewComponent";
+
+// Editor state class
 import {Editor} from "@/Editor.js"
 
 const drawerWidth = 240;
@@ -90,10 +95,10 @@ const DrawerHeader = styled('div')(({ theme }) => ({
 
 export default function MainView() {
   const theme = useTheme();
-  const [open, setOpen] = React.useState(false);
-  const [currentPage, setCurrentPage] = React.useState(<VariableViewComponent editor={Editor.instance} index="0" />);
+  const [open, setOpen] = React.useState(false); //Tracks whether the drawer is open or closed
+  const [currentPage, setCurrentPage] = React.useState(<VariableViewComponent editor={Editor.instance} index="0" />); //Holds the type of the current page
 
-
+  //Functions to handle clicking on the different views
   const handleVariableClick = () => {
     setCurrentPage(<VariableViewComponent editor={Editor.instance} index="0" />);
   }
@@ -107,13 +112,14 @@ export default function MainView() {
     setCurrentPage(<StateViewComponent />);
   }
 
+  //Functions to handle opening/closing drawer
   const handleDrawerOpen = () => {
     setOpen(true);
   };
-
   const handleDrawerClose = () => {
     setOpen(false);
   };
+
   return (
     <Container maxWidth={false} disableGutters>
       <CssBaseline />
