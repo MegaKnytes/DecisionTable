@@ -84,10 +84,11 @@ export class VariableGroup {
     this.variables = variables;
   }
 
+  //Should match "var:group.variable"
   checkTarget(nameToCheck) {
     let isValid = false;
     for(let variable = 0; variable < this.variables.length; variable++) {
-      isValid = this.variables[variable].checkTarget(nameToCheck) || isValid;
+      isValid = this.variables[variable].checkTarget(nameToCheck,this.name) || isValid;
     }
     return(isValid);
   }
@@ -98,14 +99,14 @@ export class Variable {
   constructor(name,type,value,description) {
     //Attributes
     this.name = name;
-    this.varname = "var:" + name;
     this.type = type; //Should eventually use this to check value validity
     this.value = value;
     this.description = description;
   }
 
-  checkTarget(nameToCheck) {
-    return(nameToCheck == this.varname);
+  //Should match "var:group.variable"
+  checkTarget(nameToCheck,groupName) {
+    return(nameToCheck == ("var:" + groupName + "." + this.name));
   }
 }
 
@@ -185,13 +186,13 @@ if(DEBUGGING) {
   //Unit test setup
   //Define SystemConfiguration
   let devices = [new Device("Motor1","Motor",[]),new Device("Motor2","Motor",[])];
-  let variables = [new VariableGroup("Position Coordinates",[new Variable("X"),new Variable("Y")])];
+  let variables = [new VariableGroup("Coordinates",[new Variable("X"),new Variable("Y")])];
   let states = [new State("Bucket",[new StateValue("DUMP"),new StateValue("WAIT"),new StateValue("INTAKE")])];
   let twoMotorConfig = new SystemConfiguration("Eleanor",true,states,devices,variables);
 
   //Should be valid rule, passing assert
   console.log("Checking 1...");
-  let r1condition1 = new Condition("var:X", "Equals", 0);
+  let r1condition1 = new Condition("var:Coordinates.X", "Equals", 0);
   let r1condition2 = new Condition("param:Motor1", "Equals", 0);
   let r1action = new Action("param:Motor1", 4);
   let rule1 = new Rule("Open Claw", false, 0, [r1condition1,r1condition2], [r1action]);
