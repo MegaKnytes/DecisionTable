@@ -106,7 +106,7 @@ export default function MainView() {
     setCurrentPage(<VariableViewComponent editor={Editor.instance} index="0" />);
   }
   const handleRuleClick  = () => {
-    setCurrentPage(<RuleComponent />);
+    setCurrentPage(<RuleComponent editor={Editor.instance} index="0" />);
   }
   const handleStatesClick  = () => {
     setCurrentPage(<StateViewComponent editor={Editor.instance} index="0" />);

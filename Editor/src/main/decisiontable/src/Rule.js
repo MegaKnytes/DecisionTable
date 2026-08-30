@@ -46,8 +46,8 @@ export class Condition {
 
 //Represents the <Set> tags in the <Action> XML tag
 export class Action {
-  constructor(device,value) {
-    this.device = device;
+  constructor(target,value) {
+    this.target = target;
     this.value = value;
   }
 }

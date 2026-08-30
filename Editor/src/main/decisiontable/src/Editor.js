@@ -14,6 +14,7 @@ export class Editor {
 
     this.addNewVariableGroup("New Variable Group");
     this.addNewState("New State");
+    this.addNewRule("New Rule");
   }
 
   //Functions to create new blank configs/tables
@@ -33,6 +34,15 @@ export class Editor {
   }
   getRule(index) {
     return(this.currentTable.rules[index]);
+  }
+  setRuleConditions(index,conditions) {
+    this.currentTable.rules[index].conditions = conditions;
+  }
+  setRuleActions(index,actions) {
+    this.currentTable.rules[index].actions = actions;
+  }
+  setRuleName(index, ruleName) {
+    this.currentTable.rules[index].name = ruleName;
   }
 
   //Functions to handle states list
