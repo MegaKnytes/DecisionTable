@@ -78,4 +78,9 @@ export class Editor {
   setVariableGroupName(index, groupName) {
     this.currentConfig.variableGroups[index].name = groupName;
   }
+
+  //Functions to handle saving XML
+  printDecisionTableXMLString() {
+    console.log(this.currentTable.toXML());
+  }
 }

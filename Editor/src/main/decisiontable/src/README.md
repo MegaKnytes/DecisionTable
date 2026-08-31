@@ -8,6 +8,8 @@ Any exceptions are noted in the comments on that class.
 The UI stores its data in these classes.
 There are functions that are intended to partially check the input data to make sure it is valid.
 Each class will eventually have a toXML() function that will convert it to an XML string for output.
+Currently only DecisionTable, Rule, Condition and Action tags have toXML().
+This is sufficient to save a table but not a config
 
 Currently, the Device class doesn't have anything that handles the many possible input and output parameters devices can have.
 See the Device View section for more comments on this.
@@ -89,3 +91,5 @@ but having a way to show that in the ui requires some thought.
   * Indicating when changes have been made might also be worthwhile.
 * The Drawer needs to have the ability to select the specific rule/variablegroup/state
   * A dropdown accordion thing like Android Studio or VS Code's Files seems like the right choice
+* Currently, the toXML() functions do not handle indentation. 
+  Adding indentation would make the output XML much more readable.

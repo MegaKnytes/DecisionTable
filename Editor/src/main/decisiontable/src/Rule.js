@@ -25,6 +25,29 @@ export class Rule {
     }
     return(isValid);
   }
+
+  toXML() {
+    let openTag = `<Rule name=\"${this.name}\" priority=\"${this.priority}\" debug=\"${this.debug}\" > \n`;
+
+    let conditionsOpenTag = "<Condition>\n";
+    let conditionTags = "";
+    let conditionsCloseTag = "</Condition>\n";
+    for(let condition = 0; condition < this.conditions.length; condition++) {
+      conditionTags += this.conditions[condition].toXML() + "\n";
+    }
+
+    let actionsOpenTag = "<Action>\n";
+    let actionTags = "";
+    let actionsCloseTag = "</Action>\n";
+    for(let action = 0; action < this.actions.length; action++) {
+      actionTags += this.actions[action].toXML() + "\n";
+    }
+    let closeTag = "</Rule>";
+
+    let finalXML = openTag+conditionsOpenTag+conditionTags+conditionsCloseTag+actionsOpenTag+actionTags+actionsCloseTag+closeTag;
+
+    return(finalXML);
+  }
 }
 
 //Represents the items in the <Condition> XML tag, e.g. <Equals> and <NotEquals>
@@ -42,6 +65,10 @@ export class Condition {
   checkValidity(systemConfig) {
     return(systemConfig.checkTargetValidity(this.target));
   }
+
+  toXML() {
+    return(`<${this.condition} target=\"${this.target}\" value=\"${this.value}\" />`)
+  }
 }
 
 //Represents the <Set> tags in the <Action> XML tag
@@ -49,6 +76,10 @@ export class Action {
   constructor(target,value) {
     this.target = target;
     this.value = value;
+  }
+
+  toXML() {
+    return(`<Set target=\"${this.target}\" value=\"${this.value}\" />`)
   }
 }
 
@@ -131,6 +162,20 @@ export class DecisionTable {
     }
     return(isValid);
   }
+
+  toXML() {
+    let openTag = `<DecisionTable name=\"${this.name}\" enabled=\"${this.enabled}\" type=\"${this.type}\" systemConfiguration=\"${this.config}\" transitionTarget=\"${this.transitionTarget}\"> \n`;
+
+    let rules = "";
+    for(let rule = 0; rule < this.rules.length; rule++) {
+      rules += this.rules[rule].toXML() + "\n";
+    }
+    let closeTag = "</DecisionTable>";
+
+    let finalXML = openTag+rules+closeTag
+
+    return(finalXML);
+  }
 }
 
 //Represents the <SystemConfiguration> tag
@@ -200,8 +245,8 @@ if(DEBUGGING) {
 
   //Should be invalid rule, thus negating should pass assert
   console.log("Checking 2...");
-  let r2condition1 = new Condition("var:Xarg", 0, 0); //Nonexistant var name should be counted invalid
-  let r2condition2 = new Condition("param:Motor1", 0, 0);
+  let r2condition1 = new Condition("var:Xarg", "Equals", 0); //Nonexistant var name should be counted invalid
+  let r2condition2 = new Condition("param:Motor1", "NotEquals", 0);
   let r2action = new Action("param:Motor1", 4);
   let rule2 = new Rule("Open Claw", false, 0, [r2condition1,r2condition2], [r2action]);
   console.assert(!rule2.checkValidity(twoMotorConfig));
@@ -210,6 +255,7 @@ if(DEBUGGING) {
   let decisionTable = new DecisionTable("DTP #1",true,"TELEOP",twoMotorConfig,"",[rule1,rule2]);
   console.log("Checking table...");
   console.assert(!decisionTable.checkValidity(twoMotorConfig));
+  console.log(decisionTable.toXML())
 
   console.log("Checks complete. Any asserts failing mean something is broken.");
 }
