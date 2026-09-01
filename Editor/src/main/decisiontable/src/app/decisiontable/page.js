@@ -32,11 +32,14 @@ import SaveIcon from '@mui/icons-material/Save';
 import RuleComponent from "@/components/RuleComponent";
 import StateViewComponent from "@/components/StateViewComponent";
 import VariableViewComponent from "@/components/VariableViewComponent";
+import FileMenuList from "@/components/DrawerComponents/FileMenuList";
+import ViewMenuList from "@/components/DrawerComponents/ViewMenuList";
+
 
 // Editor state class
 import {Editor} from "@/Editor.js"
 
-const drawerWidth = 240;
+const drawerWidth = 260;
 
 const Main = styled('main', {
   shouldForwardProp: (prop) => prop !== 'open',
@@ -169,67 +172,16 @@ export default function MainView() {
             {theme.direction === 'ltr' ? <ChevronLeftIcon /> : <ChevronRightIcon />}
           </IconButton>
         </DrawerHeader>
-        <Divider />
-        <List>
-          {['New DTP', 'Open DTP', 'Save', 'Save as', 'New Robot Config', 'Save Robot Config'].map((text, index) => (
-            <ListItem key={text} disablePadding>
-              <ListItemButton>
-                <ListItemIcon>
-                  {index === 0 ? (
-                      <AddIcon />
-                    ) : index === 1 ? (
-                      <FileOpenIcon />
-                    ) : index === 2 ? (
-                    <SaveIcon />
-                  ) : index === 3 ? (
-                        <SaveAsIcon />
-                      ) : index === 4 ? (
-                    <AddIcon />
-                  ): (
-                      <SaveIcon />
-                    )}
-                </ListItemIcon>
-                <ListItemText primary={text} />
-              </ListItemButton>
-            </ListItem>
-          ))}
-        </List>
+
         <Divider />
 
-        <List>
-          <ListItem key="Variables" disablePadding>
-            <ListItemButton onClick={handleVariableClick}>
-              <ListItemIcon>
-                <InboxIcon />
-              </ListItemIcon>
-              <ListItemText primary="Variables" />
-            </ListItemButton>
-          </ListItem>
-          <ListItem key="Devices" disablePadding>
-            <ListItemButton onClick={handleDeviceClick}>
-              <ListItemIcon>
-                <DevicesIcon />
-              </ListItemIcon>
-              <ListItemText primary="Devices" />
-            </ListItemButton>
-          </ListItem>
-          <ListItem key="Rules" disablePadding>
-            <ListItemButton onClick={handleRuleClick}>
-              <ListItemIcon>
-                <MailIcon />
-              </ListItemIcon>
-              <ListItemText primary="Rules" />
-            </ListItemButton>
-          </ListItem>
-          <ListItem key="State Machines" disablePadding>
-            <ListItemButton onClick={handleStatesClick}>
-              <ListItemIcon>
-                <ChevronLeftIcon />
-              </ListItemIcon>
-              <ListItemText primary="State Machines" />
-            </ListItemButton>
-          </ListItem>
-        </List>
+        <ViewMenuList handleVariableClick={handleVariableClick} handleDeviceClick={handleDeviceClick} handleRuleClick={handleRuleClick} handleStatesClick={handleStatesClick} />
+
+        <Divider />
+
+        <FileMenuList editor={Editor.instance} />
+
+
       </Drawer>
     <Main open={open}>
         {currentPage}
