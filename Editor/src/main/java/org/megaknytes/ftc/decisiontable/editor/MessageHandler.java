@@ -1,7 +1,7 @@
 package org.megaknytes.ftc.decisiontable.editor;
 
 
-import org.megaknytes.ftc.decisiontable.core.DTProcessor;
+//import org.megaknytes.ftc.decisiontable.core.DTProcessor;
 import org.megaknytes.ftc.decisiontable.editor.message.Message;
 import org.megaknytes.ftc.decisiontable.editor.message.types.incoming.InitOpMode;
 import org.megaknytes.ftc.decisiontable.editor.message.types.outgoing.Heartbeat;
@@ -38,7 +38,7 @@ public class MessageHandler {
                     break;
                 case RESTART_ROBOT:
                     try {
-                        DTProcessor.getRobot().shutdown();
+                        //DTProcessor.getRobot().shutdown(); //Commenting out things that don't work is a lazy way to do this, but the problem is that this was only in the old DTProcessor which isn't the same as the current one. This will likely need to be dealt with, but I need to test it
                     } catch (Exception e) {
                         LOGGER.log(Level.WARNING, e.toString());
                     }

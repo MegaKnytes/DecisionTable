@@ -83,7 +83,7 @@ publishing {
             }
         } else {
             localRelease(MavenPublication) {
-                groupId = 'org.megaknytes.ftc.decisiontable'
+                groupId = 'org.megaknytes.decisiontable'
                 artifactId = 'Editor'
                 version = "localDeployment-SNAPSHOT"
 
