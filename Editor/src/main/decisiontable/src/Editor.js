@@ -83,4 +83,33 @@ export class Editor {
   printDecisionTableXMLString() {
     console.log(this.currentTable.toXML());
   }
+  outputDecisionTableXML() {
+    let fileName = this.currentTable.name;
+    let tableXML = this.currentTable.toXML();
+    saveFile(tableXML,fileName)
+  }
+}
+
+const saveFile = async (text, name) => {
+  const formData = new FormData();
+
+  const textBlob = new Blob([text], {type:'text/plain'});
+
+  formData.append('file', textBlob, name);
+
+  try {
+    const response = await fetch('http://192.168.43.1:11093/file/upload', {
+      method:'POST',
+      body: formData,
+    });
+
+    if(!response.ok) {
+      throw new Error(`Upload failed: ${response.statusText}`);
+    }
+
+    const result = await response.text();
+    console.log('Upload successful', result);
+  } catch (error) {
+    console.error('Error uploading file: ', error);
+  }
 }

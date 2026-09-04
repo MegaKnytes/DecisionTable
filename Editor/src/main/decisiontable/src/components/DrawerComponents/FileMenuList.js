@@ -49,7 +49,7 @@ export default function FileMenuList({editor}) {
       </ListItem>
 
       <ListItem key="Save Decision Table" disablePadding>
-        <ListItemButton onClick={() => {editor.printDecisionTableXMLString()} /* Placeholder that sends it to the console instead of actually saving it*/}>
+        <ListItemButton onClick={() => {editor.outputDecisionTableXML()} /* Placeholder that sends it to the console instead of actually saving it*/}>
           <ListItemIcon>
             <SaveIcon />
           </ListItemIcon>

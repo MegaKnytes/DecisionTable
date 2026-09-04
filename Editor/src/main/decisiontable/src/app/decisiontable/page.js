@@ -98,7 +98,7 @@ const DrawerHeader = styled('div')(({ theme }) => ({
 
 export default function MainView() {
   const theme = useTheme();
-  const [open, setOpen] = React.useState(false); //Tracks whether the drawer is open or closed
+  const [open, setOpen] = React.useState(true); //Tracks whether the drawer is open or closed
   const [currentPage, setCurrentPage] = React.useState(<VariableViewComponent editor={Editor.instance} index="0" />); //Holds the type of the current page
 
   //Functions to handle clicking on the different views
